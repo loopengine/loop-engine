@@ -1,5 +1,5 @@
 {
-  "name": "@loopengine/events",
+  "name": "@loopengine/observability",
   "version": "0.1.0",
   "license": "MIT",
   "type": "module",
@@ -19,7 +19,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loopengine/core": "workspace:*",
-    "zod": "^3.22.0"
+    "@loopengine/core": "workspace:*"
   }
 }

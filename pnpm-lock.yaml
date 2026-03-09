@@ -55,8 +55,17 @@ importers:
       '@loopengine/core':
         specifier: workspace:*
         version: link:../core
+      zod:
+        specifier: ^3.22.0
+        version: 3.25.76
 
   packages/guards:
+    dependencies:
+      '@loopengine/core':
+        specifier: workspace:*
+        version: link:../core
+
+  packages/observability:
     dependencies:
       '@loopengine/core':
         specifier: workspace:*
@@ -79,6 +88,15 @@ importers:
       '@loopengine/guards':
         specifier: workspace:*
         version: link:../guards
+
+  packages/signals:
+    dependencies:
+      '@loopengine/core':
+        specifier: workspace:*
+        version: link:../core
+      '@loopengine/events':
+        specifier: workspace:*
+        version: link:../events
 
 packages:
 

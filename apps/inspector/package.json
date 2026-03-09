@@ -1,0 +1,20 @@
+{
+  "name": "@loopengine/inspector",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3011",
+    "build": "next build",
+    "start": "next start -p 3011",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@loopengine/core": "workspace:*",
+    "@loopengine/events": "workspace:*",
+    "@loopengine/observability": "workspace:*",
+    "@loopengine/ui-devtools": "workspace:*",
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}

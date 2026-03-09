@@ -3,7 +3,7 @@
   "globalDependencies": [
     "tsconfig.base.json"
   ],
-  "pipeline": {
+  "tasks": {
     "build": {
       "dependsOn": [
         "^build"

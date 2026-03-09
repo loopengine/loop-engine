@@ -134,7 +134,7 @@ export default function Page(): React.ReactElement {
           </div>
         </section>
       </div>
-      <DevtoolsPanel aggregateId={aggregateId} />
+      <DevtoolsPanel apiUrl="http://localhost:3010" />
     </main>
   );
 }

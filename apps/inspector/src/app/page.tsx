@@ -152,7 +152,7 @@ export default function Page(): React.ReactElement {
         <h2>Learning Signals</h2>
         <p>Predicted vs actual metrics view appears when loop is closed.</p>
       </section>
-      <DevtoolsPanel aggregateId={String(sampleInstance.aggregateId)} apiUrl={apiUrl} />
+      <DevtoolsPanel apiUrl={apiUrl} />
     </main>
   );
 }

@@ -1,7 +1,11 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "dist"
+    "outDir": "dist",
+    "paths": {
+      "@loopengine/core": ["../core/dist/index.d.ts"],
+      "@loop-engine/core": ["../core/dist/index.d.ts"]
+    }
   },
   "include": [
     "src/**/*"

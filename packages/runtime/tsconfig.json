@@ -2,7 +2,17 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "paths": {
+      "@loopengine/core": ["../core/dist/index.d.ts"],
+      "@loopengine/events": ["../events/dist/index.d.ts"],
+      "@loopengine/actors": ["../actors/dist/index.d.ts"],
+      "@loopengine/guards": ["../guards/dist/index.d.ts"],
+      "@loop-engine/core": ["../core/dist/index.d.ts"],
+      "@loop-engine/events": ["../events/dist/index.d.ts"],
+      "@loop-engine/actors": ["../actors/dist/index.d.ts"],
+      "@loop-engine/guards": ["../guards/dist/index.d.ts"]
+    }
   },
   "include": [
     "src/**/*"

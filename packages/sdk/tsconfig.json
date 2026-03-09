@@ -2,7 +2,27 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "paths": {
+      "@loopengine/core": ["../core/dist/index.d.ts"],
+      "@loopengine/dsl": ["../dsl/dist/index.d.ts"],
+      "@loopengine/runtime": ["../runtime/dist/index.d.ts"],
+      "@loopengine/events": ["../events/dist/index.d.ts"],
+      "@loopengine/actors": ["../actors/dist/index.d.ts"],
+      "@loopengine/guards": ["../guards/dist/index.d.ts"],
+      "@loopengine/signals": ["../signals/dist/index.d.ts"],
+      "@loopengine/observability": ["../observability/dist/index.d.ts"],
+      "@loopengine/adapter-memory": ["../adapters/memory/dist/index.d.ts"],
+      "@loop-engine/core": ["../core/dist/index.d.ts"],
+      "@loop-engine/dsl": ["../dsl/dist/index.d.ts"],
+      "@loop-engine/runtime": ["../runtime/dist/index.d.ts"],
+      "@loop-engine/events": ["../events/dist/index.d.ts"],
+      "@loop-engine/actors": ["../actors/dist/index.d.ts"],
+      "@loop-engine/guards": ["../guards/dist/index.d.ts"],
+      "@loop-engine/signals": ["../signals/dist/index.d.ts"],
+      "@loop-engine/observability": ["../observability/dist/index.d.ts"],
+      "@loop-engine/adapter-memory": ["../adapters/memory/dist/index.d.ts"]
+    }
   },
   "include": [
     "src/**/*"

@@ -1,0 +1,6 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LoopDefinition",
+  "description": "Placeholder. Generated in Prompt 2 from LoopDefinitionSchema.",
+  "type": "object"
+}

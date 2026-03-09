@@ -1,0 +1,12 @@
+name: OSS Boundary Check
+
+on:
+  pull_request:
+    paths:
+      - "packages/**"
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Workflow scaffolded. Full implementation in Prompt 9."

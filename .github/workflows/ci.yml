@@ -1,0 +1,13 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "rc/*"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Workflow scaffolded. Full implementation in Prompt 9."

@@ -1,0 +1,25 @@
+{
+  "name": "loop-engine",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "validate-loops": "tsx scripts/validate-loops.ts",
+    "generate-schemas": "tsx scripts/generate-schemas.ts",
+    "check-boundary": "tsx scripts/check-boundary.ts",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "turbo run build --filter=./packages/* && changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.0",
+    "@types/js-yaml": "^4.0.9",
+    "tsx": "^4.0.0",
+    "turbo": "^2.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0",
+    "zod": "^3.22.0"
+  }
+}

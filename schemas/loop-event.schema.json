@@ -1,0 +1,6 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LoopEvent",
+  "description": "Placeholder. Generated in Prompt 4 from LoopEventSchema.",
+  "type": "object"
+}

@@ -1,0 +1,27 @@
+{
+  "name": "@loopengine/dsl",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "YAML/JSON loop authoring, parsing, and validation",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@loopengine/core": "workspace:*",
+    "js-yaml": "^4.1.0",
+    "zod": "^3.22.0"
+  }
+}

@@ -1,0 +1,70 @@
+id: support.ticket_resolution
+version: 1.0.0
+domain: support
+description: >
+  Support ticket lifecycle from intake through resolution or escalation.
+  Includes dwell-time detection and policy-based escalation.
+
+states:
+  - id: CREATED
+  - id: TRIAGED
+  - id: ASSIGNED
+  - id: ESCALATED
+  - id: RESOLVED
+    isTerminal: true
+  - id: CLOSED_NO_ACTION
+    isTerminal: true
+
+initialState: CREATED
+
+transitions:
+  - id: triage
+    from: CREATED
+    to: TRIAGED
+    allowedActors: [automation, human]
+
+  - id: assign
+    from: TRIAGED
+    to: ASSIGNED
+    allowedActors: [automation, human]
+
+  - id: escalate
+    from: ASSIGNED
+    to: ESCALATED
+    allowedActors: [automation, human, ai-agent]
+    guards:
+      - id: deadline_not_exceeded
+        severity: soft
+        evaluatedBy: external
+        description: Escalation SLA window check
+        failureMessage: Ticket dwell is nearing SLA breach
+
+  - id: resolve_from_assigned
+    from: ASSIGNED
+    to: RESOLVED
+    allowedActors: [human]
+
+  - id: resolve_from_escalated
+    from: ESCALATED
+    to: RESOLVED
+    allowedActors: [human]
+
+  - id: close_no_action
+    from: TRIAGED
+    to: CLOSED_NO_ACTION
+    allowedActors: [human]
+
+outcome:
+  id: ticket_resolved
+  description: Ticket resolved with complete response trail
+  valueUnit: ticket_resolved
+  measurable: true
+  businessMetrics:
+    - id: resolution_time_hours
+      label: Resolution time in hours
+      unit: units
+      improvableByAI: true
+    - id: escalation_rate
+      label: Escalation rate
+      unit: percentage
+      improvableByAI: true

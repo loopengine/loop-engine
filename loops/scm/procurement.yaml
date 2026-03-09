@@ -1,0 +1,108 @@
+id: scm.procurement
+version: 1.0.0
+domain: scm
+description: >
+  Purchase order lifecycle from requisition through receipt and settlement.
+  Tracks approval, supplier confirmation, receipt scheduling, and 3-way match.
+
+states:
+  - id: OPEN
+  - id: PO_CONFIRMED
+  - id: RECEIPT_SCHEDULED
+  - id: RECEIVED
+  - id: INVOICE_MATCHED
+  - id: SETTLED
+    isTerminal: true
+  - id: CANCELLED
+    isTerminal: true
+    isError: false
+  - id: DISPUTED
+    isError: true
+
+initialState: OPEN
+
+transitions:
+  - id: confirm_po
+    from: OPEN
+    to: PO_CONFIRMED
+    allowedActors: [human, automation, ai-agent]
+    guards:
+      - id: approval_obtained
+        severity: hard
+        evaluatedBy: external
+        description: PO must be approved before confirmation
+        failureMessage: PO confirmation requires explicit approval
+      - id: actor_has_permission
+        severity: hard
+        evaluatedBy: runtime
+        description: Actor must have purchase-order confirm permission
+        failureMessage: Insufficient permissions to confirm PO
+
+  - id: schedule_receipt
+    from: PO_CONFIRMED
+    to: RECEIPT_SCHEDULED
+    allowedActors: [human, automation]
+    guards:
+      - id: deadline_not_exceeded
+        severity: soft
+        evaluatedBy: external
+        description: Supplier delivery deadline check
+        failureMessage: Delivery deadline approaching or exceeded
+
+  - id: receive_goods
+    from: RECEIPT_SCHEDULED
+    to: RECEIVED
+    allowedActors: [human]
+
+  - id: match_invoice
+    from: RECEIVED
+    to: INVOICE_MATCHED
+    allowedActors: [human, automation, ai-agent]
+    guards:
+      - id: approval_obtained
+        severity: hard
+        evaluatedBy: external
+        description: Three-way match must be confirmed
+        failureMessage: Invoice match requires 3-way match confirmation
+
+  - id: settle
+    from: INVOICE_MATCHED
+    to: SETTLED
+    allowedActors: [automation, system]
+
+  - id: cancel
+    from: OPEN
+    to: CANCELLED
+    allowedActors: [human]
+
+  - id: dispute_from_received
+    from: RECEIVED
+    to: DISPUTED
+    allowedActors: [human]
+
+  - id: dispute_from_invoice_matched
+    from: INVOICE_MATCHED
+    to: DISPUTED
+    allowedActors: [human]
+
+outcome:
+  id: po_settled
+  description: Purchase order fully settled with matched invoice and inventory updated
+  valueUnit: po_settled
+  measurable: true
+  businessMetrics:
+    - id: cycle_time_days
+      label: PO cycle time (days)
+      unit: days
+      improvableByAI: true
+    - id: three_way_match_first_attempt
+      label: 3-way match on first attempt
+      unit: boolean
+      improvableByAI: false
+    - id: supplier_lead_time_accuracy
+      label: Supplier lead time accuracy
+      unit: percentage
+      improvableByAI: true
+
+spawnableLoops:
+  - scm.replenishment

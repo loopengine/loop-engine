@@ -1,0 +1,62 @@
+id: scm.replenishment
+version: 1.0.0
+domain: scm
+description: >
+  Stock replenishment loop from low-stock signal through PO creation.
+  Closes when replenishment is confirmed and a procurement loop is spawned.
+
+states:
+  - id: SIGNAL_RECEIVED
+  - id: THRESHOLD_ASSESSED
+  - id: REPLENISHMENT_RECOMMENDED
+  - id: PO_TRIGGERED
+    isTerminal: true
+  - id: DISMISSED
+    isTerminal: true
+
+initialState: SIGNAL_RECEIVED
+
+transitions:
+  - id: assess_threshold
+    from: SIGNAL_RECEIVED
+    to: THRESHOLD_ASSESSED
+    allowedActors: [system, automation]
+
+  - id: recommend_replenishment
+    from: THRESHOLD_ASSESSED
+    to: REPLENISHMENT_RECOMMENDED
+    allowedActors: [system, automation, ai-agent]
+
+  - id: trigger_po
+    from: REPLENISHMENT_RECOMMENDED
+    to: PO_TRIGGERED
+    allowedActors: [human, automation, ai-agent]
+    guards:
+      - id: approval_obtained
+        severity: hard
+        evaluatedBy: external
+        description: Replenishment must be approved before PO creation
+        failureMessage: PO trigger requires approval
+
+  - id: dismiss
+    from: REPLENISHMENT_RECOMMENDED
+    to: DISMISSED
+    allowedActors: [human]
+
+outcome:
+  id: replenishment_triggered
+  description: Replenishment PO created and scm.procurement loop spawned
+  valueUnit: replenishment_completed
+  measurable: true
+  businessMetrics:
+    - id: signal_to_po_minutes
+      label: Time from signal to PO trigger (minutes)
+      unit: days
+      improvableByAI: true
+    - id: stockout_prevented
+      label: Stockout prevented
+      unit: boolean
+      improvableByAI: true
+
+spawnableLoops:
+  - scm.procurement

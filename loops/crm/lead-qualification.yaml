@@ -1,0 +1,74 @@
+id: crm.lead_qualification
+version: 1.0.0
+domain: crm
+description: >
+  Lead qualification from creation through SQL conversion.
+  Tracks ICP assessment, outreach, and handoff to sales.
+
+states:
+  - id: CREATED
+  - id: ICP_ASSESSED
+  - id: OUTREACH_SENT
+  - id: MEETING_SCHEDULED
+  - id: QUALIFIED
+    isTerminal: true
+  - id: DISQUALIFIED
+    isTerminal: true
+
+initialState: CREATED
+
+transitions:
+  - id: assess_icp
+    from: CREATED
+    to: ICP_ASSESSED
+    allowedActors: [human, automation, ai-agent]
+
+  - id: send_outreach
+    from: ICP_ASSESSED
+    to: OUTREACH_SENT
+    allowedActors: [human, automation, ai-agent]
+
+  - id: schedule_meeting
+    from: OUTREACH_SENT
+    to: MEETING_SCHEDULED
+    allowedActors: [human, webhook]
+
+  - id: qualify
+    from: MEETING_SCHEDULED
+    to: QUALIFIED
+    allowedActors: [human]
+
+  - id: disqualify_from_created
+    from: CREATED
+    to: DISQUALIFIED
+    allowedActors: [human]
+
+  - id: disqualify_from_icp
+    from: ICP_ASSESSED
+    to: DISQUALIFIED
+    allowedActors: [human]
+
+  - id: disqualify_from_outreach
+    from: OUTREACH_SENT
+    to: DISQUALIFIED
+    allowedActors: [human]
+
+  - id: disqualify_from_meeting
+    from: MEETING_SCHEDULED
+    to: DISQUALIFIED
+    allowedActors: [human]
+
+outcome:
+  id: lead_qualified
+  description: Lead converted to SQL and handed to sales
+  valueUnit: lead_qualified
+  measurable: true
+  businessMetrics:
+    - id: qualification_cycle_time
+      label: Lead qualification cycle time (days)
+      unit: days
+      improvableByAI: true
+    - id: outreach_to_meeting_rate
+      label: Outreach to meeting conversion rate
+      unit: percentage
+      improvableByAI: true

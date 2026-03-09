@@ -1,0 +1,66 @@
+id: erp.purchase_approval
+version: 1.0.0
+domain: erp
+description: >
+  Purchase approval workflow from request through approval, rejection, or cancellation.
+  Supports policy guards for permissions and duplicate request checks.
+
+states:
+  - id: REQUESTED
+  - id: UNDER_REVIEW
+  - id: APPROVED
+    isTerminal: true
+  - id: REJECTED
+    isTerminal: true
+  - id: CANCELLED
+    isTerminal: true
+
+initialState: REQUESTED
+
+transitions:
+  - id: submit_for_review
+    from: REQUESTED
+    to: UNDER_REVIEW
+    allowedActors: [human, automation]
+    guards:
+      - id: duplicate_check_passed
+        severity: hard
+        evaluatedBy: runtime
+        description: Duplicate purchase request check
+        failureMessage: Duplicate purchase request detected
+
+  - id: approve
+    from: UNDER_REVIEW
+    to: APPROVED
+    allowedActors: [human]
+    guards:
+      - id: actor_has_permission
+        severity: hard
+        evaluatedBy: runtime
+        description: Approver must have purchase approval permission
+        failureMessage: Approver lacks required permission
+
+  - id: reject
+    from: UNDER_REVIEW
+    to: REJECTED
+    allowedActors: [human]
+
+  - id: cancel
+    from: REQUESTED
+    to: CANCELLED
+    allowedActors: [human]
+
+outcome:
+  id: purchase_approved
+  description: Purchase request processed to approved, rejected, or cancelled state
+  valueUnit: purchase_approved
+  measurable: true
+  businessMetrics:
+    - id: approval_turnaround_days
+      label: Approval turnaround time in days
+      unit: days
+      improvableByAI: true
+    - id: auto_approval_rate
+      label: Automation-assisted approval rate
+      unit: percentage
+      improvableByAI: true

@@ -1,0 +1,83 @@
+id: finance.invoice_collection
+version: 1.0.0
+domain: finance
+description: >
+  Invoice collection process from issuance through collection or write-off.
+  Tracks reminders, overdue handling, and escalation outcomes.
+
+states:
+  - id: INVOICE_CREATED
+  - id: PAYMENT_REQUESTED
+  - id: OVERDUE
+  - id: ESCALATED
+  - id: COLLECTED
+    isTerminal: true
+  - id: WRITTEN_OFF
+    isTerminal: true
+    isError: true
+
+initialState: INVOICE_CREATED
+
+transitions:
+  - id: request_payment
+    from: INVOICE_CREATED
+    to: PAYMENT_REQUESTED
+    allowedActors: [automation, human]
+
+  - id: mark_overdue
+    from: PAYMENT_REQUESTED
+    to: OVERDUE
+    allowedActors: [automation, system]
+    guards:
+      - id: deadline_not_exceeded
+        severity: soft
+        evaluatedBy: external
+        description: Grace window should be respected before marking overdue
+        failureMessage: Grace window not yet exceeded
+
+  - id: escalate_overdue
+    from: OVERDUE
+    to: ESCALATED
+    allowedActors: [automation, human]
+    guards:
+      - id: actor_has_permission
+        severity: hard
+        evaluatedBy: runtime
+        description: Escalation requires finance collections permission
+        failureMessage: Missing escalation permission
+
+  - id: collect_from_overdue
+    from: OVERDUE
+    to: COLLECTED
+    allowedActors: [human, automation]
+
+  - id: collect_from_escalated
+    from: ESCALATED
+    to: COLLECTED
+    allowedActors: [human]
+
+  - id: write_off
+    from: ESCALATED
+    to: WRITTEN_OFF
+    allowedActors: [human]
+    guards:
+      - id: approval_obtained
+        severity: hard
+        evaluatedBy: external
+        description: Write-off requires explicit approval
+        failureMessage: Write-off approval missing
+
+outcome:
+  id: invoice_collected
+  description: Invoice either collected or closed via approved write-off
+  valueUnit: invoice_collected
+  measurable: true
+  businessMetrics:
+    - id: collection_cycle_time_days
+      label: Collection cycle time in days
+      unit: days
+      improvableByAI: true
+    - id: writeoff_rate
+      label: Write-off rate
+      unit: percentage
+      improvableByAI: true

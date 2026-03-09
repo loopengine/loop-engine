@@ -6,7 +6,7 @@ import { loopId, stateId, transitionId } from "../types";
 
 describe("core types", () => {
   it("loopId() preserves string value", () => {
-    expect(loopId("scm.procurement")).toBe("scm.procurement");
+    expect(loopId("demo.loop")).toBe("demo.loop");
   });
 
   it("LoopStatus includes all expected values", () => {

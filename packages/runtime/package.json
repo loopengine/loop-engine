@@ -27,5 +27,10 @@
   },
   "peerDependencies": {
     "@loop-engine/events": ">=0.1.0"
-  }
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ]
 }

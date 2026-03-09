@@ -21,5 +21,10 @@
   "dependencies": {
     "@loop-engine/core": "workspace:*",
     "zod": "^3.22.0"
-  }
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ]
 }

@@ -23,5 +23,10 @@
     "@loop-engine/core": "workspace:*",
     "js-yaml": "^4.1.0",
     "zod": "^3.22.0"
-  }
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ]
 }

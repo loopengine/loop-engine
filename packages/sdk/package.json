@@ -27,5 +27,10 @@
     "@loop-engine/events": "workspace:*",
     "@loop-engine/observability": "workspace:*",
     "@loop-engine/adapter-memory": "workspace:*"
-  }
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ]
 }

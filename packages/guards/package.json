@@ -20,5 +20,10 @@
   },
   "dependencies": {
     "@loop-engine/core": "workspace:*"
-  }
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ]
 }

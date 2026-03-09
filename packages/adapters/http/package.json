@@ -20,5 +20,10 @@
   "dependencies": {
     "@loop-engine/events": "workspace:*",
     "@loop-engine/runtime": "workspace:*"
-  }
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ]
 }

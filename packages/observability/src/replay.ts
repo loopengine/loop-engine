@@ -1,6 +1,6 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import type { LoopDefinition, TransitionRecord } from "@loopengine/core";
+import type { LoopDefinition, TransitionRecord } from "@loop-engine/core";
 
 export function replayLoop(
   definition: LoopDefinition,

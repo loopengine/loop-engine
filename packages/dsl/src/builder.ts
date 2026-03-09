@@ -4,7 +4,7 @@ import {
   type ActorType,
   type GuardSpec,
   type LoopDefinition
-} from "@loopengine/core";
+} from "@loop-engine/core";
 import { validateLoopDefinition } from "./schema";
 
 type BuilderTransitionInput = {

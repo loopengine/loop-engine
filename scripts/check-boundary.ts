@@ -120,7 +120,7 @@ async function run(): Promise<void> {
       const source = await readFile(file, "utf8");
       for (const spec of parseImports(source)) {
         if (spec.startsWith(".") || isNodeBuiltin(spec)) continue;
-        if (spec.startsWith("@loopengine/") && packageNames.has(spec) && !deps.has(spec)) {
+        if (spec.startsWith("@loop-engine/") && packageNames.has(spec) && !deps.has(spec)) {
           violations.push({
             check: "dependency-declarations",
             file,

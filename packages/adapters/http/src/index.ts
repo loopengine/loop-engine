@@ -1,7 +1,7 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import type { LoopEvent } from "@loopengine/events";
-import type { EventBus } from "@loopengine/runtime";
+import type { LoopEvent } from "@loop-engine/events";
+import type { EventBus } from "@loop-engine/runtime";
 
 async function sleep(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));

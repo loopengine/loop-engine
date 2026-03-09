@@ -1,6 +1,6 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import type { ActorRef, AggregateId, Evidence, GuardId, LoopId, LoopInstance, TransitionId } from "@loopengine/core";
+import type { ActorRef, AggregateId, Evidence, GuardId, LoopId, LoopInstance, TransitionId } from "@loop-engine/core";
 
 export interface GuardContext {
   loopId: LoopId;

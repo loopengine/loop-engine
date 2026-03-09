@@ -1,6 +1,6 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import type { Evidence } from "@loopengine/core";
+import type { Evidence } from "@loop-engine/core";
 import type { Actor } from "./types";
 
 export function buildActorEvidence(actor: Actor, baseEvidence: Evidence): Evidence {

@@ -1,5 +1,5 @@
 {
-  "name": "@loopengine/adapter-postgres",
+  "name": "@loop-engine/adapter-postgres",
   "version": "0.1.0",
   "license": "MIT",
   "type": "module",
@@ -18,8 +18,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@loopengine/core": "workspace:*",
-    "@loopengine/runtime": "workspace:*"
+    "@loop-engine/core": "workspace:*",
+    "@loop-engine/runtime": "workspace:*"
   },
   "peerDependencies": {
     "pg": "^8.0.0"

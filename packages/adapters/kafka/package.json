@@ -1,5 +1,5 @@
 {
-  "name": "@loopengine/adapter-kafka",
+  "name": "@loop-engine/adapter-kafka",
   "version": "0.1.0",
   "license": "MIT",
   "type": "module",
@@ -18,8 +18,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@loopengine/events": "workspace:*",
-    "@loopengine/runtime": "workspace:*"
+    "@loop-engine/events": "workspace:*",
+    "@loop-engine/runtime": "workspace:*"
   },
   "peerDependencies": {
     "kafkajs": "^2.0.0"

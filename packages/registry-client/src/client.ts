@@ -1,7 +1,7 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import type { LoopDefinition } from "@loopengine/core";
-import { validateLoopDefinition } from "@loopengine/dsl";
+import type { LoopDefinition } from "@loop-engine/core";
+import { validateLoopDefinition } from "@loop-engine/dsl";
 import type {
   LoopRegistryClientOptions,
   RegistryClientLike,

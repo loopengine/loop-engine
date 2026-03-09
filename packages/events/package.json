@@ -1,5 +1,5 @@
 {
-  "name": "@loopengine/events",
+  "name": "@loop-engine/events",
   "version": "0.1.0",
   "license": "MIT",
   "type": "module",
@@ -19,7 +19,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loopengine/core": "workspace:*",
+    "@loop-engine/core": "workspace:*",
     "zod": "^3.22.0"
   }
 }

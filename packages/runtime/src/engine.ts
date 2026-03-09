@@ -1,6 +1,6 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import { canActorExecuteTransition } from "@loopengine/actors";
+import { canActorExecuteTransition } from "@loop-engine/actors";
 import type {
   ActorId,
   AggregateId,
@@ -12,15 +12,15 @@ import type {
   StateId,
   TransitionId,
   TransitionRecord
-} from "@loopengine/core";
-import { correlationId as toCorrelationId } from "@loopengine/core";
+} from "@loop-engine/core";
+import { correlationId as toCorrelationId } from "@loop-engine/core";
 import type {
   GuardFailedEvent,
   LoopCompletedEvent,
   LoopEvent,
   LoopStartedEvent,
   TransitionExecutedEvent
-} from "@loopengine/events";
+} from "@loop-engine/events";
 import type { GuardContext, LoopEngineOptions } from "./interfaces";
 
 export interface StartOptions {

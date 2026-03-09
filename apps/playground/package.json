@@ -1,5 +1,5 @@
 {
-  "name": "@loopengine/playground",
+  "name": "@loop-engine/playground",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,9 +9,9 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@loopengine/dsl": "workspace:*",
-    "@loopengine/sdk": "workspace:*",
-    "@loopengine/ui-devtools": "workspace:*",
+    "@loop-engine/dsl": "workspace:*",
+    "@loop-engine/sdk": "workspace:*",
+    "@loop-engine/ui-devtools": "workspace:*",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

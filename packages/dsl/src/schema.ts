@@ -6,7 +6,7 @@ import {
   stateId,
   transitionId,
   type LoopDefinition
-} from "@loopengine/core";
+} from "@loop-engine/core";
 import { z } from "zod";
 
 const semverRegex = /^\d+\.\d+\.\d+$/;

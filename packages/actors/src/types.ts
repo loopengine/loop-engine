@@ -1,6 +1,6 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import type { ActorRef, ActorType, AggregateId, Evidence, LoopId, TransitionId } from "@loopengine/core";
+import type { ActorRef, ActorType, AggregateId, Evidence, LoopId, TransitionId } from "@loop-engine/core";
 
 export interface HumanActor extends ActorRef {
   type: "human";

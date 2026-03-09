@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Signal",
-  "description": "Placeholder. Generated from @loopengine/signals schemas.",
+  "description": "Placeholder. Generated from @loop-engine/signals schemas.",
   "type": "object"
 }

@@ -1,6 +1,6 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import type { LoopEvent } from "@loopengine/events";
+import type { LoopEvent } from "@loop-engine/events";
 import type { LoopNotStartedConfig, SignalRule } from "../types";
 
 export function loopNotStartedRule(config: LoopNotStartedConfig): SignalRule {

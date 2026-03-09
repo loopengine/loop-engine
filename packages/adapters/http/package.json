@@ -1,5 +1,5 @@
 {
-  "name": "@loopengine/adapter-http",
+  "name": "@loop-engine/adapter-http",
   "version": "0.1.0",
   "license": "MIT",
   "type": "module",
@@ -18,7 +18,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@loopengine/events": "workspace:*",
-    "@loopengine/runtime": "workspace:*"
+    "@loop-engine/events": "workspace:*",
+    "@loop-engine/runtime": "workspace:*"
   }
 }

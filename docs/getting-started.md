@@ -3,7 +3,7 @@
 Install the SDK:
 
 ```bash
-npm install @loopengine/sdk
+npm install @loop-engine/sdk
 ```
 
-Then define a loop with `LoopBuilder` or load YAML using `@loopengine/dsl`.
+Then define a loop with `LoopBuilder` or load YAML using `@loop-engine/dsl`.

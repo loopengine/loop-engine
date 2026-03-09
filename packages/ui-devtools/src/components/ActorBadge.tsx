@@ -1,6 +1,6 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import type { ActorRef } from "@loopengine/core";
+import type { ActorRef } from "@loop-engine/core";
 
 function color(type: ActorRef["type"]): string {
   switch (type) {

@@ -1,6 +1,6 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import type { LoopDefinition, LoopId } from "@loopengine/core";
+import type { LoopDefinition, LoopId } from "@loop-engine/core";
 
 export interface LoopRegistryClientOptions {
   baseUrl: string;

@@ -1,5 +1,5 @@
 {
-  "name": "@loopengine/sdk",
+  "name": "@loop-engine/sdk",
   "version": "0.1.0",
   "license": "MIT",
   "type": "module",
@@ -19,13 +19,13 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loopengine/core": "workspace:*",
-    "@loopengine/runtime": "workspace:*",
-    "@loopengine/dsl": "workspace:*",
-    "@loopengine/guards": "workspace:*",
-    "@loopengine/signals": "workspace:*",
-    "@loopengine/events": "workspace:*",
-    "@loopengine/observability": "workspace:*",
-    "@loopengine/adapter-memory": "workspace:*"
+    "@loop-engine/core": "workspace:*",
+    "@loop-engine/runtime": "workspace:*",
+    "@loop-engine/dsl": "workspace:*",
+    "@loop-engine/guards": "workspace:*",
+    "@loop-engine/signals": "workspace:*",
+    "@loop-engine/events": "workspace:*",
+    "@loop-engine/observability": "workspace:*",
+    "@loop-engine/adapter-memory": "workspace:*"
   }
 }

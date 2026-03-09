@@ -11,8 +11,8 @@ import type {
   StateId,
   TransitionId,
   TransitionRecord
-} from "@loopengine/core";
-import type { LoopEvent } from "@loopengine/events";
+} from "@loop-engine/core";
+import type { LoopEvent } from "@loop-engine/events";
 
 export interface LoopStore {
   getInstance(aggregateId: AggregateId): Promise<LoopInstance | null>;

@@ -1,7 +1,7 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
 import { describe, expect, it } from "vitest";
-import { actorId, transitionId, type TransitionSpec } from "@loopengine/core";
+import { actorId, transitionId, type TransitionSpec } from "@loop-engine/core";
 import { buildActorEvidence } from "../evidence";
 import { canActorExecuteTransition } from "../constraints";
 

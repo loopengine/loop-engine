@@ -1,6 +1,6 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import type { AggregateId, LoopInstance, StateId, TransitionRecord } from "@loopengine/core";
+import type { AggregateId, LoopInstance, StateId, TransitionRecord } from "@loop-engine/core";
 
 export interface LoopTimeline {
   aggregateId: AggregateId;

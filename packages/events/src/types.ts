@@ -12,7 +12,7 @@ import type {
   StateId,
   TransitionId,
   TransitionRecord
-} from "@loopengine/core";
+} from "@loop-engine/core";
 
 export const LOOP_EVENT_TYPES = {
   LOOP_STARTED: "loop.started",

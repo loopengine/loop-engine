@@ -1,7 +1,7 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
 import yaml from "js-yaml";
-import type { LoopDefinition } from "@loopengine/core";
+import type { LoopDefinition } from "@loop-engine/core";
 
 function sortKeys(value: unknown): unknown {
   if (Array.isArray(value)) {

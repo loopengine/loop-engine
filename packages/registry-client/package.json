@@ -1,5 +1,5 @@
 {
-  "name": "@loopengine/registry-client",
+  "name": "@loop-engine/registry-client",
   "version": "0.1.0",
   "license": "MIT",
   "type": "module",
@@ -19,7 +19,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loopengine/core": "workspace:*",
-    "@loopengine/dsl": "workspace:*"
+    "@loop-engine/core": "workspace:*",
+    "@loop-engine/dsl": "workspace:*"
   }
 }

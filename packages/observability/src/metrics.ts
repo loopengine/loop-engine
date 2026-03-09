@@ -1,6 +1,6 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import type { LoopId, LoopInstance, TransitionRecord } from "@loopengine/core";
+import type { LoopId, LoopInstance, TransitionRecord } from "@loop-engine/core";
 
 export interface LoopMetrics {
   loopId: LoopId;

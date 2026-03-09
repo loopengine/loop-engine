@@ -1,5 +1,5 @@
 {
-  "name": "@loopengine/adapter-memory",
+  "name": "@loop-engine/adapter-memory",
   "version": "0.1.0",
   "license": "MIT",
   "type": "module",
@@ -19,7 +19,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loopengine/core": "workspace:*",
-    "@loopengine/runtime": "workspace:*"
+    "@loop-engine/core": "workspace:*",
+    "@loop-engine/runtime": "workspace:*"
   }
 }

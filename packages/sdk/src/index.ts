@@ -1,13 +1,13 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import { memoryStore } from "@loopengine/adapter-memory";
-import type { LoopDefinition } from "@loopengine/core";
-import { LoopBuilder } from "@loopengine/dsl";
-import { InMemoryEventBus } from "@loopengine/events";
-import { defaultRegistry as guardRegistry, type GuardRegistry } from "@loopengine/guards";
-import { computeMetrics, buildTimeline } from "@loopengine/observability";
-import { createLoopEngine, type LoopEngine, type LoopStore } from "@loopengine/runtime";
-import { createSignalEngine, type SignalEngine } from "@loopengine/signals";
+import { memoryStore } from "@loop-engine/adapter-memory";
+import type { LoopDefinition } from "@loop-engine/core";
+import { LoopBuilder } from "@loop-engine/dsl";
+import { InMemoryEventBus } from "@loop-engine/events";
+import { defaultRegistry as guardRegistry, type GuardRegistry } from "@loop-engine/guards";
+import { computeMetrics, buildTimeline } from "@loop-engine/observability";
+import { createLoopEngine, type LoopEngine, type LoopStore } from "@loop-engine/runtime";
+import { createSignalEngine, type SignalEngine } from "@loop-engine/signals";
 
 class InMemoryLoopRegistry {
   constructor(private readonly loops: LoopDefinition[]) {}
@@ -19,13 +19,13 @@ class InMemoryLoopRegistry {
   }
 }
 
-export { createLoopEngine } from "@loopengine/runtime";
-export { LoopBuilder } from "@loopengine/dsl";
+export { createLoopEngine } from "@loop-engine/runtime";
+export { LoopBuilder } from "@loop-engine/dsl";
 export { guardRegistry };
-export { createSignalEngine } from "@loopengine/signals";
-export { InMemoryEventBus } from "@loopengine/events";
-export { computeMetrics, buildTimeline } from "@loopengine/observability";
-export type { LoopDefinition, LoopInstance, TransitionRecord, Signal } from "@loopengine/core";
+export { createSignalEngine } from "@loop-engine/signals";
+export { InMemoryEventBus } from "@loop-engine/events";
+export { computeMetrics, buildTimeline } from "@loop-engine/observability";
+export type { LoopDefinition, LoopInstance, TransitionRecord, Signal } from "@loop-engine/core";
 
 export function createLoopSystem(options: {
   loops: LoopDefinition[];

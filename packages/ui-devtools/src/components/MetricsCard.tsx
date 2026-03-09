@@ -1,6 +1,6 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import type { LoopMetrics } from "@loopengine/observability";
+import type { LoopMetrics } from "@loop-engine/observability";
 
 function Item({ label, value }: { label: string; value: string | number }): React.ReactElement {
   return (

@@ -1,7 +1,7 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
 import { describe, expect, it } from "vitest";
-import { aggregateId, correlationId, loopId, stateId, transitionId, type LoopInstance, type TransitionRecord } from "@loopengine/core";
+import { aggregateId, correlationId, loopId, stateId, transitionId, type LoopInstance, type TransitionRecord } from "@loop-engine/core";
 import { MemoryStore } from "../index";
 
 describe("MemoryStore", () => {

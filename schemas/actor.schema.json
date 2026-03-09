@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Actor",
-  "description": "Placeholder. Generated from @loopengine/actors schemas.",
+  "description": "Placeholder. Generated from @loop-engine/actors schemas.",
   "type": "object"
 }

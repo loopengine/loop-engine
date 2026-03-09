@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { buildTimeline, computeMetrics } from "@loopengine/observability";
-import type { LoopInstance, TransitionRecord } from "@loopengine/core";
-import { DevtoolsPanel } from "@loopengine/ui-devtools";
+import { buildTimeline, computeMetrics } from "@loop-engine/observability";
+import type { LoopInstance, TransitionRecord } from "@loop-engine/core";
+import { DevtoolsPanel } from "@loop-engine/ui-devtools";
 
 const sampleInstance: LoopInstance = {
   loopId: "scm.procurement" as never,

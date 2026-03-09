@@ -1,7 +1,7 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
 import { describe, expect, it } from "vitest";
-import { aggregateId, correlationId, loopId, outcomeId, stateId, transitionId, type LoopDefinition, type LoopInstance, type LoopRegistry, type TransitionRecord } from "@loopengine/core";
+import { aggregateId, correlationId, loopId, outcomeId, stateId, transitionId, type LoopDefinition, type LoopInstance, type LoopRegistry, type TransitionRecord } from "@loop-engine/core";
 import type { EventBus, GuardEvaluator, LoopStore } from "../interfaces";
 import { createLoopEngine } from "../engine";
 

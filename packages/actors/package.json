@@ -1,5 +1,5 @@
 {
-  "name": "@loopengine/actors",
+  "name": "@loop-engine/actors",
   "version": "0.1.0",
   "license": "MIT",
   "type": "module",
@@ -19,6 +19,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loopengine/core": "workspace:*"
+    "@loop-engine/core": "workspace:*"
   }
 }

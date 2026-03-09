@@ -2,11 +2,11 @@
 
 Loop Engine is structured as composable packages:
 
-- `@loopengine/core`: neutral types and domain model
-- `@loopengine/dsl`: parsing, validation, and authoring
-- `@loopengine/runtime`: execution engine
-- `@loopengine/events` / `@loopengine/signals` / `@loopengine/actors` / `@loopengine/guards`: runtime semantics
-- `@loopengine/sdk`: developer entry point
+- `@loop-engine/core`: neutral types and domain model
+- `@loop-engine/dsl`: parsing, validation, and authoring
+- `@loop-engine/runtime`: execution engine
+- `@loop-engine/events` / `@loop-engine/signals` / `@loop-engine/actors` / `@loop-engine/guards`: runtime semantics
+- `@loop-engine/sdk`: developer entry point
 
 The core rule is portability: loop definitions are runtime-agnostic and can be
 executed by any compatible Loop Engine runtime.

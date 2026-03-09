@@ -1,6 +1,6 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import { guardId } from "@loopengine/core";
+import { guardId } from "@loop-engine/core";
 import { approvalObtainedGuard } from "./built-in/approval-obtained";
 import { actorPermissionGuard } from "./built-in/actor-permission";
 import { deadlineNotExceededGuard } from "./built-in/deadline";

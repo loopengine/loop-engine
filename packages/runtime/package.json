@@ -1,5 +1,5 @@
 {
-  "name": "@loopengine/runtime",
+  "name": "@loop-engine/runtime",
   "version": "0.1.0",
   "license": "MIT",
   "type": "module",
@@ -19,13 +19,13 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loopengine/core": "workspace:*",
-    "@loopengine/dsl": "workspace:*",
-    "@loopengine/events": "workspace:*",
-    "@loopengine/actors": "workspace:*",
-    "@loopengine/guards": "workspace:*"
+    "@loop-engine/core": "workspace:*",
+    "@loop-engine/dsl": "workspace:*",
+    "@loop-engine/events": "workspace:*",
+    "@loop-engine/actors": "workspace:*",
+    "@loop-engine/guards": "workspace:*"
   },
   "peerDependencies": {
-    "@loopengine/events": ">=0.1.0"
+    "@loop-engine/events": ">=0.1.0"
   }
 }

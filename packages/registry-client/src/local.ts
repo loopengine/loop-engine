@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: MIT
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
-import type { LoopDefinition } from "@loopengine/core";
-import { parseLoopYaml } from "@loopengine/dsl";
+import type { LoopDefinition } from "@loop-engine/core";
+import { parseLoopYaml } from "@loop-engine/dsl";
 import type { LoopRegistryEntry, RegistryClientLike, RegistrySearchQuery, RegistrySearchResult } from "./types";
 
 class LocalRegistryClient implements RegistryClientLike {

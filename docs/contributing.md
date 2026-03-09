@@ -10,5 +10,5 @@ This docs page is a stable URL entrypoint for docs-site references.
 - `major`: breaking changes to event schema, core types, or runtime API
 
 Breaking changes require RFC + a 6-month deprecation notice on the prior version.
-Breaking changes to `@loopengine/events` require a separate RFC because schema shifts
+Breaking changes to `@loop-engine/events` require a separate RFC because schema shifts
 affect downstream analytics and model-training consumers.

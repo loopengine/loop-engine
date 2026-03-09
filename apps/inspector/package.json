@@ -1,5 +1,5 @@
 {
-  "name": "@loopengine/inspector",
+  "name": "@loop-engine/inspector",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,10 +9,10 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@loopengine/core": "workspace:*",
-    "@loopengine/events": "workspace:*",
-    "@loopengine/observability": "workspace:*",
-    "@loopengine/ui-devtools": "workspace:*",
+    "@loop-engine/core": "workspace:*",
+    "@loop-engine/events": "workspace:*",
+    "@loop-engine/observability": "workspace:*",
+    "@loop-engine/ui-devtools": "workspace:*",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

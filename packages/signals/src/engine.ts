@@ -1,7 +1,7 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import { signalId, type Signal } from "@loopengine/core";
-import type { LoopEvent } from "@loopengine/events";
+import { signalId, type Signal } from "@loop-engine/core";
+import type { LoopEvent } from "@loop-engine/events";
 import { loopNotStartedRule } from "./built-in/loop-not-started";
 import { repeatedGuardFailureRule } from "./built-in/repeated-guard-failure";
 import { stateDwellRule } from "./built-in/state-dwell";

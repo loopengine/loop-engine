@@ -34,8 +34,8 @@ in Better Data's proprietary platform.
 
 ## How proprietary code uses this repo
 
-Better Data's platform (bd-forge-main) imports `@loopengine/*` as npm dependencies.
-The proprietary loop-engine package uses `@loopengine/core` types to define its
+Better Data's platform (bd-forge-main) imports `@loop-engine/*` as npm dependencies.
+The proprietary loop-engine package uses `@loop-engine/core` types to define its
 internal execution context. It never modifies or forks OSS types - it extends them.
 
 ## What a fork can and cannot do

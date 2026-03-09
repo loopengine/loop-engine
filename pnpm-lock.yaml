@@ -44,16 +44,16 @@ importers:
 
   apps/inspector:
     dependencies:
-      '@loopengine/core':
+      '@loop-engine/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@loopengine/events':
+      '@loop-engine/events':
         specifier: workspace:*
         version: link:../../packages/events
-      '@loopengine/observability':
+      '@loop-engine/observability':
         specifier: workspace:*
         version: link:../../packages/observability
-      '@loopengine/ui-devtools':
+      '@loop-engine/ui-devtools':
         specifier: workspace:*
         version: link:../../packages/ui-devtools
       next:
@@ -68,13 +68,13 @@ importers:
 
   apps/playground:
     dependencies:
-      '@loopengine/dsl':
+      '@loop-engine/dsl':
         specifier: workspace:*
         version: link:../../packages/dsl
-      '@loopengine/sdk':
+      '@loop-engine/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      '@loopengine/ui-devtools':
+      '@loop-engine/ui-devtools':
         specifier: workspace:*
         version: link:../../packages/ui-devtools
       next:
@@ -89,25 +89,25 @@ importers:
 
   packages/actors:
     dependencies:
-      '@loopengine/core':
+      '@loop-engine/core':
         specifier: workspace:*
         version: link:../core
 
   packages/adapters/http:
     dependencies:
-      '@loopengine/events':
+      '@loop-engine/events':
         specifier: workspace:*
         version: link:../../events
-      '@loopengine/runtime':
+      '@loop-engine/runtime':
         specifier: workspace:*
         version: link:../../runtime
 
   packages/adapters/kafka:
     dependencies:
-      '@loopengine/events':
+      '@loop-engine/events':
         specifier: workspace:*
         version: link:../../events
-      '@loopengine/runtime':
+      '@loop-engine/runtime':
         specifier: workspace:*
         version: link:../../runtime
       kafkajs:
@@ -116,19 +116,19 @@ importers:
 
   packages/adapters/memory:
     dependencies:
-      '@loopengine/core':
+      '@loop-engine/core':
         specifier: workspace:*
         version: link:../../core
-      '@loopengine/runtime':
+      '@loop-engine/runtime':
         specifier: workspace:*
         version: link:../../runtime
 
   packages/adapters/postgres:
     dependencies:
-      '@loopengine/core':
+      '@loop-engine/core':
         specifier: workspace:*
         version: link:../../core
-      '@loopengine/runtime':
+      '@loop-engine/runtime':
         specifier: workspace:*
         version: link:../../runtime
       pg:
@@ -139,7 +139,7 @@ importers:
 
   packages/dsl:
     dependencies:
-      '@loopengine/core':
+      '@loop-engine/core':
         specifier: workspace:*
         version: link:../core
       js-yaml:
@@ -151,7 +151,7 @@ importers:
 
   packages/events:
     dependencies:
-      '@loopengine/core':
+      '@loop-engine/core':
         specifier: workspace:*
         version: link:../core
       zod:
@@ -160,88 +160,88 @@ importers:
 
   packages/guards:
     dependencies:
-      '@loopengine/core':
+      '@loop-engine/core':
         specifier: workspace:*
         version: link:../core
 
   packages/observability:
     dependencies:
-      '@loopengine/core':
+      '@loop-engine/core':
         specifier: workspace:*
         version: link:../core
 
   packages/registry-client:
     dependencies:
-      '@loopengine/core':
+      '@loop-engine/core':
         specifier: workspace:*
         version: link:../core
-      '@loopengine/dsl':
+      '@loop-engine/dsl':
         specifier: workspace:*
         version: link:../dsl
 
   packages/runtime:
     dependencies:
-      '@loopengine/actors':
+      '@loop-engine/actors':
         specifier: workspace:*
         version: link:../actors
-      '@loopengine/core':
+      '@loop-engine/core':
         specifier: workspace:*
         version: link:../core
-      '@loopengine/dsl':
+      '@loop-engine/dsl':
         specifier: workspace:*
         version: link:../dsl
-      '@loopengine/events':
+      '@loop-engine/events':
         specifier: workspace:*
         version: link:../events
-      '@loopengine/guards':
+      '@loop-engine/guards':
         specifier: workspace:*
         version: link:../guards
 
   packages/sdk:
     dependencies:
-      '@loopengine/adapter-memory':
+      '@loop-engine/adapter-memory':
         specifier: workspace:*
         version: link:../adapters/memory
-      '@loopengine/core':
+      '@loop-engine/core':
         specifier: workspace:*
         version: link:../core
-      '@loopengine/dsl':
+      '@loop-engine/dsl':
         specifier: workspace:*
         version: link:../dsl
-      '@loopengine/events':
+      '@loop-engine/events':
         specifier: workspace:*
         version: link:../events
-      '@loopengine/guards':
+      '@loop-engine/guards':
         specifier: workspace:*
         version: link:../guards
-      '@loopengine/observability':
+      '@loop-engine/observability':
         specifier: workspace:*
         version: link:../observability
-      '@loopengine/runtime':
+      '@loop-engine/runtime':
         specifier: workspace:*
         version: link:../runtime
-      '@loopengine/signals':
+      '@loop-engine/signals':
         specifier: workspace:*
         version: link:../signals
 
   packages/signals:
     dependencies:
-      '@loopengine/core':
+      '@loop-engine/core':
         specifier: workspace:*
         version: link:../core
-      '@loopengine/events':
+      '@loop-engine/events':
         specifier: workspace:*
         version: link:../events
 
   packages/ui-devtools:
     dependencies:
-      '@loopengine/core':
+      '@loop-engine/core':
         specifier: workspace:*
         version: link:../core
-      '@loopengine/events':
+      '@loop-engine/events':
         specifier: workspace:*
         version: link:../events
-      '@loopengine/observability':
+      '@loop-engine/observability':
         specifier: workspace:*
         version: link:../observability
       react:

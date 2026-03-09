@@ -1,7 +1,7 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
 import { describe, expect, it } from "vitest";
-import { actorId, aggregateId, guardId, loopId, stateId, transitionId } from "@loopengine/core";
+import { actorId, aggregateId, guardId, loopId, stateId, transitionId } from "@loop-engine/core";
 import { defaultRegistry } from "../index";
 
 describe("guard registry", () => {

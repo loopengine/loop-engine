@@ -23,11 +23,11 @@ attributed actor. Every completed loop emits structured training data.
 ## Quick start
 
 ```bash
-npm install @loopengine/sdk
+npm install @loop-engine/sdk
 ```
 
 ```typescript
-import { createLoopEngine } from "@loopengine/sdk";
+import { createLoopEngine } from "@loop-engine/sdk";
 
 const engine = createLoopEngine({ store: memoryStore() });
 
@@ -48,20 +48,20 @@ await engine.transition({
 
 | Package | Purpose |
 |---------|---------|
-| @loopengine/core | Domain model types - zero dependencies |
-| @loopengine/dsl | YAML/JSON loop authoring, parsing, validation |
-| @loopengine/runtime | State machine executor |
-| @loopengine/guards | Deterministic policy checks |
-| @loopengine/signals | Event-to-signal detection |
-| @loopengine/events | Canonical event schema |
-| @loopengine/actors | Actor model + AI actor constraints |
-| @loopengine/observability | Loop history, timelines, metrics |
-| @loopengine/sdk | Friendly developer interface (start here) |
-| @loopengine/registry-client | Fetch loop definitions from a registry |
-| @loopengine/ui-devtools | React devtools panel |
-| @loopengine/adapter-memory | In-memory store (testing/dev) |
-| @loopengine/adapter-postgres | PostgreSQL persistence |
-| @loopengine/adapter-kafka | Kafka event bus |
+| @loop-engine/core | Domain model types - zero dependencies |
+| @loop-engine/dsl | YAML/JSON loop authoring, parsing, validation |
+| @loop-engine/runtime | State machine executor |
+| @loop-engine/guards | Deterministic policy checks |
+| @loop-engine/signals | Event-to-signal detection |
+| @loop-engine/events | Canonical event schema |
+| @loop-engine/actors | Actor model + AI actor constraints |
+| @loop-engine/observability | Loop history, timelines, metrics |
+| @loop-engine/sdk | Friendly developer interface (start here) |
+| @loop-engine/registry-client | Fetch loop definitions from a registry |
+| @loop-engine/ui-devtools | React devtools panel |
+| @loop-engine/adapter-memory | In-memory store (testing/dev) |
+| @loop-engine/adapter-postgres | PostgreSQL persistence |
+| @loop-engine/adapter-kafka | Kafka event bus |
 
 ## Examples
 

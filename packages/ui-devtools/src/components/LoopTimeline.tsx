@@ -1,6 +1,6 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import type { LoopTimeline as LoopTimelineType } from "@loopengine/observability";
+import type { LoopTimeline as LoopTimelineType } from "@loop-engine/observability";
 import { ActorBadge } from "./ActorBadge";
 import { LoopStateBadge } from "./LoopStateBadge";
 

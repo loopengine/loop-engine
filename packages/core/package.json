@@ -1,5 +1,5 @@
 {
-  "name": "@loopengine/core",
+  "name": "@loop-engine/core",
   "version": "0.1.0",
   "license": "MIT",
   "description": "Domain model types for the Loop Engine - zero dependencies",

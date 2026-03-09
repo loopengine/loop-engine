@@ -1,7 +1,7 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import type { LoopId, Signal, StateId, TransitionId } from "@loopengine/core";
-import type { LoopEvent } from "@loopengine/events";
+import type { LoopId, Signal, StateId, TransitionId } from "@loop-engine/core";
+import type { LoopEvent } from "@loop-engine/events";
 
 export interface SignalDetectionResult {
   signalType: string;

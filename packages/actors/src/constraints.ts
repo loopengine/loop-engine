@@ -1,6 +1,6 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import type { TransitionId, TransitionSpec } from "@loopengine/core";
+import type { TransitionId, TransitionSpec } from "@loop-engine/core";
 import type { Actor } from "./types";
 
 export interface AIActorConstraints {

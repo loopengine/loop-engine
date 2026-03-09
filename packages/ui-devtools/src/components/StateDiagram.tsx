@@ -1,6 +1,6 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import type { LoopDefinition, StateId, TransitionId } from "@loopengine/core";
+import type { LoopDefinition, StateId, TransitionId } from "@loop-engine/core";
 
 export function StateDiagram({
   definition,

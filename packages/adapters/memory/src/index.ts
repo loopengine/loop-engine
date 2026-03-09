@@ -1,7 +1,7 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
-import type { AggregateId, LoopId, LoopInstance, TransitionRecord } from "@loopengine/core";
-import type { LoopStore } from "@loopengine/runtime";
+import type { AggregateId, LoopId, LoopInstance, TransitionRecord } from "@loop-engine/core";
+import type { LoopStore } from "@loop-engine/runtime";
 
 export class MemoryStore implements LoopStore {
   private readonly instances = new Map<AggregateId, LoopInstance>();

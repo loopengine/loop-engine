@@ -1,7 +1,7 @@
 // @license MIT
 // SPDX-License-Identifier: MIT
 import { describe, expect, it } from "vitest";
-import { loopId, outcomeId, stateId, transitionId, type LoopDefinition } from "@loopengine/core";
+import { loopId, outcomeId, stateId, transitionId, type LoopDefinition } from "@loop-engine/core";
 import { createLoopSystem } from "../index";
 
 function demoLoop(): LoopDefinition {

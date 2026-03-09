@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { parseLoopYaml } from "@loopengine/dsl";
-import { createLoopSystem } from "@loopengine/sdk";
-import { DevtoolsPanel } from "@loopengine/ui-devtools";
+import { parseLoopYaml } from "@loop-engine/dsl";
+import { createLoopSystem } from "@loop-engine/sdk";
+import { DevtoolsPanel } from "@loop-engine/ui-devtools";
 
 const procurementYaml = `id: scm.procurement
 version: 1.0.0

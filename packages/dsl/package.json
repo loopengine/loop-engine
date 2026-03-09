@@ -1,5 +1,5 @@
 {
-  "name": "@loopengine/dsl",
+  "name": "@loop-engine/dsl",
   "version": "0.1.0",
   "license": "MIT",
   "description": "YAML/JSON loop authoring, parsing, and validation",
@@ -20,7 +20,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loopengine/core": "workspace:*",
+    "@loop-engine/core": "workspace:*",
     "js-yaml": "^4.1.0",
     "zod": "^3.22.0"
   }

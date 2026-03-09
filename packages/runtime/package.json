@@ -1,0 +1,31 @@
+{
+  "name": "@loopengine/runtime",
+  "version": "0.1.0",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@loopengine/core": "workspace:*",
+    "@loopengine/dsl": "workspace:*",
+    "@loopengine/events": "workspace:*",
+    "@loopengine/actors": "workspace:*",
+    "@loopengine/guards": "workspace:*"
+  },
+  "peerDependencies": {
+    "@loopengine/events": ">=0.1.0"
+  }
+}

@@ -30,6 +30,12 @@ importers:
         specifier: ^3.22.0
         version: 3.25.76
 
+  packages/actors:
+    dependencies:
+      '@loopengine/core':
+        specifier: workspace:*
+        version: link:../core
+
   packages/core: {}
 
   packages/dsl:
@@ -43,6 +49,36 @@ importers:
       zod:
         specifier: ^3.22.0
         version: 3.25.76
+
+  packages/events:
+    dependencies:
+      '@loopengine/core':
+        specifier: workspace:*
+        version: link:../core
+
+  packages/guards:
+    dependencies:
+      '@loopengine/core':
+        specifier: workspace:*
+        version: link:../core
+
+  packages/runtime:
+    dependencies:
+      '@loopengine/actors':
+        specifier: workspace:*
+        version: link:../actors
+      '@loopengine/core':
+        specifier: workspace:*
+        version: link:../core
+      '@loopengine/dsl':
+        specifier: workspace:*
+        version: link:../dsl
+      '@loopengine/events':
+        specifier: workspace:*
+        version: link:../events
+      '@loopengine/guards':
+        specifier: workspace:*
+        version: link:../guards
 
 packages:
 

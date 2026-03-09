@@ -105,6 +105,11 @@ export interface LoopDefinition {
   metadata?: Record<string, unknown>;
 }
 
+export interface LoopRegistry {
+  get(loopId: LoopId): LoopDefinition | undefined;
+  list(domain?: string): LoopDefinition[];
+}
+
 export interface ActorRef {
   type: ActorType;
   id: ActorId;

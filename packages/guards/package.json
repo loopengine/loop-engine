@@ -20,7 +20,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loop-engine/core": "workspace:*"
+    "@loop-engine/core": "workspace:*",
+    "@loop-engine/actors": "workspace:*"
   },
   "devDependencies": {},
   "files": [

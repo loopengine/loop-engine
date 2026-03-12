@@ -2,25 +2,27 @@
 
 import { useMemo, useState } from "react";
 import { buildTimeline, computeMetrics } from "@loop-engine/observability";
-import type { LoopInstance, TransitionRecord } from "@loop-engine/core";
 import { DevtoolsPanel } from "@loop-engine/ui-devtools";
 
-const sampleInstance: LoopInstance = {
+type SampleInstance = Parameters<typeof buildTimeline>[0];
+type SampleHistory = Parameters<typeof buildTimeline>[1];
+
+const sampleInstance: SampleInstance = {
   loopId: "scm.procurement" as never,
   aggregateId: "PO-2026-0012" as never,
-  orgId: "acme",
   currentState: "INVOICE_MATCHED" as never,
-  status: "IN_PROGRESS",
+  status: "active",
   startedAt: "2026-03-01T08:00:00.000Z",
+  updatedAt: "2026-03-01T08:09:00.000Z",
   correlationId: "corr-1" as never
 };
 
-const sampleHistory: TransitionRecord[] = [
+const sampleHistory: SampleHistory = [
   {
-    id: "t1",
     loopId: "scm.procurement" as never,
     aggregateId: "PO-2026-0012" as never,
     transitionId: "confirm_po" as never,
+    signal: "scm.confirm_po" as never,
     fromState: "OPEN" as never,
     toState: "PO_CONFIRMED" as never,
     actor: { type: "human", id: "buyer@example.com" as never },
@@ -28,10 +30,10 @@ const sampleHistory: TransitionRecord[] = [
     occurredAt: "2026-03-01T08:05:00.000Z"
   },
   {
-    id: "t2",
     loopId: "scm.procurement" as never,
     aggregateId: "PO-2026-0012" as never,
     transitionId: "schedule_receipt" as never,
+    signal: "scm.schedule_receipt" as never,
     fromState: "PO_CONFIRMED" as never,
     toState: "RECEIPT_SCHEDULED" as never,
     actor: { type: "automation", id: "system:procurement" as never },
@@ -110,7 +112,7 @@ export default function Page(): React.ReactElement {
             <div>
               <h3>Timeline</h3>
               {filteredHistory.map((t) => (
-                <div key={t.id} style={{ marginBottom: 8 }}>
+                <div key={`${t.transitionId}-${t.occurredAt}`} style={{ marginBottom: 8 }}>
                   {t.fromState} -&gt; {t.toState} ({t.actor.type}:{String(t.actor.id)}) at {t.occurredAt}
                 </div>
               ))}
@@ -141,7 +143,7 @@ export default function Page(): React.ReactElement {
             <div>
               <h3>Raw Events</h3>
               {sampleHistory.map((h) => (
-                <pre key={h.id}>{JSON.stringify(h, null, 2)}</pre>
+                <pre key={`${h.transitionId}-${h.occurredAt}`}>{JSON.stringify(h, null, 2)}</pre>
               ))}
             </div>
           )}

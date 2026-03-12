@@ -1,6 +1,7 @@
 {
-  "name": "@loop-engine/adapter-memory",
+  "name": "@loop-engine/adapter-openai",
   "version": "0.1.0",
+  "description": "OpenAI adapter for creating Loop Engine AI actor submissions",
   "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -19,8 +20,9 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@loop-engine/actors": "workspace:*",
     "@loop-engine/core": "workspace:*",
-    "@loop-engine/runtime": "workspace:*"
+    "openai": "^6.4.1"
   },
   "files": [
     "dist/",

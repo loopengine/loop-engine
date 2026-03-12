@@ -1,45 +1,66 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
-import { memoryStore } from "@loop-engine/adapter-memory";
+import { createMemoryLoopStorageAdapter } from "@loop-engine/adapter-memory";
 import type { LoopDefinition } from "@loop-engine/core";
-import { LoopBuilder } from "@loop-engine/dsl";
+import { validateLoopDefinition } from "@loop-engine/dsl";
 import { InMemoryEventBus } from "@loop-engine/events";
-import { defaultRegistry as guardRegistry, type GuardRegistry } from "@loop-engine/guards";
+import { GuardRegistry } from "@loop-engine/guards";
 import { computeMetrics, buildTimeline } from "@loop-engine/observability";
 import { httpRegistry, localRegistry, type LoopRegistry } from "@loop-engine/registry-client";
-import { createLoopEngine, type LoopEngine, type LoopStore } from "@loop-engine/runtime";
-import { createSignalEngine, type SignalEngine } from "@loop-engine/signals";
+import {
+  createLoopSystem as createRuntimeLoopSystem,
+  type LoopDefinitionRegistry,
+  type LoopStorageAdapter,
+  type LoopSystem
+} from "@loop-engine/runtime";
+import { SignalRegistry } from "@loop-engine/signals";
 
-class InMemoryLoopRegistry {
+class InMemoryLoopRegistry implements LoopDefinitionRegistry {
   constructor(private readonly loops: LoopDefinition[]) {}
-  get(id: LoopDefinition["id"]): LoopDefinition | undefined {
-    return this.loops.find((l) => l.id === id);
+
+  get(id: LoopDefinition["loopId"]): LoopDefinition | undefined {
+    return this.loops.find((loop) => loop.loopId === id);
   }
-  list(domain?: string): LoopDefinition[] {
-    return domain ? this.loops.filter((l) => l.domain === domain) : this.loops;
+
+  list(): LoopDefinition[] {
+    return this.loops;
   }
 }
 
-export { createLoopEngine } from "@loop-engine/runtime";
-export { LoopBuilder } from "@loop-engine/dsl";
-export { guardRegistry };
-export { createSignalEngine } from "@loop-engine/signals";
+export { createLoopSystem as createLoopSystemRuntime } from "@loop-engine/runtime";
+export { validateLoopDefinition } from "@loop-engine/dsl";
 export { InMemoryEventBus } from "@loop-engine/events";
 export { computeMetrics, buildTimeline } from "@loop-engine/observability";
 export { localRegistry, httpRegistry } from "@loop-engine/registry-client";
 export type { LoopRegistry, LocalRegistryOptions, HttpRegistryOptions } from "@loop-engine/registry-client";
-export type { LoopDefinition, LoopInstance, TransitionRecord, Signal } from "@loop-engine/core";
+export { createMemoryLoopStorageAdapter };
+export { GuardRegistry };
+export { SignalRegistry };
+export type {
+  LoopDefinition,
+  LoopId,
+  TransitionId,
+  StateId,
+  ActorRef,
+  AggregateId
+} from "@loop-engine/core";
+export type {
+  RuntimeLoopInstance,
+  RuntimeTransitionRecord,
+  LoopStorageAdapter,
+  LoopSystem
+} from "@loop-engine/runtime";
 
 export interface CreateLoopSystemOptions {
   loops: LoopDefinition[];
-  store?: LoopStore;
+  storage?: LoopStorageAdapter;
   guards?: GuardRegistry;
   signals?: boolean;
   /**
    * Optional loop registry to load additional loop definitions from.
    * Definitions are fetched at startup via registry.list().
-   * Any loops passed in the loops[] array take precedence over
-   * registry definitions with the same id (local wins).
+   * Any loops passed in loops[] take precedence over registry definitions
+   * with the same loopId (local wins).
    */
   registry?: LoopRegistry;
 }
@@ -47,10 +68,10 @@ export interface CreateLoopSystemOptions {
 function mergeDefinitions(registryLoops: LoopDefinition[], localLoops: LoopDefinition[]): LoopDefinition[] {
   const merged = new Map<string, LoopDefinition>();
   for (const definition of registryLoops) {
-    merged.set(String(definition.id), definition);
+    merged.set(String(definition.loopId), definition);
   }
   for (const definition of localLoops) {
-    merged.set(String(definition.id), definition);
+    merged.set(String(definition.loopId), definition);
   }
   return [...merged.values()];
 }
@@ -60,8 +81,9 @@ async function loadFromRegistry(registry: LoopRegistry): Promise<LoopDefinition[
 }
 
 export async function createLoopSystem(options: CreateLoopSystemOptions): Promise<{
-  engine: LoopEngine;
-  signals?: SignalEngine;
+  engine: LoopSystem;
+  storage: LoopStorageAdapter;
+  signals?: SignalRegistry;
   eventBus: InMemoryEventBus;
 }> {
   let registryLoops: LoopDefinition[] = [];
@@ -78,18 +100,32 @@ export async function createLoopSystem(options: CreateLoopSystemOptions): Promis
   }
 
   const mergedLoops = mergeDefinitions(registryLoops, options.loops ?? []);
-  const store = options.store ?? memoryStore();
+  for (const definition of mergedLoops) {
+    const validation = validateLoopDefinition(definition);
+    if (!validation.valid) {
+      const detail = validation.errors.map((error) => `${error.code}: ${error.message}`).join("; ");
+      throw new Error(`Invalid loop definition ${definition.loopId}: ${detail}`);
+    }
+  }
+
+  const storage = options.storage ?? createMemoryLoopStorageAdapter();
   const eventBus = new InMemoryEventBus();
-  const guardEvaluator = (options.guards ?? guardRegistry).createEvaluator();
-  const engine = createLoopEngine({
+  const guardRegistry = options.guards ?? new GuardRegistry();
+  if (!options.guards) {
+    guardRegistry.registerBuiltIns();
+  }
+
+  const engine = createRuntimeLoopSystem({
     registry: new InMemoryLoopRegistry(mergedLoops),
-    store,
+    storage,
     eventBus,
-    guardEvaluator
+    guardRegistry
   });
+
   return {
     engine,
+    storage,
     eventBus,
-    ...(options.signals ? { signals: createSignalEngine() } : {})
+    ...(options.signals ? { signals: new SignalRegistry() } : {})
   };
 }

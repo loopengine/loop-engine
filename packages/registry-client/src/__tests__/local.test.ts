@@ -1,77 +1,94 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { loopId } from "@loop-engine/core";
-import { parseLoopYaml } from "@loop-engine/dsl";
+import { LoopDefinitionSchema, type LoopDefinition } from "@loop-engine/core";
+import { serializeLoopYaml } from "@loop-engine/dsl";
 import { localRegistry } from "../adapters/local";
 import { RegistryConflictError } from "../types";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(__dirname, "../../../../");
+const asLoopId = (id: string) => id as never;
 
-async function loadFixture(relativePath: string) {
-  const fullPath = path.join(repoRoot, relativePath);
-  const content = await readFile(fullPath, "utf8");
-  return parseLoopYaml(content);
+function makeLoop(id: string): LoopDefinition {
+  return LoopDefinitionSchema.parse({
+    loopId: id,
+    version: "1.0.0",
+    name: id,
+    description: `${id} description`,
+    states: [
+      { stateId: "OPEN", label: "Open" },
+      { stateId: "DONE", label: "Done", terminal: true }
+    ],
+    initialState: "OPEN",
+    transitions: [
+      {
+        transitionId: "finish",
+        from: "OPEN",
+        to: "DONE",
+        signal: `${id}.finish`,
+        allowedActors: ["human"]
+      }
+    ],
+    outcome: {
+      description: "Done",
+      valueUnit: "done",
+      businessMetrics: [{ id: "cycle_time_days", label: "Cycle Time", unit: "days" }]
+    }
+  });
 }
 
 describe("localRegistry — in-memory mode", () => {
   it("should register and retrieve a loop definition", async () => {
-    const procurement = await loadFixture("loops/scm/procurement.yaml");
-    const registry = localRegistry({ definitions: [procurement] });
-    const found = await registry.get(loopId("scm.procurement"));
-    expect(found?.id).toBe(loopId("scm.procurement"));
+    const definition = makeLoop("scm.procurement");
+    const registry = localRegistry({ definitions: [definition] });
+    const found = await registry.get(asLoopId("scm.procurement"));
+    expect(found?.loopId).toBe(asLoopId("scm.procurement"));
   });
 
   it("should return null for unknown loop ids", async () => {
-    const procurement = await loadFixture("loops/scm/procurement.yaml");
-    const registry = localRegistry({ definitions: [procurement] });
-    const found = await registry.get(loopId("unknown.loop"));
+    const registry = localRegistry({ definitions: [makeLoop("scm.procurement")] });
+    const found = await registry.get(asLoopId("unknown.loop"));
     expect(found).toBeNull();
   });
 
   it("should list all definitions", async () => {
-    const procurement = await loadFixture("loops/scm/procurement.yaml");
-    const replenishment = await loadFixture("loops/scm/replenishment.yaml");
-    const registry = localRegistry({ definitions: [procurement, replenishment] });
+    const registry = localRegistry({
+      definitions: [makeLoop("scm.procurement"), makeLoop("scm.replenishment")]
+    });
     const listed = await registry.list();
     expect(listed).toHaveLength(2);
   });
 
   it("should filter list by domain", async () => {
-    const procurement = await loadFixture("loops/scm/procurement.yaml");
-    const leadQualification = await loadFixture("loops/crm/lead-qualification.yaml");
-    const registry = localRegistry({ definitions: [procurement, leadQualification] });
+    const registry = localRegistry({
+      definitions: [makeLoop("scm.procurement"), makeLoop("crm.lead-qualification")]
+    });
     const listed = await registry.list({ domain: "scm" });
     expect(listed).toHaveLength(1);
-    expect(listed[0]?.domain).toBe("scm");
+    expect(String(listed[0]?.loopId).startsWith("scm.")).toBe(true);
   });
 
   it("should throw RegistryConflictError on duplicate id+version", async () => {
-    const procurement = await loadFixture("loops/scm/procurement.yaml");
-    const registry = localRegistry({ definitions: [procurement] });
-    await expect(registry.register(procurement)).rejects.toBeInstanceOf(RegistryConflictError);
+    const definition = makeLoop("scm.procurement");
+    const registry = localRegistry({ definitions: [definition] });
+    await expect(registry.register(definition)).rejects.toBeInstanceOf(RegistryConflictError);
   });
 
   it("should allow overwrite with force: true", async () => {
-    const procurement = await loadFixture("loops/scm/procurement.yaml");
-    const registry = localRegistry({ definitions: [procurement] });
-    const overwritten = { ...procurement, description: "Updated description" };
+    const registry = localRegistry({ definitions: [makeLoop("scm.procurement")] });
+    const overwritten = { ...makeLoop("scm.procurement"), description: "Updated description" };
     await registry.register(overwritten, { force: true });
-    const found = await registry.get(loopId("scm.procurement"));
+    const found = await registry.get(asLoopId("scm.procurement"));
     expect(found?.description).toBe("Updated description");
   });
 
   it("should remove a definition", async () => {
-    const procurement = await loadFixture("loops/scm/procurement.yaml");
-    const registry = localRegistry({ definitions: [procurement] });
-    const removed = await registry.remove(loopId("scm.procurement"));
+    const registry = localRegistry({ definitions: [makeLoop("scm.procurement")] });
+    const removed = await registry.remove(asLoopId("scm.procurement"));
     expect(removed).toBe(true);
-    const found = await registry.get(loopId("scm.procurement"));
+    const found = await registry.get(asLoopId("scm.procurement"));
     expect(found).toBeNull();
   });
 });
@@ -79,22 +96,22 @@ describe("localRegistry — in-memory mode", () => {
 describe("localRegistry — directory mode", () => {
   it("should load .yaml files from a directory", async () => {
     const dir = await mkdtemp(path.join(os.tmpdir(), "loopengine-reg-yaml-"));
-    const procurementYaml = await readFile(path.join(repoRoot, "loops/scm/procurement.yaml"), "utf8");
-    await writeFile(path.join(dir, "procurement.yaml"), procurementYaml, "utf8");
+    const yaml = serializeLoopYaml(makeLoop("scm.procurement"));
+    await writeFile(path.join(dir, "procurement.yaml"), yaml, "utf8");
 
     const registry = localRegistry({ loopsDir: dir });
-    const found = await registry.get(loopId("scm.procurement"));
-    expect(found?.id).toBe(loopId("scm.procurement"));
+    const found = await registry.get(asLoopId("scm.procurement"));
+    expect(found?.loopId).toBe(asLoopId("scm.procurement"));
   });
 
   it("should load .json files from a directory", async () => {
     const dir = await mkdtemp(path.join(os.tmpdir(), "loopengine-reg-json-"));
-    const replenishment = await loadFixture("loops/scm/replenishment.yaml");
+    const replenishment = makeLoop("scm.replenishment");
     await writeFile(path.join(dir, "replenishment.json"), JSON.stringify(replenishment), "utf8");
 
     const registry = localRegistry({ loopsDir: dir });
-    const found = await registry.get(loopId("scm.replenishment"));
-    expect(found?.id).toBe(loopId("scm.replenishment"));
+    const found = await registry.get(asLoopId("scm.replenishment"));
+    expect(found?.loopId).toBe(asLoopId("scm.replenishment"));
   });
 
   it("should silently ignore non-yaml/json files", async () => {
@@ -107,23 +124,22 @@ describe("localRegistry — directory mode", () => {
 
   it("should set source as 'local' on loaded entries", async () => {
     const dir = await mkdtemp(path.join(os.tmpdir(), "loopengine-reg-source-"));
-    const procurementYaml = await readFile(path.join(repoRoot, "loops/scm/procurement.yaml"), "utf8");
-    await writeFile(path.join(dir, "procurement.yaml"), procurementYaml, "utf8");
+    const yaml = serializeLoopYaml(makeLoop("scm.procurement"));
+    await writeFile(path.join(dir, "procurement.yaml"), yaml, "utf8");
 
     const registry = localRegistry({ loopsDir: dir }) as {
-      get(id: ReturnType<typeof loopId>): Promise<unknown>;
-      __getEntry(id: ReturnType<typeof loopId>): { source: string } | undefined;
+      get(id: ReturnType<typeof asLoopId>): Promise<unknown>;
+      __getEntry(id: ReturnType<typeof asLoopId>): { source: string } | undefined;
     };
-    await registry.get(loopId("scm.procurement"));
-    expect(registry.__getEntry(loopId("scm.procurement"))?.source).toBe("local");
+    await registry.get(asLoopId("scm.procurement"));
+    expect(registry.__getEntry(asLoopId("scm.procurement"))?.source).toBe("local");
   });
 });
 
 describe("localRegistry — convenience array constructor", () => {
   it("should accept LoopDefinition[] directly as first argument", async () => {
-    const procurement = await loadFixture("loops/scm/procurement.yaml");
-    const registry = localRegistry([procurement]);
-    const found = await registry.get(loopId("scm.procurement"));
-    expect(found?.id).toBe(loopId("scm.procurement"));
+    const registry = localRegistry([makeLoop("scm.procurement")]);
+    const found = await registry.get(asLoopId("scm.procurement"));
+    expect(found?.loopId).toBe(asLoopId("scm.procurement"));
   });
 });

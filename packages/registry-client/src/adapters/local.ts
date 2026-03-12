@@ -1,7 +1,8 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
 import type { LoopDefinition, LoopId } from "@loop-engine/core";
-import { parseLoopJson, parseLoopYaml, validateLoopDefinition } from "@loop-engine/dsl";
+import { LoopDefinitionSchema } from "@loop-engine/core";
+import { parseLoopYaml, validateLoopDefinition } from "@loop-engine/dsl";
 import type { LoopRegistry, LoopRegistryOptions, RegistryEntry } from "../types";
 import { RegistryConflictError } from "../types";
 
@@ -79,7 +80,7 @@ export function localRegistry(options?: LoopDefinition[] | LocalRegistryOptions)
     source: RegistryEntry["source"],
     force = false
   ): Promise<void> => {
-    const loopId = definition.id;
+    const loopId = definition.loopId;
     const existing = entries.get(loopId);
     if (existing) {
       if (existing.definition.version === definition.version && !force) {
@@ -109,14 +110,24 @@ export function localRegistry(options?: LoopDefinition[] | LocalRegistryOptions)
       return parseLoopYaml(content);
     }
     if (fileName.endsWith(".json")) {
-      const definition = parseLoopJson(content);
+      const parsed = JSON.parse(content) as unknown;
+      const definition = LoopDefinitionSchema.parse(parsed);
       const validated = validateLoopDefinition(definition);
-      if (!validated.valid || !validated.definition) {
-        throw new Error(validated.errors.join("; "));
+      if (!validated.valid) {
+        throw new Error(validated.errors.map((error) => `${error.code}: ${error.message}`).join("; "));
       }
-      return validated.definition;
+      return definition;
     }
     return null;
+  };
+
+  const matchesDomain = (definition: LoopDefinition, domain?: string): boolean => {
+    if (!domain) return true;
+    const id = String(definition.loopId);
+    if (id.startsWith(`${domain}.`) || id.startsWith(`${domain}:`) || id === domain) {
+      return true;
+    }
+    return false;
   };
 
   const loadFromDirectory = async (): Promise<void> => {
@@ -187,8 +198,8 @@ export function localRegistry(options?: LoopDefinition[] | LocalRegistryOptions)
       await ensureLoaded();
       return [...entries.values()]
         .map((entry) => entry.definition)
-        .filter((definition) => (optionsArg?.domain ? definition.domain === optionsArg.domain : true))
-        .sort((a, b) => String(a.id).localeCompare(String(b.id)));
+        .filter((definition) => matchesDomain(definition, optionsArg?.domain))
+        .sort((a, b) => String(a.loopId).localeCompare(String(b.loopId)));
     },
 
     async has(id: LoopId): Promise<boolean> {

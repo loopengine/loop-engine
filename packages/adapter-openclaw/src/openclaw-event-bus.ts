@@ -19,6 +19,7 @@ export class OpenClawEventBus implements EventBus {
   private reconnectTimer: NodeJS.Timeout | null = null;
   private readonly options: ResolvedOptions;
   private isConnected = false;
+  private handlers = new Set<(event: LoopEvent) => Promise<void>>();
 
   constructor(options: OpenClawAdapterOptions);
   constructor(inner: EventBus, options: Omit<OpenClawAdapterOptions, "inner">);
@@ -51,11 +52,21 @@ export class OpenClawEventBus implements EventBus {
   }
 
   subscribe(handler: (event: LoopEvent) => Promise<void>): () => void {
-    return this.options.inner.subscribe(handler);
+    this.handlers.add(handler);
+    return () => {
+      this.handlers.delete(handler);
+    };
   }
 
   async emit(event: LoopEvent): Promise<void> {
     await this.options.inner.emit(event);
+    for (const handler of this.handlers) {
+      try {
+        await handler(event);
+      } catch {
+        // Subscriber handler failures must not block event emission.
+      }
+    }
     if (this.shouldForward(event)) this.sendToGateway(event);
   }
 
@@ -112,5 +123,5 @@ export class OpenClawEventBus implements EventBus {
 }
 
 function isEventBus(value: EventBus | OpenClawAdapterOptions): value is EventBus {
-  return typeof (value as EventBus).emit === "function" && typeof (value as EventBus).subscribe === "function";
+  return typeof (value as EventBus).emit === "function";
 }

@@ -1,7 +1,11 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
-import type { AggregateId, LoopId, LoopInstance, TransitionRecord } from "@loop-engine/core";
-import type { LoopStore } from "@loop-engine/runtime";
+import type { AggregateId, LoopId } from "@loop-engine/core";
+import type {
+  LoopStorageAdapter,
+  RuntimeLoopInstance,
+  RuntimeTransitionRecord
+} from "@loop-engine/runtime";
 
 export type PgPoolLike = {
   query(sql: string, values?: unknown[]): Promise<{ rows: unknown[] }>;
@@ -12,32 +16,32 @@ export async function createSchema(pool: PgPoolLike): Promise<void> {
     CREATE TABLE IF NOT EXISTS loop_instances (
       aggregate_id TEXT PRIMARY KEY,
       loop_id TEXT NOT NULL,
-      org_id TEXT NOT NULL,
       current_state TEXT NOT NULL,
       status TEXT NOT NULL,
       started_at TIMESTAMPTZ NOT NULL,
-      closed_at TIMESTAMPTZ NULL,
-      correlation_id TEXT NOT NULL,
+      updated_at TIMESTAMPTZ NOT NULL,
+      completed_at TIMESTAMPTZ NULL,
+      correlation_id TEXT NULL,
       metadata JSONB NULL
     );
   `);
   await pool.query(`
     CREATE TABLE IF NOT EXISTS loop_transitions (
-      id TEXT PRIMARY KEY,
+      id BIGSERIAL PRIMARY KEY,
       loop_id TEXT NOT NULL,
       aggregate_id TEXT NOT NULL,
       transition_id TEXT NOT NULL,
+      signal TEXT NOT NULL,
       from_state TEXT NOT NULL,
       to_state TEXT NOT NULL,
       actor JSONB NOT NULL,
-      evidence JSONB NOT NULL,
-      occurred_at TIMESTAMPTZ NOT NULL,
-      duration_ms INTEGER NULL
+      evidence JSONB NULL,
+      occurred_at TIMESTAMPTZ NOT NULL
     );
   `);
 }
 
-export function postgresStore(_pool: PgPoolLike): LoopStore {
+export function postgresStorageAdapter(_pool: PgPoolLike): LoopStorageAdapter {
   function asRecord(value: unknown): Record<string, unknown> {
     if (value && typeof value === "object") return value as Record<string, unknown>;
     return {};
@@ -47,51 +51,45 @@ export function postgresStore(_pool: PgPoolLike): LoopStore {
     return typeof value === "string" ? value : fallback;
   }
 
-  function asLoopInstance(row: unknown): LoopInstance {
+  function asLoopInstance(row: unknown): RuntimeLoopInstance {
     const item = asRecord(row);
     const metadata = item.metadata;
     return {
       loopId: asString(item.loop_id) as LoopId,
       aggregateId: asString(item.aggregate_id) as AggregateId,
-      orgId: asString(item.org_id),
-      currentState: asString(item.current_state) as LoopInstance["currentState"],
-      status: asString(item.status) as LoopInstance["status"],
+      currentState: asString(item.current_state) as RuntimeLoopInstance["currentState"],
+      status: asString(item.status) as RuntimeLoopInstance["status"],
       startedAt: new Date(asString(item.started_at)).toISOString(),
-      ...(item.closed_at ? { closedAt: new Date(asString(item.closed_at)).toISOString() } : {}),
-      correlationId: asString(item.correlation_id) as LoopInstance["correlationId"],
+      updatedAt: new Date(asString(item.updated_at)).toISOString(),
+      ...(item.completed_at ? { completedAt: new Date(asString(item.completed_at)).toISOString() } : {}),
+      ...(item.correlation_id ? { correlationId: asString(item.correlation_id) } : {}),
       ...(metadata && typeof metadata === "object" ? { metadata: metadata as Record<string, unknown> } : {})
     };
   }
 
-  function asTransitionRecord(row: unknown): TransitionRecord {
+  function asTransitionRecord(row: unknown): RuntimeTransitionRecord {
     const item = asRecord(row);
-    const actor = asRecord(item.actor);
-    const evidence = item.evidence;
+    const actor = asRecord(item.actor) as RuntimeTransitionRecord["actor"];
     return {
-      id: asString(item.id),
-      loopId: asString(item.loop_id) as TransitionRecord["loopId"],
-      aggregateId: asString(item.aggregate_id) as TransitionRecord["aggregateId"],
-      transitionId: asString(item.transition_id) as TransitionRecord["transitionId"],
-      fromState: asString(item.from_state) as TransitionRecord["fromState"],
-      toState: asString(item.to_state) as TransitionRecord["toState"],
-      actor: {
-        type: asString(actor.type) as TransitionRecord["actor"]["type"],
-        id: asString(actor.id) as TransitionRecord["actor"]["id"],
-        ...(typeof actor.displayName === "string" ? { displayName: actor.displayName } : {}),
-        ...(typeof actor.sessionId === "string" ? { sessionId: actor.sessionId } : {}),
-        ...(typeof actor.agentId === "string" ? { agentId: actor.agentId } : {})
-      },
-      evidence: evidence && typeof evidence === "object" ? (evidence as Record<string, unknown>) : {},
+      loopId: asString(item.loop_id) as RuntimeTransitionRecord["loopId"],
+      aggregateId: asString(item.aggregate_id) as RuntimeTransitionRecord["aggregateId"],
+      transitionId: asString(item.transition_id) as RuntimeTransitionRecord["transitionId"],
+      signal: asString(item.signal) as RuntimeTransitionRecord["signal"],
+      fromState: asString(item.from_state) as RuntimeTransitionRecord["fromState"],
+      toState: asString(item.to_state) as RuntimeTransitionRecord["toState"],
+      actor,
       occurredAt: new Date(asString(item.occurred_at)).toISOString(),
-      ...(typeof item.duration_ms === "number" ? { durationMs: item.duration_ms } : {})
+      ...(item.evidence && typeof item.evidence === "object"
+        ? { evidence: item.evidence as Record<string, unknown> }
+        : {})
     };
   }
 
   return {
-    async getInstance(aggregateId: AggregateId): Promise<LoopInstance | null> {
+    async getLoop(aggregateId: AggregateId): Promise<RuntimeLoopInstance | null> {
       const result = await _pool.query(
         `
-          SELECT aggregate_id, loop_id, org_id, current_state, status, started_at, closed_at, correlation_id, metadata
+          SELECT aggregate_id, loop_id, current_state, status, started_at, updated_at, completed_at, correlation_id, metadata
           FROM loop_instances
           WHERE aggregate_id = $1
           LIMIT 1
@@ -102,39 +100,60 @@ export function postgresStore(_pool: PgPoolLike): LoopStore {
       if (!row) return null;
       return asLoopInstance(row);
     },
-    async saveInstance(instance: LoopInstance): Promise<void> {
+    async createLoop(instance: RuntimeLoopInstance): Promise<void> {
       await _pool.query(
         `
           INSERT INTO loop_instances (
-            aggregate_id, loop_id, org_id, current_state, status, started_at, closed_at, correlation_id, metadata
+            aggregate_id, loop_id, current_state, status, started_at, updated_at, completed_at, correlation_id, metadata
           ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-          ON CONFLICT (aggregate_id) DO UPDATE SET
-            loop_id = EXCLUDED.loop_id,
-            org_id = EXCLUDED.org_id,
-            current_state = EXCLUDED.current_state,
-            status = EXCLUDED.status,
-            started_at = EXCLUDED.started_at,
-            closed_at = EXCLUDED.closed_at,
-            correlation_id = EXCLUDED.correlation_id,
-            metadata = EXCLUDED.metadata
         `,
         [
           instance.aggregateId,
           instance.loopId,
-          instance.orgId,
           instance.currentState,
           instance.status,
           instance.startedAt,
-          instance.closedAt ?? null,
-          instance.correlationId,
+          instance.updatedAt,
+          instance.completedAt ?? null,
+          instance.correlationId ?? null,
           instance.metadata ?? null
         ]
       );
     },
-    async getTransitionHistory(aggregateId: AggregateId): Promise<TransitionRecord[]> {
+
+    async updateLoop(instance: RuntimeLoopInstance): Promise<void> {
+      await _pool.query(
+        `
+          UPDATE loop_instances
+          SET
+            loop_id = $2,
+            current_state = $3,
+            status = $4,
+            started_at = $5,
+            updated_at = $6,
+            completed_at = $7,
+            correlation_id = $8,
+            metadata = $9
+          WHERE aggregate_id = $1
+        `,
+        [
+          instance.aggregateId,
+          instance.loopId,
+          instance.currentState,
+          instance.status,
+          instance.startedAt,
+          instance.updatedAt,
+          instance.completedAt ?? null,
+          instance.correlationId ?? null,
+          instance.metadata ?? null
+        ]
+      );
+    },
+
+    async getTransitions(aggregateId: AggregateId): Promise<RuntimeTransitionRecord[]> {
       const result = await _pool.query(
         `
-          SELECT id, loop_id, aggregate_id, transition_id, from_state, to_state, actor, evidence, occurred_at, duration_ms
+          SELECT loop_id, aggregate_id, transition_id, signal, from_state, to_state, actor, evidence, occurred_at
           FROM loop_transitions
           WHERE aggregate_id = $1
           ORDER BY occurred_at ASC, id ASC
@@ -143,50 +162,44 @@ export function postgresStore(_pool: PgPoolLike): LoopStore {
       );
       return result.rows.map(asTransitionRecord);
     },
-    async saveTransitionRecord(record: TransitionRecord): Promise<void> {
+
+    async appendTransition(record: RuntimeTransitionRecord): Promise<void> {
       await _pool.query(
         `
           INSERT INTO loop_transitions (
-            id, loop_id, aggregate_id, transition_id, from_state, to_state, actor, evidence, occurred_at, duration_ms
-          ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-          ON CONFLICT (id) DO UPDATE SET
-            loop_id = EXCLUDED.loop_id,
-            aggregate_id = EXCLUDED.aggregate_id,
-            transition_id = EXCLUDED.transition_id,
-            from_state = EXCLUDED.from_state,
-            to_state = EXCLUDED.to_state,
-            actor = EXCLUDED.actor,
-            evidence = EXCLUDED.evidence,
-            occurred_at = EXCLUDED.occurred_at,
-            duration_ms = EXCLUDED.duration_ms
+            loop_id, aggregate_id, transition_id, signal, from_state, to_state, actor, evidence, occurred_at
+          ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
         `,
         [
-          record.id,
           record.loopId,
           record.aggregateId,
           record.transitionId,
+          record.signal,
           record.fromState,
           record.toState,
           record.actor,
-          record.evidence,
-          record.occurredAt,
-          record.durationMs ?? null
+          record.evidence ?? null,
+          record.occurredAt
         ]
       );
     },
-    async listOpenInstances(loopId: LoopId, orgId: string): Promise<LoopInstance[]> {
+
+    async listOpenLoops(loopId: LoopId): Promise<RuntimeLoopInstance[]> {
       const result = await _pool.query(
         `
-          SELECT aggregate_id, loop_id, org_id, current_state, status, started_at, closed_at, correlation_id, metadata
+          SELECT aggregate_id, loop_id, current_state, status, started_at, updated_at, completed_at, correlation_id, metadata
           FROM loop_instances
           WHERE loop_id = $1
-            AND org_id = $2
-            AND status NOT IN ('CLOSED', 'ERROR', 'CANCELLED')
+            AND status = 'active'
           ORDER BY started_at ASC, aggregate_id ASC
         `,
-        [loopId, orgId]
+        [loopId]
       );
       return result.rows.map(asLoopInstance);
     }
   };
+}
+
+export function postgresStore(pool: PgPoolLike): LoopStorageAdapter {
+  return postgresStorageAdapter(pool);
 }

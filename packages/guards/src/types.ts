@@ -1,54 +1,54 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
-import type { ActorRef, AggregateId, Evidence, GuardId, LoopId, LoopInstance, TransitionId } from "@loop-engine/core";
+import type {
+  ActorRef,
+  AggregateId,
+  GuardId,
+  GuardSeverity,
+  GuardSpec,
+  LoopId,
+  SignalId,
+  StateId
+} from "@loop-engine/core";
 
 export interface GuardContext {
+  actor: ActorRef;
   loopId: LoopId;
   aggregateId: AggregateId;
-  transitionId: TransitionId;
-  actor: ActorRef;
-  evidence: Evidence;
-  currentState: string;
-  instance: LoopInstance;
+  fromState: StateId;
+  toState: StateId;
+  signal: SignalId;
+  evidence?: Record<string, unknown>;
+  loopData?: Record<string, unknown>;
 }
 
 export interface GuardResult {
   passed: boolean;
-  code?: string;
-  message?: string;
-  metadata?: Record<string, unknown>;
+  code?: string | undefined;
+  message: string;
+  metadata?: Record<string, unknown> | undefined;
 }
-
-export type GuardFunction = (context: GuardContext) => Promise<GuardResult>;
 
 export interface GuardEvaluator {
-  evaluate(guardId: GuardId, context: GuardContext): Promise<GuardResult>;
+  evaluate(context: GuardContext, parameters?: Record<string, unknown>): Promise<GuardResult>;
 }
 
-export class GuardRegistry {
-  private readonly guards = new Map<GuardId, GuardFunction>();
-
-  register(guardId: GuardId, fn: GuardFunction): void {
-    this.guards.set(guardId, fn);
-  }
-
-  get(guardId: GuardId): GuardFunction | undefined {
-    return this.guards.get(guardId);
-  }
-
-  createEvaluator(): GuardEvaluator {
-    return {
-      evaluate: async (guardId, context) => {
-        const fn = this.guards.get(guardId);
-        if (!fn) {
-          return { passed: false, code: "guard_not_found", message: `Guard not found: ${guardId}` };
-        }
-        return fn(context);
-      }
-    };
-  }
+export interface GuardEvaluationResult {
+  guardId: GuardId;
+  severity: GuardSeverity;
+  passed: boolean;
+  code?: string | undefined;
+  message: string;
+  metadata?: Record<string, unknown> | undefined;
 }
 
-export function createGuardRegistry(): GuardRegistry {
-  return new GuardRegistry();
+export interface GuardEvaluationSummary {
+  hardFailures: GuardEvaluationResult[];
+  softFailures: GuardEvaluationResult[];
+  allPassed: boolean;
 }
+
+export type EvaluateGuardsFn = (
+  guards: GuardSpec[],
+  context: GuardContext
+) => Promise<GuardEvaluationSummary>;

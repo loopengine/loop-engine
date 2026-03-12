@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@loop-engine/core": "workspace:*",
-    "@loop-engine/events": "workspace:*"
+    "zod": "^3.22.0"
   },
   "devDependencies": {},
   "files": [

@@ -1,23 +1,34 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { loopId } from "@loop-engine/core";
 import { httpRegistry } from "../adapters/http";
 import { RegistryConflictError, RegistryNetworkError } from "../types";
 
+const asLoopId = (id: string) => id as never;
+
 const sampleLoop = {
-  id: "demo.loop",
+  loopId: "demo.loop",
   version: "1.0.0",
+  name: "demo.loop",
   description: "Demo loop",
-  domain: "demo",
-  states: [{ id: "OPEN" }, { id: "DONE", isTerminal: true }],
+  states: [
+    { stateId: "OPEN", label: "Open" },
+    { stateId: "DONE", label: "Done", terminal: true }
+  ],
   initialState: "OPEN",
-  transitions: [{ id: "finish", from: "OPEN", to: "DONE", allowedActors: ["human"] }],
+  transitions: [
+    {
+      transitionId: "finish",
+      from: "OPEN",
+      to: "DONE",
+      signal: "demo.finish",
+      allowedActors: ["human"]
+    }
+  ],
   outcome: {
-    id: "done",
     description: "Done",
     valueUnit: "done",
-    measurable: true
+    businessMetrics: [{ id: "cycle_time_days", label: "Cycle Time", unit: "days" }]
   }
 };
 
@@ -32,9 +43,9 @@ describe("httpRegistry", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const registry = httpRegistry({ baseUrl: "http://localhost:3001" });
-    const found = await registry.get(loopId("demo.loop"));
+    const found = await registry.get(asLoopId("demo.loop"));
 
-    expect(found?.id).toBe(loopId("demo.loop"));
+    expect(found?.loopId).toBe(asLoopId("demo.loop"));
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
@@ -43,7 +54,7 @@ describe("httpRegistry", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const registry = httpRegistry({ baseUrl: "http://localhost:3001" });
-    const found = await registry.get(loopId("demo.loop"));
+    const found = await registry.get(asLoopId("demo.loop"));
 
     expect(found).toBeNull();
   });
@@ -56,7 +67,7 @@ describe("httpRegistry", () => {
     const listed = await registry.list();
 
     expect(listed).toHaveLength(1);
-    expect(listed[0]?.id).toBe(loopId("demo.loop"));
+    expect(listed[0]?.loopId).toBe(asLoopId("demo.loop"));
   });
 
   it("should send custom headers on every request", async () => {
@@ -86,11 +97,11 @@ describe("httpRegistry", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const registry = httpRegistry({ baseUrl: "http://localhost:3001", retries: 1 });
-    const promise = registry.get(loopId("demo.loop"));
+    const promise = registry.get(asLoopId("demo.loop"));
     await vi.advanceTimersByTimeAsync(250);
     const found = await promise;
 
-    expect(found?.id).toBe(loopId("demo.loop"));
+    expect(found?.loopId).toBe(asLoopId("demo.loop"));
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
@@ -99,7 +110,7 @@ describe("httpRegistry", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const registry = httpRegistry({ baseUrl: "http://localhost:3001", retries: 3 });
-    const found = await registry.get(loopId("unknown.loop"));
+    const found = await registry.get(asLoopId("unknown.loop"));
 
     expect(found).toBeNull();
     expect(fetchMock).toHaveBeenCalledTimes(1);

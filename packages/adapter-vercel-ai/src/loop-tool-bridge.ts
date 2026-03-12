@@ -1,30 +1,33 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Better Data, Inc.
-import { aggregateId, transitionId, type AggregateId, type ActorRef, type Evidence, type LoopDefinition } from "@loop-engine/core";
-import type { LoopEngine } from "@loop-engine/runtime";
+import type { ActorRef, AggregateId, LoopDefinition } from "@loop-engine/core";
+import type { LoopSystem } from "@loop-engine/runtime";
 
 type TargetState = "AI_ANALYSIS" | "PENDING_HUMAN_APPROVAL" | "EXECUTING" | "EXECUTED";
 
-export async function startGovernedLoop(engine: LoopEngine, definition: LoopDefinition, actor: ActorRef): Promise<AggregateId> {
-  const instanceId = aggregateId(`loop_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
-  await engine.start({
-    loopId: String(definition.id),
+export async function startGovernedLoop(
+  engine: LoopSystem,
+  definition: LoopDefinition,
+  actor: ActorRef
+): Promise<AggregateId> {
+  const instanceId = `loop_${Date.now()}_${Math.random().toString(36).slice(2, 8)}` as AggregateId;
+  await engine.startLoop({
+    loopId: definition.loopId,
     aggregateId: instanceId,
-    orgId: "default",
-    actor: { type: actor.type, id: String(actor.id) }
+    actor
   });
   return instanceId;
 }
 
 export async function transitionToState(
-  engine: LoopEngine,
+  engine: LoopSystem,
   definition: LoopDefinition,
   instanceId: AggregateId,
   toState: TargetState,
   actor: ActorRef,
-  evidence?: Evidence
+  evidence?: Record<string, unknown>
 ): Promise<void> {
-  const instance = await engine.getState(instanceId);
+  const instance = await engine.getLoop(instanceId);
   if (!instance) {
     throw new Error(`[loop-engine/adapter-vercel-ai] instance not found for ${instanceId}`);
   }
@@ -36,25 +39,25 @@ export async function transitionToState(
   );
   if (!transition) {
     throw new Error(
-      `[loop-engine/adapter-vercel-ai] missing transition ${current} -> ${toState} in ${definition.id}`
+      `[loop-engine/adapter-vercel-ai] missing transition ${current} -> ${toState} in ${definition.loopId}`
     );
   }
 
   const result = await engine.transition({
     aggregateId: instanceId,
-    transitionId: transitionId(String(transition.id)),
-    actor: { type: actor.type, id: String(actor.id) },
+    transitionId: transition.transitionId,
+    actor,
     ...(evidence ? { evidence } : {})
   });
   if (result.status === "executed") return;
   if (result.status === "guard_failed") {
     throw new Error(
-      `[loop-engine/adapter-vercel-ai] guard failed on ${String(transition.id)}: ${
+      `[loop-engine/adapter-vercel-ai] guard failed on ${String(transition.transitionId)}: ${
         result.guardFailures?.[0]?.guardId ?? "unknown_guard"
       }`
     );
   }
   throw new Error(
-    `[loop-engine/adapter-vercel-ai] transition ${String(transition.id)} returned status ${result.status}`
+    `[loop-engine/adapter-vercel-ai] transition ${String(transition.transitionId)} returned status ${result.status}`
   );
 }

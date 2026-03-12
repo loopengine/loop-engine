@@ -20,31 +20,12 @@ export function kafkaEventBus(options: {
   groupId?: string;
 }): EventBus {
   const producer = options.kafka.producer();
-  let active = true;
   return {
     async emit(event: LoopEvent): Promise<void> {
       await producer.send({
         topic: options.topic,
         messages: [{ value: JSON.stringify(event) }]
       });
-    },
-    subscribe(handler: (event: LoopEvent) => Promise<void>): () => void {
-      const consumer = options.kafka.consumer({ groupId: options.groupId ?? "loopengine" });
-      void consumer
-        .connect()
-        .then(() => consumer.subscribe({ topic: options.topic, fromBeginning: false }))
-        .then(() =>
-          consumer.run({
-            eachMessage: async ({ message }) => {
-              if (!active || !message.value) return;
-              await handler(JSON.parse(message.value.toString("utf8")) as LoopEvent);
-            }
-          })
-        )
-        .catch(() => {});
-      return () => {
-        active = false;
-      };
     }
   };
 }

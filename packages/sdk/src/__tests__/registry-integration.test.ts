@@ -1,81 +1,80 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
 import { describe, expect, it, vi } from "vitest";
-import {
-  aggregateId,
-  loopId,
-  outcomeId,
-  stateId,
-  transitionId,
-  type LoopDefinition
-} from "@loop-engine/core";
+import { ActorRefSchema, LoopDefinitionSchema, type LoopDefinition } from "@loop-engine/core";
 import type { LoopRegistry } from "@loop-engine/registry-client";
-import { localRegistry } from "../../../registry-client/src/adapters/local";
+import { localRegistry } from "@loop-engine/registry-client";
 import { createLoopSystem } from "../index";
 
 function makeLoop(id: string, description: string): LoopDefinition {
-  return {
-    id: loopId(id),
+  return LoopDefinitionSchema.parse({
+    loopId: id,
     version: "1.0.0",
+    name: id,
     description,
-    domain: "demo",
-    states: [{ id: stateId("OPEN") }, { id: stateId("DONE"), isTerminal: true }],
-    initialState: stateId("OPEN"),
+    states: [
+      { stateId: "OPEN", label: "Open" },
+      { stateId: "DONE", label: "Done", terminal: true }
+    ],
+    initialState: "OPEN",
     transitions: [
       {
-        id: transitionId("finish"),
-        from: stateId("OPEN"),
-        to: stateId("DONE"),
+        transitionId: "finish",
+        from: "OPEN",
+        to: "DONE",
+        signal: "demo.finish",
         allowedActors: ["human"]
       }
     ],
     outcome: {
-      id: outcomeId("done"),
       description: "Done",
       valueUnit: "done",
-      measurable: true
+      businessMetrics: [{ id: "cycle_time_days", label: "Cycle Time", unit: "days" }]
     }
-  };
+  });
 }
 
 function makeLoopWithTransition(id: string, transitionName: string): LoopDefinition {
-  return {
-    id: loopId(id),
+  return LoopDefinitionSchema.parse({
+    loopId: id,
     version: "1.0.0",
+    name: id,
     description: `${id} with ${transitionName}`,
-    domain: "demo",
-    states: [{ id: stateId("OPEN") }, { id: stateId("DONE"), isTerminal: true }],
-    initialState: stateId("OPEN"),
+    states: [
+      { stateId: "OPEN", label: "Open" },
+      { stateId: "DONE", label: "Done", terminal: true }
+    ],
+    initialState: "OPEN",
     transitions: [
       {
-        id: transitionId(transitionName),
-        from: stateId("OPEN"),
-        to: stateId("DONE"),
+        transitionId: transitionName,
+        from: "OPEN",
+        to: "DONE",
+        signal: `demo.${transitionName}`,
         allowedActors: ["human"]
       }
     ],
     outcome: {
-      id: outcomeId("done"),
       description: "Done",
       valueUnit: "done",
-      measurable: true
+      businessMetrics: [{ id: "cycle_time_days", label: "Cycle Time", unit: "days" }]
     }
-  };
+  });
 }
 
 describe("sdk registry integration", () => {
   it("should load definitions from registry on startup", async () => {
     const registry = localRegistry([makeLoop("demo.registry", "registry loop")]);
     const system = await createLoopSystem({ loops: [], registry });
+    const actor = ActorRefSchema.parse({ id: "user-1", type: "human" });
 
-    const started = await system.engine.start({
+    const started = await system.engine.startLoop({
       loopId: "demo.registry",
-      aggregateId: aggregateId("A-1"),
-      orgId: "acme",
-      actor: { type: "human", id: "user@acme.com" }
+      aggregateId: "A-1",
+      actor
     });
 
-    expect(started.loopId).toBe(loopId("demo.registry"));
+    expect(started.loopId).toBe("demo.registry");
   });
 
   it("should use locally provided loops[] definitions over registry on conflict", async () => {
@@ -84,16 +83,16 @@ describe("sdk registry integration", () => {
     const registry = localRegistry([remote]);
 
     const system = await createLoopSystem({ loops: [local], registry });
-    await system.engine.start({
+    const actor = ActorRefSchema.parse({ id: "user-1", type: "human" });
+    await system.engine.startLoop({
       loopId: "demo.conflict",
-      aggregateId: aggregateId("A-2"),
-      orgId: "acme",
-      actor: { type: "human", id: "user@acme.com" }
+      aggregateId: "A-2",
+      actor
     });
     const transitionResult = await system.engine.transition({
-      aggregateId: aggregateId("A-2"),
-      transitionId: transitionId("local_finish"),
-      actor: { type: "human", id: "user@acme.com" }
+      aggregateId: "A-2",
+      transitionId: "local_finish",
+      actor
     });
     expect(transitionResult.status).toBe("executed");
   });
@@ -112,13 +111,12 @@ describe("sdk registry integration", () => {
     };
 
     const system = await createLoopSystem({ loops: [fallbackLoop], registry: failingRegistry });
-    const started = await system.engine.start({
+    const started = await system.engine.startLoop({
       loopId: "demo.fallback",
-      aggregateId: aggregateId("A-3"),
-      orgId: "acme",
-      actor: { type: "human", id: "user@acme.com" }
+      aggregateId: "A-3",
+      actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
     });
-    expect(started.loopId).toBe(loopId("demo.fallback"));
+    expect(started.loopId).toBe("demo.fallback");
   });
 
   it("should log a warning when registry fails to load", async () => {

@@ -17,7 +17,11 @@ export function LoopTimeline({
     return (
       <div className="flex gap-2 overflow-x-auto">
         {timeline.transitions.map((t) => (
-          <span key={t.id} className="h-3 w-3 rounded-full bg-blue-500" title={String(t.transitionId)} />
+          <span
+            key={`${t.aggregateId}:${t.transitionId}:${t.occurredAt}`}
+            className="h-3 w-3 rounded-full bg-blue-500"
+            title={String(t.transitionId)}
+          />
         ))}
       </div>
     );
@@ -26,7 +30,10 @@ export function LoopTimeline({
   return (
     <div className="space-y-3">
       {timeline.transitions.map((transition) => (
-        <div key={transition.id} className="rounded border p-3">
+        <div
+          key={`${transition.aggregateId}:${transition.transitionId}:${transition.occurredAt}`}
+          className="rounded border p-3"
+        >
           <div className="flex items-center justify-between">
             <div className="font-medium">
               {String(transition.fromState)} {"->"} {String(transition.toState)}

@@ -3,34 +3,41 @@
 import { useMemo, useState } from "react";
 import { parseLoopYaml } from "@loop-engine/dsl";
 import { InMemoryEventBus } from "@loop-engine/events";
-import { defaultRegistry as guardRegistry } from "@loop-engine/guards";
-import { createLoopEngine } from "@loop-engine/runtime";
+import { GuardRegistry } from "@loop-engine/guards";
+import { createLoopSystem } from "@loop-engine/runtime";
 import { DevtoolsPanel } from "@loop-engine/ui-devtools";
 
-const procurementYaml = `id: scm.procurement
+const procurementYaml = `loopId: scm.procurement
 version: 1.0.0
-domain: scm
+name: scm.procurement
 description: Procurement playground definition
 states:
-  - id: OPEN
-  - id: PO_CONFIRMED
-  - id: CLOSED
-    isTerminal: true
+  - stateId: OPEN
+    label: Open
+  - stateId: PO_CONFIRMED
+    label: PO Confirmed
+  - stateId: CLOSED
+    label: Closed
+    terminal: true
 initialState: OPEN
 transitions:
-  - id: confirm_po
+  - transitionId: confirm_po
+    signal: scm.confirm_po
     from: OPEN
     to: PO_CONFIRMED
     allowedActors: [human, automation, ai-agent]
-  - id: close
+  - transitionId: close
+    signal: scm.close
     from: PO_CONFIRMED
     to: CLOSED
     allowedActors: [human]
 outcome:
-  id: po_settled
   description: PO settled
   valueUnit: po_settled
-  measurable: true
+  businessMetrics:
+    - id: cycle_time_days
+      label: Cycle Time
+      unit: days
 `;
 
 type EventItem = { type: string; occurredAt: string; payload: unknown };
@@ -38,10 +45,10 @@ type EventItem = { type: string; occurredAt: string; payload: unknown };
 class InMemoryLoopRegistry {
   constructor(private readonly loops: any[]) {}
   get(id: any): any {
-    return this.loops.find((loop) => loop.id === id);
+    return this.loops.find((loop) => loop.loopId === id);
   }
-  list(domain?: string): any[] {
-    return domain ? this.loops.filter((loop) => loop.domain === domain) : this.loops;
+  list(): any[] {
+    return this.loops;
   }
 }
 
@@ -49,28 +56,30 @@ class InMemoryLoopStore {
   private readonly instances = new Map<string, any>();
   private readonly history = new Map<string, any[]>();
 
-  async getInstance(aggregateId: any): Promise<any | null> {
+  async getLoop(aggregateId: any): Promise<any | null> {
     return this.instances.get(String(aggregateId)) ?? null;
   }
 
-  async saveInstance(instance: any): Promise<void> {
+  async createLoop(instance: any): Promise<void> {
     this.instances.set(String(instance.aggregateId), instance);
   }
 
-  async getTransitionHistory(aggregateId: any): Promise<any[]> {
+  async updateLoop(instance: any): Promise<void> {
+    this.instances.set(String(instance.aggregateId), instance);
+  }
+
+  async getTransitions(aggregateId: any): Promise<any[]> {
     return this.history.get(String(aggregateId)) ?? [];
   }
 
-  async saveTransitionRecord(record: any): Promise<void> {
+  async appendTransition(record: any): Promise<void> {
     const key = String(record.aggregateId);
     const current = this.history.get(key) ?? [];
     this.history.set(key, [...current, record]);
   }
 
-  async listOpenInstances(loopId: any, orgId: string): Promise<any[]> {
-    return [...this.instances.values()].filter(
-      (instance) => instance.loopId === loopId && instance.orgId === orgId && instance.status === "OPEN"
-    );
+  async listOpenLoops(loopId: any): Promise<any[]> {
+    return [...this.instances.values()].filter((instance) => instance.loopId === loopId && instance.status === "active");
   }
 }
 
@@ -97,26 +106,27 @@ export default function Page(): React.ReactElement {
   const runStart = async (): Promise<void> => {
     if (!definition) return;
     const eventBus = new InMemoryEventBus();
-    const system = createLoopEngine({
+    const guardRegistry = new GuardRegistry();
+    guardRegistry.registerBuiltIns();
+    const system = createLoopSystem({
       registry: new InMemoryLoopRegistry([definition]),
-      store: new InMemoryLoopStore(),
+      storage: new InMemoryLoopStore(),
       eventBus,
-      guardEvaluator: guardRegistry.createEvaluator()
+      guardRegistry
     });
     eventBus.subscribe(async (event) => {
       setEvents((prev) => [{ type: (event as { type: string }).type, occurredAt: new Date().toISOString(), payload: event }, ...prev]);
     });
-    await system.start({
-      loopId: definition.id as never,
+    await system.startLoop({
+      loopId: definition.loopId as never,
       aggregateId: aggregateId as never,
-      orgId: "demo-org",
-      actor: { type: "human", id: "user@example.com" }
+      actor: { type: "human", id: "user@example.com" as never }
     });
-    const loopState = await system.getState(aggregateId as never);
+    const loopState = await system.getLoop(aggregateId as never);
     setState(String(loopState?.currentState ?? "UNKNOWN"));
-    setCurrentLoopId(String(definition.id));
+    setCurrentLoopId(String(definition.loopId));
     const transitions = definition.transitions.filter((t) => t.from === loopState?.currentState);
-    setCurrentTransitions(transitions.map((t) => String(t.id)));
+    setCurrentTransitions(transitions.map((t) => String(t.transitionId)));
   };
 
   return (

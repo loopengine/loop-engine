@@ -1,6 +1,5 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
-import type { Evidence } from "@loop-engine/core";
 import type { DemandForecast, InventoryRecord, Supplier } from "../client/types";
 
 export interface LlmRecommendation {
@@ -19,7 +18,7 @@ export function buildProcurementEvidence(
   },
   llmRecommendation: LlmRecommendation,
   requestIds: string[]
-): Evidence {
+): Record<string, unknown> {
   const selectedSupplier = cgData.suppliers.find((supplier) => supplier.id === llmRecommendation.supplierId) ?? cgData.suppliers[0];
   const estimatedCost = selectedSupplier
     ? llmRecommendation.recommendedQty * selectedSupplier.unitCost

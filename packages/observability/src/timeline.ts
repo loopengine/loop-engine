@@ -1,12 +1,13 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
-import type { AggregateId, LoopInstance, StateId, TransitionRecord } from "@loop-engine/core";
+import type { AggregateId, StateId } from "@loop-engine/core";
+import type { RuntimeLoopInstance, RuntimeTransitionRecord } from "@loop-engine/runtime";
 
 export interface LoopTimeline {
   aggregateId: AggregateId;
-  loopId: string;
-  instance: LoopInstance;
-  transitions: TransitionRecord[];
+  loopId: RuntimeLoopInstance["loopId"];
+  instance: RuntimeLoopInstance;
+  transitions: RuntimeTransitionRecord[];
   durationMs: number;
   isComplete: boolean;
 }
@@ -18,15 +19,20 @@ export interface StateResidency {
   durationMs?: number;
 }
 
-export function buildTimeline(instance: LoopInstance, history: TransitionRecord[]): LoopTimeline {
-  const end = instance.closedAt ?? new Date().toISOString();
+export function buildTimeline(
+  instance: RuntimeLoopInstance,
+  history: RuntimeTransitionRecord[]
+): LoopTimeline {
+  const end = instance.completedAt ?? new Date().toISOString();
   return {
     aggregateId: instance.aggregateId,
     loopId: instance.loopId,
     instance,
-    transitions: [...history].sort((a, b) => Date.parse(a.occurredAt) - Date.parse(b.occurredAt)),
+    transitions: [...history].sort(
+      (left, right) => Date.parse(left.occurredAt) - Date.parse(right.occurredAt)
+    ),
     durationMs: Math.max(0, Date.parse(end) - Date.parse(instance.startedAt)),
-    isComplete: instance.status === "CLOSED"
+    isComplete: instance.status === "completed"
   };
 }
 
@@ -47,9 +53,9 @@ export function getStateResidency(timeline: LoopTimeline): StateResidency[] {
   out.push({
     stateId: currentState,
     enteredAt,
-    ...(timeline.instance.closedAt ? { exitedAt: timeline.instance.closedAt } : {}),
-    ...(timeline.instance.closedAt
-      ? { durationMs: Math.max(0, Date.parse(timeline.instance.closedAt) - Date.parse(enteredAt)) }
+    ...(timeline.instance.completedAt ? { exitedAt: timeline.instance.completedAt } : {}),
+    ...(timeline.instance.completedAt
+      ? { durationMs: Math.max(0, Date.parse(timeline.instance.completedAt) - Date.parse(enteredAt)) }
       : {})
   });
   return out;

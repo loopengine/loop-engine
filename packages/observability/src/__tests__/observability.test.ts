@@ -1,34 +1,34 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
 import { describe, expect, it } from "vitest";
-import { aggregateId, correlationId, loopId, stateId, transitionId, type LoopDefinition, type LoopInstance, type TransitionRecord } from "@loop-engine/core";
+import { ActorRefSchema, LoopDefinitionSchema, type LoopDefinition } from "@loop-engine/core";
+import type { RuntimeLoopInstance, RuntimeTransitionRecord } from "@loop-engine/runtime";
 import { computeMetrics } from "../metrics";
 import { replayLoop } from "../replay";
 
 describe("observability package", () => {
   it("computeMetrics returns aggregate metrics", () => {
-    const instances: LoopInstance[] = [
+    const instances: RuntimeLoopInstance[] = [
       {
-        loopId: loopId("demo.loop"),
-        aggregateId: aggregateId("A-1"),
-        orgId: "acme",
-        currentState: stateId("DONE"),
-        status: "CLOSED",
+        loopId: "demo.loop",
+        aggregateId: "A-1",
+        currentState: "DONE",
+        status: "completed",
         startedAt: "2026-01-01T00:00:00.000Z",
-        closedAt: "2026-01-02T00:00:00.000Z",
-        correlationId: correlationId("corr-1")
+        updatedAt: "2026-01-02T00:00:00.000Z",
+        completedAt: "2026-01-02T00:00:00.000Z",
+        correlationId: "corr-1"
       }
     ];
-    const history: TransitionRecord[] = [
+    const history: RuntimeTransitionRecord[] = [
       {
-        id: "r1",
-        loopId: loopId("demo.loop"),
-        aggregateId: aggregateId("A-1"),
-        transitionId: transitionId("finish"),
-        fromState: stateId("OPEN"),
-        toState: stateId("DONE"),
-        actor: { type: "human", id: "user@example.com" as never },
-        evidence: {},
+        loopId: "demo.loop",
+        aggregateId: "A-1",
+        transitionId: "finish",
+        signal: "demo.finish",
+        fromState: "OPEN",
+        toState: "DONE",
+        actor: ActorRefSchema.parse({ id: "user-1", type: "human" }),
         occurredAt: "2026-01-01T12:00:00.000Z"
       }
     ];
@@ -41,33 +41,40 @@ describe("observability package", () => {
   });
 
   it("replayLoop validates transition sequence", () => {
-    const def: LoopDefinition = {
-      id: loopId("demo.loop"),
+    const def: LoopDefinition = LoopDefinitionSchema.parse({
+      loopId: "demo.loop",
       version: "1.0.0",
+      name: "demo.loop",
       description: "demo",
-      domain: "demo",
-      states: [{ id: stateId("OPEN") }, { id: stateId("DONE"), isTerminal: true }],
-      initialState: stateId("OPEN"),
+      states: [
+        { stateId: "OPEN", label: "Open" },
+        { stateId: "DONE", label: "Done", terminal: true }
+      ],
+      initialState: "OPEN",
       transitions: [
         {
-          id: transitionId("finish"),
-          from: stateId("OPEN"),
-          to: stateId("DONE"),
+          transitionId: "finish",
+          signal: "demo.finish",
+          from: "OPEN",
+          to: "DONE",
           allowedActors: ["human"]
         }
       ],
-      outcome: { id: "done" as never, description: "done", valueUnit: "done", measurable: true }
-    };
-    const history: TransitionRecord[] = [
+      outcome: {
+        description: "done",
+        valueUnit: "done",
+        businessMetrics: [{ id: "cycle_time_days", label: "Cycle Time", unit: "days" }]
+      }
+    });
+    const history: RuntimeTransitionRecord[] = [
       {
-        id: "r1",
-        loopId: loopId("demo.loop"),
-        aggregateId: aggregateId("A-1"),
-        transitionId: transitionId("finish"),
-        fromState: stateId("OPEN"),
-        toState: stateId("DONE"),
-        actor: { type: "human", id: "user@example.com" as never },
-        evidence: {},
+        loopId: "demo.loop",
+        aggregateId: "A-1",
+        transitionId: "finish",
+        signal: "demo.finish",
+        fromState: "OPEN",
+        toState: "DONE",
+        actor: ActorRefSchema.parse({ id: "user-1", type: "human" }),
         occurredAt: "2026-01-01T12:00:00.000Z"
       }
     ];

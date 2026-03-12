@@ -41,9 +41,9 @@ function formatContent(event: LoopEvent, approvalStates: string[]): string {
       return `🔄 ${event.loopId} -> ${event.toState} (${event.transitionId})`;
     }
     case "loop.completed":
-      return `✅ Loop closed: ${event.aggregateId}\nOutcome: ${event.outcomeId}`;
+      return `✅ Loop closed: ${event.aggregateId}\nOutcome unit: ${event.outcome?.valueUnit ?? "n/a"}`;
     case "loop.guard.failed":
-      return `❌ Guard failed: ${event.aggregateId}\nGuard: ${event.guardId}\n${event.guardFailureMessage}`;
+      return `❌ Guard failed: ${event.aggregateId}\nGuard: ${event.guardId}\n${event.message}`;
     case "loop.started":
       return `🚀 Loop started: ${event.aggregateId}\nType: ${event.loopId}`;
     default:

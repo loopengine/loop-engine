@@ -1,46 +1,20 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
-import type { LoopId, Signal, StateId, TransitionId } from "@loop-engine/core";
-import type { LoopEvent } from "@loop-engine/events";
 
-export interface SignalDetectionResult {
-  signalType: string;
-  subject: string;
-  confidence: number;
-  payload: Record<string, unknown>;
-  triggeredTransition?: TransitionId;
-}
+import type { ActorRef, SignalId } from "@loop-engine/core";
+import type { z } from "zod";
 
-export interface SignalRule {
-  id: string;
+export interface SignalSpec {
+  signalId: SignalId;
   name: string;
-  description: string;
-  targetLoopId?: LoopId;
-  evaluate: (events: LoopEvent[]) => SignalDetectionResult | null;
+  description?: string;
+  schema?: z.ZodType;
+  tags?: string[];
 }
 
-export interface SignalEngine {
-  registerRule(rule: SignalRule): void;
-  process(events: LoopEvent[]): Signal[];
-  subscribe(handler: (signal: Signal) => void): () => void;
+export interface SignalPayload<T = Record<string, unknown>> {
+  signalId: SignalId;
+  payload: T;
+  issuedAt: string;
+  issuedBy: ActorRef;
 }
-
-export type ThresholdRuleConfig = {
-  field: string;
-  operator: "lt" | "gt" | "lte" | "gte";
-  threshold: number;
-};
-
-export type StateDwellRuleConfig = {
-  state: StateId;
-  maxDwellMinutes: number;
-};
-
-export type RepeatedGuardFailureConfig = {
-  guardId: string;
-  maxFailures: number;
-};
-
-export type LoopNotStartedConfig = {
-  maxDelayMinutes: number;
-};

@@ -1,115 +1,133 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
-import { z } from "zod";
 
-const BaseSchema = z.object({
-  eventId: z.string().min(1),
-  loopId: z.string().min(1),
-  aggregateId: z.string().min(1),
-  orgId: z.string().min(1),
-  occurredAt: z.string().min(1),
-  correlationId: z.string().min(1),
+import { z } from "zod";
+import {
+  ActorRefSchema as CoreActorRefSchema,
+  AggregateIdSchema,
+  GuardIdSchema,
+  GuardSeveritySchema,
+  LoopIdSchema,
+  SignalIdSchema,
+  StateIdSchema,
+  TransitionIdSchema
+} from "@loop-engine/core";
+
+export const BaseLoopEventSchema = z.object({
+  eventId: z.string().uuid(),
+  type: z.string(),
+  loopId: LoopIdSchema,
+  aggregateId: AggregateIdSchema,
+  occurredAt: z.string().datetime(),
+  correlationId: z.string().optional(),
   causationId: z.string().optional()
 });
 
-const ActorSchema = z.object({
-  type: z.enum(["human", "automation", "ai-agent", "webhook", "system"]),
-  id: z.string().min(1)
+const ActorRefSchema = CoreActorRefSchema;
+
+const GuardFailureSchema = z.object({
+  guardId: GuardIdSchema,
+  message: z.string().min(1)
 });
 
-const EvidenceSchema = z.record(z.unknown());
-
-export const LoopStartedEventSchema = BaseSchema.extend({
+export const LoopStartedEventSchema = BaseLoopEventSchema.extend({
   type: z.literal("loop.started"),
-  initialState: z.string().min(1),
-  actor: ActorSchema
+  initialState: StateIdSchema,
+  actor: ActorRefSchema,
+  definition: z.object({
+    loopId: LoopIdSchema,
+    version: z.string().min(1),
+    name: z.string().min(1)
+  })
 });
 
-export const TransitionRequestedEventSchema = BaseSchema.extend({
-  type: z.literal("loop.transition.requested"),
-  transitionId: z.string().min(1),
-  actor: ActorSchema,
-  evidence: EvidenceSchema,
-  requestedAt: z.string().min(1)
-});
-
-export const TransitionExecutedEventSchema = BaseSchema.extend({
-  type: z.literal("loop.transition.executed"),
-  fromState: z.string().min(1),
-  toState: z.string().min(1),
-  transitionId: z.string().min(1),
-  actor: ActorSchema,
-  evidence: EvidenceSchema,
-  durationMs: z.number().optional()
-});
-
-export const TransitionBlockedEventSchema = BaseSchema.extend({
-  type: z.literal("loop.transition.blocked"),
-  transitionId: z.string().min(1),
-  reason: z.enum(["guard_failed", "unauthorized_actor", "invalid_transition", "loop_closed"]),
-  actor: ActorSchema,
-  guardFailures: z.array(z.object({ guardId: z.string(), message: z.string() })).optional()
-});
-
-export const GuardFailedEventSchema = BaseSchema.extend({
-  type: z.literal("loop.guard.failed"),
-  fromState: z.string().min(1),
-  attemptedTransitionId: z.string().min(1),
-  guardId: z.string().min(1),
-  guardFailureMessage: z.string().min(1),
-  severity: z.enum(["hard", "soft"]).optional(),
-  actor: ActorSchema
-});
-
-export const LoopCompletedEventSchema = BaseSchema.extend({
+export const LoopCompletedEventSchema = BaseLoopEventSchema.extend({
   type: z.literal("loop.completed"),
-  terminalState: z.string().min(1),
-  actor: ActorSchema,
-  durationMs: z.number(),
-  transitionCount: z.number().int().nonnegative(),
-  outcomeId: z.string().min(1),
-  valueUnit: z.string().min(1)
+  finalState: StateIdSchema,
+  actor: ActorRefSchema,
+  durationMs: z.number().nonnegative(),
+  outcome: z
+    .object({
+      valueUnit: z.string().min(1),
+      metrics: z.record(z.unknown())
+    })
+    .optional()
 });
 
-export const LoopErrorEventSchema = BaseSchema.extend({
-  type: z.literal("loop.error"),
-  errorState: z.string().min(1),
-  errorCode: z.string().min(1),
-  errorMessage: z.string().min(1),
-  actor: ActorSchema
+export const LoopCancelledEventSchema = BaseLoopEventSchema.extend({
+  type: z.literal("loop.cancelled"),
+  fromState: StateIdSchema,
+  actor: ActorRefSchema,
+  reason: z.string().optional()
 });
 
-export const LoopSpawnedEventSchema = BaseSchema.extend({
-  type: z.literal("loop.spawned"),
-  parentAggregateId: z.string().min(1),
-  childLoopId: z.string().min(1),
-  childAggregateId: z.string().min(1)
+export const LoopFailedEventSchema = BaseLoopEventSchema.extend({
+  type: z.literal("loop.failed"),
+  fromState: StateIdSchema,
+  error: z.object({
+    code: z.string().min(1),
+    message: z.string().min(1),
+    stack: z.string().optional()
+  })
 });
 
-export const SignalReceivedEventSchema = BaseSchema.extend({
+export const LoopTransitionRequestedEventSchema = BaseLoopEventSchema.extend({
+  type: z.literal("loop.transition.requested"),
+  transitionId: TransitionIdSchema,
+  fromState: StateIdSchema,
+  toState: StateIdSchema,
+  signal: SignalIdSchema,
+  actor: ActorRefSchema,
+  evidence: z.record(z.unknown()).optional()
+});
+
+export const LoopTransitionExecutedEventSchema = BaseLoopEventSchema.extend({
+  type: z.literal("loop.transition.executed"),
+  transitionId: TransitionIdSchema,
+  fromState: StateIdSchema,
+  toState: StateIdSchema,
+  signal: SignalIdSchema,
+  actor: ActorRefSchema,
+  evidence: z.record(z.unknown()).optional(),
+  softGuardWarnings: z.array(GuardFailureSchema).optional()
+});
+
+export const LoopTransitionBlockedEventSchema = BaseLoopEventSchema.extend({
+  type: z.literal("loop.transition.blocked"),
+  transitionId: TransitionIdSchema,
+  fromState: StateIdSchema,
+  attemptedToState: StateIdSchema,
+  actor: ActorRefSchema,
+  guardFailures: z.array(GuardFailureSchema)
+});
+
+export const LoopGuardFailedEventSchema = BaseLoopEventSchema.extend({
+  type: z.literal("loop.guard.failed"),
+  transitionId: TransitionIdSchema,
+  fromState: StateIdSchema,
+  guardId: GuardIdSchema,
+  severity: GuardSeveritySchema,
+  actor: ActorRefSchema,
+  message: z.string().min(1),
+  metadata: z.record(z.unknown()).optional()
+});
+
+export const LoopSignalReceivedEventSchema = BaseLoopEventSchema.extend({
   type: z.literal("loop.signal.received"),
-  signalType: z.string().min(1),
-  confidence: z.number(),
-  triggeredLoopId: z.string().optional()
-});
-
-export const OutcomeRecordedEventSchema = BaseSchema.extend({
-  type: z.literal("loop.outcome.recorded"),
-  outcomeId: z.string().min(1),
-  valueUnit: z.string().min(1),
-  businessMetrics: z.record(z.unknown()).optional(),
-  durationMs: z.number()
+  signal: SignalIdSchema,
+  fromState: StateIdSchema,
+  actor: ActorRefSchema,
+  payload: z.record(z.unknown()).optional()
 });
 
 export const LoopEventSchema = z.discriminatedUnion("type", [
   LoopStartedEventSchema,
-  TransitionRequestedEventSchema,
-  TransitionExecutedEventSchema,
-  TransitionBlockedEventSchema,
-  GuardFailedEventSchema,
   LoopCompletedEventSchema,
-  LoopErrorEventSchema,
-  LoopSpawnedEventSchema,
-  SignalReceivedEventSchema,
-  OutcomeRecordedEventSchema
+  LoopCancelledEventSchema,
+  LoopFailedEventSchema,
+  LoopTransitionRequestedEventSchema,
+  LoopTransitionExecutedEventSchema,
+  LoopTransitionBlockedEventSchema,
+  LoopGuardFailedEventSchema,
+  LoopSignalReceivedEventSchema
 ]);

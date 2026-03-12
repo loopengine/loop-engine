@@ -1,57 +1,67 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
+
 import { describe, expect, it } from "vitest";
-import { parseLoopYaml } from "../parser";
-import { serializeToYaml } from "../serializer";
+import { parseLoopYaml, parseLoopYamlSafe } from "../parser";
+import { serializeLoopYaml } from "../serializer";
 
 const validYaml = `
-id: scm.procurement
+loopId: support.ticket
 version: 1.0.0
-description: Procurement loop
-domain: scm
+name: Support Ticket
+description: Ticket handling loop
 states:
-  - id: OPEN
-  - id: CLOSED
-    isTerminal: true
+  - stateId: OPEN
+    label: Open
+  - stateId: RESOLVED
+    label: Resolved
+    terminal: true
 initialState: OPEN
 transitions:
-  - id: close
+  - transitionId: resolve
     from: OPEN
-    to: CLOSED
+    to: RESOLVED
+    signal: support.ticket.resolve
     allowedActors: [human]
 outcome:
-  id: po_settled
-  description: settled
-  valueUnit: po_settled
-  measurable: true
+  description: Ticket resolved
+  valueUnit: ticket_resolution
+  businessMetrics:
+    - id: cycle_time_days
+      label: Cycle time days
+      unit: days
+      improvableByAI: true
 `;
 
 describe("parseLoopYaml", () => {
-  it("parses valid YAML definition", () => {
+  it("parses a valid YAML loop definition", () => {
     const parsed = parseLoopYaml(validYaml);
-    expect(parsed.id).toBe("scm.procurement");
+    expect(parsed.loopId).toBe("support.ticket");
   });
 
-  it("rejects YAML with missing initialState", () => {
-    const broken = validYaml.replace("initialState: OPEN", "");
-    expect(() => parseLoopYaml(broken)).toThrow();
+  it("throws on invalid YAML syntax", () => {
+    const invalidYaml = "loopId: [unterminated";
+    expect(() => parseLoopYaml(invalidYaml)).toThrow(/Invalid YAML syntax/);
   });
 
-  it("rejects YAML where transition references unknown state", () => {
-    const broken = validYaml.replace("to: CLOSED", "to: MISSING");
-    expect(() => parseLoopYaml(broken)).toThrow("transition.to references unknown state");
+  it("throws on missing required field", () => {
+    const missingInitialState = validYaml.replace("initialState: OPEN\n", "");
+    expect(() => parseLoopYaml(missingInitialState)).toThrow(/initialState/);
   });
 
-  it("rejects YAML with invalid semver version", () => {
-    const broken = validYaml.replace("version: 1.0.0", "version: v1");
-    expect(() => parseLoopYaml(broken)).toThrow("version must be semver");
+  it("parseLoopYamlSafe returns success false on invalid input", () => {
+    const invalidYaml = "loopId: [unterminated";
+    const result = parseLoopYamlSafe(invalidYaml);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.length).toBeGreaterThan(0);
+    }
   });
 
-  it("round-trip parse/serialize/parse stays equivalent", () => {
+  it("serializeLoopYaml round-trips through parseLoopYaml", () => {
     const parsed = parseLoopYaml(validYaml);
-    const reserialized = serializeToYaml(parsed);
-    const reparsed = parseLoopYaml(reserialized);
-    expect(reparsed.id).toBe(parsed.id);
-    expect(reparsed.initialState).toBe(parsed.initialState);
+    const serialized = serializeLoopYaml(parsed);
+    const reparsed = parseLoopYaml(serialized);
+    expect(reparsed).toEqual(parsed);
   });
 });

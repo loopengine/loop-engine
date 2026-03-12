@@ -28,7 +28,7 @@ importers:
         version: 19.2.3(@types/react@19.2.14)
       tsup:
         specifier: ^8.5.1
-        version: 8.5.1(postcss@8.5.8)(tsx@4.21.0)(typescript@5.9.3)
+        version: 8.5.1(postcss@8.5.8)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
@@ -104,6 +104,21 @@ importers:
       '@loop-engine/core':
         specifier: workspace:*
         version: link:../core
+      zod:
+        specifier: ^3.22.0
+        version: 3.25.76
+
+  packages/adapter-anthropic:
+    dependencies:
+      '@anthropic-ai/sdk':
+        specifier: ^0.55.0
+        version: 0.55.1
+      '@loop-engine/actors':
+        specifier: workspace:*
+        version: link:../actors
+      '@loop-engine/core':
+        specifier: workspace:*
+        version: link:../core
 
   packages/adapter-commerce-gateway:
     dependencies:
@@ -122,10 +137,31 @@ importers:
         version: 4.104.0(ws@8.19.0)(zod@3.25.76)
       tsup:
         specifier: ^8.5.1
-        version: 8.5.1(postcss@8.5.8)(tsx@4.21.0)(typescript@5.9.3)
+        version: 8.5.1(postcss@8.5.8)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+
+  packages/adapter-memory:
+    dependencies:
+      '@loop-engine/core':
+        specifier: workspace:*
+        version: link:../core
+      '@loop-engine/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+
+  packages/adapter-openai:
+    dependencies:
+      '@loop-engine/actors':
+        specifier: workspace:*
+        version: link:../actors
+      '@loop-engine/core':
+        specifier: workspace:*
+        version: link:../core
+      openai:
+        specifier: ^6.4.1
+        version: 6.27.0(ws@8.19.0)(zod@3.25.76)
 
   packages/adapter-openclaw:
     dependencies:
@@ -141,7 +177,7 @@ importers:
         version: 8.18.1
       tsup:
         specifier: ^8.5.1
-        version: 8.5.1(postcss@8.5.8)(tsx@4.21.0)(typescript@5.9.3)
+        version: 8.5.1(postcss@8.5.8)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -157,7 +193,7 @@ importers:
     devDependencies:
       tsup:
         specifier: ^8.5.1
-        version: 8.5.1(postcss@8.5.8)(tsx@4.21.0)(typescript@5.9.3)
+        version: 8.5.1(postcss@8.5.8)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -176,7 +212,7 @@ importers:
         version: 3.4.33(openai@4.104.0(ws@8.19.0)(zod@3.25.76))(react@19.2.4)(sswr@2.2.0(svelte@5.53.11))(svelte@5.53.11)(vue@3.5.30(typescript@5.9.3))(zod@3.25.76)
       tsup:
         specifier: ^8.5.1
-        version: 8.5.1(postcss@8.5.8)(tsx@4.21.0)(typescript@5.9.3)
+        version: 8.5.1(postcss@8.5.8)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -205,15 +241,6 @@ importers:
         specifier: ^2.0.0
         version: 2.2.4
 
-  packages/adapters/memory:
-    dependencies:
-      '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../../core
-      '@loop-engine/runtime':
-        specifier: workspace:*
-        version: link:../../runtime
-
   packages/adapters/postgres:
     dependencies:
       '@loop-engine/core':
@@ -226,18 +253,22 @@ importers:
         specifier: ^8.0.0
         version: 8.20.0
 
-  packages/core: {}
+  packages/core:
+    dependencies:
+      zod:
+        specifier: ^3.22.0
+        version: 3.25.76
 
   packages/dsl:
     dependencies:
       '@loop-engine/core':
         specifier: workspace:*
         version: link:../core
-      js-yaml:
-        specifier: ^4.1.1
-        version: 4.1.1
+      yaml:
+        specifier: ^2.3.0
+        version: 2.8.2
       zod:
-        specifier: ^3.25.76
+        specifier: ^3.22.0
         version: 3.25.76
 
   packages/events:
@@ -246,11 +277,14 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: ^3.25.76
+        specifier: ^3.22.0
         version: 3.25.76
 
   packages/guards:
     dependencies:
+      '@loop-engine/actors':
+        specifier: workspace:*
+        version: link:../actors
       '@loop-engine/core':
         specifier: workspace:*
         version: link:../core
@@ -260,6 +294,9 @@ importers:
       '@loop-engine/core':
         specifier: workspace:*
         version: link:../core
+      '@loop-engine/runtime':
+        specifier: workspace:*
+        version: link:../runtime
 
   packages/registry-client:
     dependencies:
@@ -299,7 +336,7 @@ importers:
     dependencies:
       '@loop-engine/adapter-memory':
         specifier: workspace:*
-        version: link:../adapters/memory
+        version: link:../adapter-memory
       '@loop-engine/core':
         specifier: workspace:*
         version: link:../core
@@ -330,9 +367,9 @@ importers:
       '@loop-engine/core':
         specifier: workspace:*
         version: link:../core
-      '@loop-engine/events':
-        specifier: workspace:*
-        version: link:../events
+      zod:
+        specifier: ^3.22.0
+        version: 3.25.76
 
   packages/ui-devtools:
     dependencies:
@@ -424,6 +461,10 @@ packages:
 
   '@anthropic-ai/sdk@0.39.0':
     resolution: {integrity: sha512-eMyDIPRZbt1CCLErRCi3exlAvNkBtRe+kW5vvJyef93PmNr/clstYgHhtvmkxN82nlKgzyGPCyGxrm0JQ1ZIdg==}
+
+  '@anthropic-ai/sdk@0.55.1':
+    resolution: {integrity: sha512-gjOMS4chmm8BxClKmCjNHmvf1FrO1Cn++CSX6K3YCZjz5JG4I9ZttQ/xEH4FBsz6HQyZvnUpiKlOAkmxaGmEaQ==}
+    hasBin: true
 
   '@asamuzakjp/css-color@3.2.0':
     resolution: {integrity: sha512-K1A6z8tS3XsmCMM86xoWdn7Fkdn9m6RSVtocUrJYIwZnFVkng/PvkEoWtOWmP+Scc6saYWHWZYbndEEXxl24jw==}
@@ -2122,6 +2163,18 @@ packages:
       zod:
         optional: true
 
+  openai@6.27.0:
+    resolution: {integrity: sha512-osTKySlrdYrLYTt0zjhY8yp0JUBmWDCN+Q+QxsV4xMQnnoVFpylgKGgxwN8sSdTNw0G4y+WUXs4eCMWpyDNWZQ==}
+    hasBin: true
+    peerDependencies:
+      ws: ^8.18.0
+      zod: ^3.25 || ^4.0
+    peerDependenciesMeta:
+      ws:
+        optional: true
+      zod:
+        optional: true
+
   outdent@0.5.0:
     resolution: {integrity: sha512-/jHxFIzoMXdqPzTaCpFzAAWhpkSjZPF4Vsn6jAfNpmbH/ymsmd7Qc6VE9BGn0L6YMj6uwpQLxCECpus4ukKS9Q==}
 
@@ -2829,6 +2882,11 @@ packages:
     resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
     engines: {node: '>=0.4'}
 
+  yaml@2.8.2:
+    resolution: {integrity: sha512-mplynKqc1C2hTVYxd0PU2xQAc22TI1vShAYGksCCfxbn/dFwnHTNi1bvYsBTkhdUNtGIf5xNOg938rrSSYvS9A==}
+    engines: {node: '>= 14.6'}
+    hasBin: true
+
   yocto-queue@1.2.2:
     resolution: {integrity: sha512-4LCcse/U2MHZ63HAJVE+v71o7yOdIe4cZ70Wpf8D/IyjDKYQLV5GD46B+hSTjJsvV5PztjvHoU580EftxjDZFQ==}
     engines: {node: '>=12.20'}
@@ -2917,6 +2975,8 @@ snapshots:
       node-fetch: 2.7.0
     transitivePeerDependencies:
       - encoding
+
+  '@anthropic-ai/sdk@0.55.1': {}
 
   '@asamuzakjp/css-color@3.2.0':
     dependencies:
@@ -4530,6 +4590,11 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
+  openai@6.27.0(ws@8.19.0)(zod@3.25.76):
+    optionalDependencies:
+      ws: 8.19.0
+      zod: 3.25.76
+
   outdent@0.5.0: {}
 
   p-filter@2.1.0:
@@ -4629,12 +4694,13 @@ snapshots:
       mlly: 1.8.1
       pathe: 2.0.3
 
-  postcss-load-config@6.0.1(postcss@8.5.8)(tsx@4.21.0):
+  postcss-load-config@6.0.1(postcss@8.5.8)(tsx@4.21.0)(yaml@2.8.2):
     dependencies:
       lilconfig: 3.1.3
     optionalDependencies:
       postcss: 8.5.8
       tsx: 4.21.0
+      yaml: 2.8.2
 
   postcss@8.4.31:
     dependencies:
@@ -5011,7 +5077,7 @@ snapshots:
 
   tslib@2.8.1: {}
 
-  tsup@8.5.1(postcss@8.5.8)(tsx@4.21.0)(typescript@5.9.3):
+  tsup@8.5.1(postcss@8.5.8)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2):
     dependencies:
       bundle-require: 5.1.0(esbuild@0.27.4)
       cac: 6.7.14
@@ -5022,7 +5088,7 @@ snapshots:
       fix-dts-default-cjs-exports: 1.0.1
       joycon: 3.1.1
       picocolors: 1.1.1
-      postcss-load-config: 6.0.1(postcss@8.5.8)(tsx@4.21.0)
+      postcss-load-config: 6.0.1(postcss@8.5.8)(tsx@4.21.0)(yaml@2.8.2)
       resolve-from: 5.0.0
       rollup: 4.59.0
       source-map: 0.7.6
@@ -5214,6 +5280,8 @@ snapshots:
   xmlchars@2.2.0: {}
 
   xtend@4.0.2: {}
+
+  yaml@2.8.2: {}
 
   yocto-queue@1.2.2: {}
 

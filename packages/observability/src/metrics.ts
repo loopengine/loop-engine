@@ -1,6 +1,7 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
-import type { LoopId, LoopInstance, TransitionRecord } from "@loop-engine/core";
+import type { LoopId } from "@loop-engine/core";
+import type { RuntimeLoopInstance, RuntimeTransitionRecord } from "@loop-engine/runtime";
 
 export interface LoopMetrics {
   loopId: LoopId;
@@ -27,28 +28,30 @@ function percentile(values: number[], p: number): number {
 }
 
 export function computeMetrics(
-  instances: LoopInstance[],
-  history: TransitionRecord[],
+  instances: RuntimeLoopInstance[],
+  history: RuntimeTransitionRecord[],
   period: { from: string; to: string }
 ): LoopMetrics {
   const first = instances[0];
   const loop = (first?.loopId ?? "unknown.loop") as LoopId;
   const total = instances.length;
-  const open = instances.filter((i) => i.status === "OPEN" || i.status === "IN_PROGRESS").length;
-  const closed = instances.filter((i) => i.status === "CLOSED").length;
-  const error = instances.filter((i) => i.status === "ERROR").length;
+  const open = instances.filter((instance) => instance.status === "active").length;
+  const closed = instances.filter((instance) => instance.status === "completed").length;
+  const error = instances.filter((instance) => instance.status === "failed").length;
 
   const durations = instances
-    .map((i) => (i.closedAt ? Date.parse(i.closedAt) - Date.parse(i.startedAt) : 0))
-    .filter((d) => d > 0);
+    .map((instance) =>
+      instance.completedAt ? Date.parse(instance.completedAt) - Date.parse(instance.startedAt) : 0
+    )
+    .filter((duration) => duration > 0);
   const avg = durations.length ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
-  const aiTransitions = history.filter((r) => r.actor.type === "ai-agent").length;
-  const humanTransitions = history.filter((r) => r.actor.type === "human").length;
+  const aiTransitions = history.filter((record) => record.actor.type === "ai-agent").length;
+  const humanTransitions = history.filter((record) => record.actor.type === "human").length;
   const totalTransitions = history.length;
 
   const byAggregate = new Map<string, number>();
-  for (const r of history) {
-    byAggregate.set(r.aggregateId, (byAggregate.get(r.aggregateId) ?? 0) + 1);
+  for (const record of history) {
+    byAggregate.set(record.aggregateId, (byAggregate.get(record.aggregateId) ?? 0) + 1);
   }
 
   return {

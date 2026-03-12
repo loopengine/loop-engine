@@ -10,10 +10,8 @@ function color(type: ActorRef["type"]): string {
       return "bg-cyan-100 text-cyan-800";
     case "ai-agent":
       return "bg-violet-100 text-violet-800";
-    case "system":
+    default:
       return "bg-gray-200 text-gray-800";
-    case "webhook":
-      return "bg-amber-100 text-amber-800";
   }
 }
 

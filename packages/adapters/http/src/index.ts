@@ -31,12 +31,6 @@ export function httpEventBus(options: {
           await sleep(2 ** attempt * 100);
         }
       }
-    },
-    subscribe(): () => void {
-      throw new Error(
-        "[loop-engine/adapter-http] WebhookEventBus does not support subscribe. " +
-          "Track adapter enhancements at https://github.com/loopengine/loop-engine/issues"
-      );
     }
   };
 }

@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
-import type { Evidence } from "@loop-engine/core";
 import { CommerceGatewayClient } from "../client/commerce-gateway-client";
 import type { DemandForecast, InventoryRecord, Supplier } from "../client/types";
 import { buildProcurementEvidence, type LlmRecommendation } from "../formatters/evidence";
@@ -21,7 +20,7 @@ export interface BuildProcurementActorOptions {
 }
 
 export function buildProcurementActor(options: BuildProcurementActorOptions) {
-  return async (context: ActorContext): Promise<Evidence> => {
+  return async (context: ActorContext): Promise<Record<string, unknown>> => {
     const sku = String(context.instance.data?.sku ?? "");
     if (!sku) throw new Error("ActorContext.instance.data.sku is required");
 

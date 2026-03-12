@@ -1,144 +1,157 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
-import { canActorExecuteTransition } from "@loop-engine/actors";
+import { isAuthorized } from "@loop-engine/actors";
 import type {
-  ActorId,
+  ActorRef,
   AggregateId,
-  CorrelationId,
-  Evidence,
-  GuardId,
-  LoopInstance,
-  LoopStatus,
+  GuardSpec,
+  LoopDefinition,
   StateId,
-  TransitionId,
-  TransitionRecord
+  TransitionId
 } from "@loop-engine/core";
-import { correlationId as toCorrelationId } from "@loop-engine/core";
+import { GuardRegistry, evaluateGuards } from "@loop-engine/guards";
 import type {
-  GuardFailedEvent,
+  LoopCancelledEvent,
   LoopCompletedEvent,
+  LoopFailedEvent,
   LoopEvent,
   LoopStartedEvent,
-  TransitionExecutedEvent
+  LoopTransitionBlockedEvent,
+  LoopTransitionExecutedEvent,
+  LoopTransitionRequestedEvent,
+  LoopGuardFailedEvent
 } from "@loop-engine/events";
-import type { GuardContext, LoopEngineOptions } from "./interfaces";
+import {
+  createLoopCancelledEvent,
+  createLoopCompletedEvent,
+  createLoopFailedEvent,
+  createLoopGuardFailedEvent,
+  createLoopStartedEvent,
+  createLoopTransitionBlockedEvent,
+  createLoopTransitionExecutedEvent,
+  createLoopTransitionRequestedEvent
+} from "@loop-engine/events";
+import type {
+  LoopSystemOptions,
+  RuntimeLoopInstance,
+  RuntimeTransitionRecord
+} from "./interfaces";
 
-export interface StartOptions {
-  loopId: string;
+export interface StartLoopParams {
+  loopId: LoopDefinition["loopId"];
   aggregateId: AggregateId;
-  orgId: string;
-  actor: { type: "human" | "automation" | "ai-agent" | "webhook" | "system"; id: string };
-  correlationId?: CorrelationId;
+  actor: ActorRef;
+  correlationId?: string;
   metadata?: Record<string, unknown>;
 }
 
-export interface TransitionOptions {
+export interface TransitionParams {
   aggregateId: AggregateId;
   transitionId: TransitionId;
-  actor: { type: "human" | "automation" | "ai-agent" | "webhook" | "system"; id: string };
-  evidence?: Evidence;
-  correlationId?: CorrelationId;
+  actor: ActorRef;
+  evidence?: Record<string, unknown>;
+  correlationId?: string;
 }
 
 export interface TransitionResult {
-  status: "executed" | "guard_failed" | "rejected" | "pending_approval";
+  status: "executed" | "guard_failed" | "rejected";
   fromState: StateId;
   toState?: StateId;
-  guardFailures?: { guardId: GuardId; message: string; severity: "hard" | "soft" }[];
+  guardFailures?: { guardId: GuardSpec["guardId"]; message: string; severity: "hard" | "soft" }[];
   rejectionReason?: string;
-  requiresApprovalFrom?: ActorId;
-  event?: TransitionExecutedEvent | GuardFailedEvent;
+  event?:
+    | LoopTransitionExecutedEvent
+    | LoopTransitionBlockedEvent
+    | LoopCancelledEvent
+    | LoopFailedEvent;
 }
 
-type SideEffectHandler = (params: {
-  aggregateId: AggregateId;
-  transitionId: TransitionId;
-  evidence: Evidence;
-}) => Promise<void> | void;
-
-function id(): string {
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+function generateEventId(): string {
+  return crypto.randomUUID();
 }
 
-function statusForState(isTerminal: boolean, isError: boolean): LoopStatus {
-  if (isError) return "ERROR";
-  if (isTerminal) return "CLOSED";
-  return "IN_PROGRESS";
+function createDefaultGuardRegistry(): GuardRegistry {
+  const registry = new GuardRegistry();
+  registry.registerBuiltIns();
+  return registry;
 }
 
-export class LoopEngine {
-  private readonly opts: LoopEngineOptions;
-  private readonly sideEffectHandlers = new Map<string, SideEffectHandler>();
+export class LoopSystem {
+  private readonly options: LoopSystemOptions;
+  private readonly guards: GuardRegistry;
 
-  constructor(options: LoopEngineOptions) {
-    this.opts = options;
-  }
-
-  registerSideEffectHandler(sideEffectId: string, handler: SideEffectHandler): void {
-    this.sideEffectHandlers.set(sideEffectId, handler);
+  constructor(options: LoopSystemOptions) {
+    this.options = options;
+    this.guards = options.guardRegistry ?? createDefaultGuardRegistry();
   }
 
   private now(): string {
-    return this.opts.clock ? this.opts.clock() : new Date().toISOString();
+    return this.options.now ? this.options.now() : new Date().toISOString();
   }
 
   private async emit(event: LoopEvent): Promise<void> {
-    if (this.opts.eventBus) {
-      await this.opts.eventBus.emit(event);
+    if (this.options.eventBus) {
+      await this.options.eventBus.emit(event);
     }
   }
 
-  async start(options: StartOptions): Promise<LoopInstance> {
-    const definition = this.opts.registry.get(options.loopId as never);
+  private isTerminal(definition: LoopDefinition, stateId: StateId): boolean {
+    return definition.states.some((state) => state.stateId === stateId && state.terminal === true);
+  }
+
+  async startLoop(params: StartLoopParams): Promise<RuntimeLoopInstance> {
+    const definition = this.options.registry.get(params.loopId);
     if (!definition) {
-      throw new Error(`loopId not found: ${options.loopId}`);
+      throw new Error(`Loop definition not found for ${params.loopId}`);
     }
 
-    const existing = await this.opts.store.getInstance(options.aggregateId);
-    if (existing && existing.status !== "CLOSED" && existing.status !== "ERROR" && existing.status !== "CANCELLED") {
-      throw new Error(`OPEN instance already exists for aggregateId ${options.aggregateId}`);
+    const existing = await this.options.storage.getLoop(params.aggregateId);
+    if (existing && existing.status === "active") {
+      throw new Error(`Active loop already exists for aggregateId ${params.aggregateId}`);
     }
 
     const now = this.now();
-    const instance: LoopInstance = {
-      loopId: definition.id,
-      aggregateId: options.aggregateId,
-      orgId: options.orgId,
+    const instance: RuntimeLoopInstance = {
+      loopId: definition.loopId,
+      aggregateId: params.aggregateId,
       currentState: definition.initialState,
-      status: "OPEN",
+      status: "active",
       startedAt: now,
-      correlationId: options.correlationId ?? toCorrelationId(id()),
-      ...(options.metadata ? { metadata: options.metadata } : {})
+      updatedAt: now,
+      ...(params.correlationId ? { correlationId: params.correlationId } : {}),
+      ...(params.metadata ? { metadata: params.metadata } : {})
     };
-    await this.opts.store.saveInstance(instance);
+    await this.options.storage.createLoop(instance);
 
-    const event: LoopStartedEvent = {
-      type: "loop.started",
-      eventId: id(),
-      loopId: definition.id,
-      aggregateId: options.aggregateId,
-      orgId: options.orgId,
-      occurredAt: now,
-      correlationId: instance.correlationId,
+    const event: LoopStartedEvent = createLoopStartedEvent({
+      loopId: definition.loopId,
+      aggregateId: params.aggregateId,
+      correlationId: params.correlationId,
       initialState: definition.initialState,
-      actor: { type: options.actor.type, id: options.actor.id as never }
-    };
-    await this.emit(event as LoopEvent);
+      actor: params.actor,
+      definition: {
+        loopId: definition.loopId,
+        version: definition.version,
+        name: definition.name
+      }
+    });
+    await this.emit(event);
+
     return instance;
   }
 
-  async transition(options: TransitionOptions): Promise<TransitionResult> {
-    const instance = await this.opts.store.getInstance(options.aggregateId);
+  async transition(params: TransitionParams): Promise<TransitionResult> {
+    const instance = await this.options.storage.getLoop(params.aggregateId);
     if (!instance) {
-      throw new Error(`instance not found for ${options.aggregateId}`);
-    }
-    const definition = this.opts.registry.get(instance.loopId);
-    if (!definition) {
-      throw new Error(`definition not found for ${instance.loopId}`);
+      throw new Error(`Loop instance not found for aggregateId ${params.aggregateId}`);
     }
 
-    const state = definition.states.find((s) => s.id === instance.currentState);
-    if (state?.isTerminal || state?.isError || instance.status === "CLOSED" || instance.status === "ERROR") {
+    const definition = this.options.registry.get(instance.loopId);
+    if (!definition) {
+      throw new Error(`Loop definition not found for ${instance.loopId}`);
+    }
+
+    if (instance.status === "completed" || this.isTerminal(definition, instance.currentState)) {
       return {
         status: "rejected",
         fromState: instance.currentState,
@@ -147,7 +160,9 @@ export class LoopEngine {
     }
 
     const transition = definition.transitions.find(
-      (t) => t.id === options.transitionId && t.from === instance.currentState
+      (candidate) =>
+        candidate.transitionId === params.transitionId &&
+        candidate.from === instance.currentState
     );
     if (!transition) {
       return {
@@ -157,180 +172,254 @@ export class LoopEngine {
       };
     }
 
-    const auth = canActorExecuteTransition(
-      {
-        type: options.actor.type,
-        id: options.actor.id as never
-      } as never,
-      transition
-    );
-    if (!auth.authorized) {
+    const authorization = isAuthorized(params.actor, transition);
+    if (!authorization.authorized) {
       return {
-        status: auth.requiresApproval ? "pending_approval" : "rejected",
+        status: "rejected",
         fromState: instance.currentState,
-        ...(auth.reason ? { rejectionReason: auth.reason } : {}),
-        ...(auth.requiresApproval ? { requiresApprovalFrom: "human-approver" as ActorId } : {})
+        rejectionReason: "unauthorized_actor"
       };
     }
 
-    const evidence: Evidence = options.evidence ?? {};
-    const hardFailures: { guardId: GuardId; message: string; severity: "hard" | "soft" }[] = [];
-    const softFailures: { guardId: GuardId; message: string; severity: "hard" | "soft" }[] = [];
-    for (const guard of transition.guards ?? []) {
-      if (!this.opts.guardEvaluator) break;
-      const ctx: GuardContext = {
+    const evidence = params.evidence ?? {};
+    const requestedEvent: LoopTransitionRequestedEvent = createLoopTransitionRequestedEvent({
+      loopId: instance.loopId,
+      aggregateId: instance.aggregateId,
+      correlationId: params.correlationId ?? instance.correlationId,
+      transitionId: transition.transitionId,
+      fromState: instance.currentState,
+      toState: transition.to,
+      signal: transition.signal,
+      actor: params.actor,
+      evidence
+    });
+    await this.emit(requestedEvent);
+
+    const guardSummary = await evaluateGuards(
+      transition.guards ?? [],
+      {
+        actor: params.actor,
         loopId: instance.loopId,
         aggregateId: instance.aggregateId,
-        transitionId: transition.id,
-        actor: { type: options.actor.type, id: options.actor.id as never },
+        fromState: instance.currentState,
+        toState: transition.to,
+        signal: transition.signal,
         evidence,
-        currentState: instance.currentState,
-        instance
-      };
-      const result = await this.opts.guardEvaluator.evaluate(guard.id, ctx);
-      if (!result.passed) {
-        const failure = {
-          guardId: guard.id,
-          message: result.message ?? guard.failureMessage,
-          severity: guard.severity
-        } as const;
-        if (guard.severity === "hard") {
-          hardFailures.push(failure);
-          break;
-        } else {
-          softFailures.push(failure);
-        }
-      }
-    }
+        ...(instance.metadata ? { loopData: instance.metadata } : {})
+      },
+      this.guards
+    );
 
-    if (hardFailures.length > 0) {
-      const failure = hardFailures[0];
-      if (!failure) {
-        return { status: "guard_failed", fromState: instance.currentState, guardFailures: hardFailures };
-      }
-      const event: GuardFailedEvent = {
-        type: "loop.guard.failed",
-        eventId: id(),
+    for (const failure of guardSummary.softFailures) {
+      const warningEvent: LoopGuardFailedEvent = createLoopGuardFailedEvent({
         loopId: instance.loopId,
         aggregateId: instance.aggregateId,
-        orgId: instance.orgId,
-        occurredAt: this.now(),
-        correlationId: options.correlationId ?? instance.correlationId,
+        correlationId: params.correlationId ?? instance.correlationId,
+        transitionId: transition.transitionId,
         fromState: instance.currentState,
-        attemptedTransitionId: transition.id,
         guardId: failure.guardId,
-        guardFailureMessage: failure.message,
-        severity: "hard",
-        actor: { type: options.actor.type, id: options.actor.id as never }
-      };
-      await this.emit(event as LoopEvent);
+        severity: "soft",
+        actor: params.actor,
+        message: failure.message,
+        metadata: failure.metadata
+      });
+      await this.emit(warningEvent);
+    }
+
+    if (!guardSummary.allPassed) {
+      for (const failure of guardSummary.hardFailures) {
+        const failedEvent: LoopGuardFailedEvent = createLoopGuardFailedEvent({
+          loopId: instance.loopId,
+          aggregateId: instance.aggregateId,
+          correlationId: params.correlationId ?? instance.correlationId,
+          transitionId: transition.transitionId,
+          fromState: instance.currentState,
+          guardId: failure.guardId,
+          severity: "hard",
+          actor: params.actor,
+          message: failure.message,
+          metadata: failure.metadata
+        });
+        await this.emit(failedEvent);
+      }
+
+      const blockedEvent: LoopTransitionBlockedEvent = createLoopTransitionBlockedEvent({
+        loopId: instance.loopId,
+        aggregateId: instance.aggregateId,
+        correlationId: params.correlationId ?? instance.correlationId,
+        transitionId: transition.transitionId,
+        fromState: instance.currentState,
+        attemptedToState: transition.to,
+        actor: params.actor,
+        guardFailures: guardSummary.hardFailures.map((failure) => ({
+          guardId: failure.guardId,
+          message: failure.message
+        }))
+      });
+      await this.emit(blockedEvent);
+
       return {
         status: "guard_failed",
         fromState: instance.currentState,
-        guardFailures: hardFailures,
-        event
+        guardFailures: guardSummary.hardFailures.map((failure) => ({
+          guardId: failure.guardId,
+          message: failure.message,
+          severity: "hard" as const
+        })),
+        event: blockedEvent
       };
     }
 
     const now = this.now();
-    const previousState = instance.currentState;
-    instance.currentState = transition.to;
-    const toStateSpec = definition.states.find((s) => s.id === transition.to);
-    instance.status = statusForState(Boolean(toStateSpec?.isTerminal), Boolean(toStateSpec?.isError));
-    if (instance.status === "CLOSED" || instance.status === "ERROR") {
-      instance.closedAt = now;
+    const updated: RuntimeLoopInstance = {
+      ...instance,
+      currentState: transition.to,
+      updatedAt: now
+    };
+    if (this.isTerminal(definition, transition.to)) {
+      updated.status = "completed";
+      updated.completedAt = now;
     }
+    await this.options.storage.updateLoop(updated);
 
-    const history = await this.opts.store.getTransitionHistory(options.aggregateId);
-    const last = history[history.length - 1];
-    const durationMs = last ? Math.max(0, Date.parse(now) - Date.parse(last.occurredAt)) : undefined;
-    const record: TransitionRecord = {
-      id: id(),
-      loopId: instance.loopId,
-      aggregateId: instance.aggregateId,
-      transitionId: transition.id,
-      fromState: previousState,
+    const record: RuntimeTransitionRecord = {
+      aggregateId: updated.aggregateId,
+      loopId: updated.loopId,
+      transitionId: transition.transitionId,
+      signal: transition.signal,
+      fromState: instance.currentState,
       toState: transition.to,
-      actor: { type: options.actor.type, id: options.actor.id as never },
+      actor: params.actor,
+      occurredAt: now,
       evidence: {
         ...evidence,
-        ...(softFailures.length > 0 ? { _softGuardWarnings: softFailures } : {})
-      },
-      occurredAt: now,
-      ...(durationMs !== undefined ? { durationMs } : {})
+        ...(guardSummary.softFailures.length > 0
+          ? {
+              _softGuardWarnings: guardSummary.softFailures.map((failure) => ({
+                guardId: failure.guardId,
+                message: failure.message
+              }))
+            }
+          : {})
+      }
     };
-    await this.opts.store.saveTransitionRecord(record);
-    await this.opts.store.saveInstance(instance);
+    await this.options.storage.appendTransition(record);
+    const history = await this.options.storage.getTransitions(updated.aggregateId);
 
-    const transitionEvent: TransitionExecutedEvent = {
-      type: "loop.transition.executed",
-      eventId: id(),
-      loopId: instance.loopId,
-      aggregateId: instance.aggregateId,
-      orgId: instance.orgId,
-      occurredAt: now,
-      correlationId: options.correlationId ?? instance.correlationId,
-      fromState: previousState,
+    const transitionEvent: LoopTransitionExecutedEvent = createLoopTransitionExecutedEvent({
+      loopId: updated.loopId,
+      aggregateId: updated.aggregateId,
+      correlationId: params.correlationId ?? updated.correlationId,
+      transitionId: transition.transitionId,
+      fromState: instance.currentState,
       toState: transition.to,
-      transitionId: transition.id,
+      signal: transition.signal,
       actor: record.actor,
       evidence: record.evidence,
-      ...(durationMs !== undefined ? { durationMs } : {})
-    };
-    await this.emit(transitionEvent as LoopEvent);
+      softGuardWarnings: guardSummary.softFailures.map((failure) => ({
+        guardId: failure.guardId,
+        message: failure.message
+      }))
+    });
+    await this.emit(transitionEvent);
 
-    if (instance.status === "CLOSED") {
-      const completedEvent: LoopCompletedEvent = {
-        type: "loop.completed",
-        eventId: id(),
-        loopId: instance.loopId,
-        aggregateId: instance.aggregateId,
-        orgId: instance.orgId,
-        occurredAt: now,
-        correlationId: options.correlationId ?? instance.correlationId,
-        terminalState: instance.currentState,
+    if (updated.status === "completed") {
+      const completedEvent: LoopCompletedEvent = createLoopCompletedEvent({
+        loopId: updated.loopId,
+        aggregateId: updated.aggregateId,
+        correlationId: params.correlationId ?? updated.correlationId,
+        finalState: updated.currentState,
         actor: record.actor,
-        durationMs: Math.max(0, Date.parse(now) - Date.parse(instance.startedAt)),
-        transitionCount: history.length + 1,
-        outcomeId: definition.outcome.id,
-        valueUnit: definition.outcome.valueUnit
-      };
-      await this.emit(completedEvent as LoopEvent);
-    }
-
-    for (const sideEffect of transition.sideEffects ?? []) {
-      const handler = this.sideEffectHandlers.get(sideEffect.id);
-      if (handler) {
-        await handler({
-          aggregateId: instance.aggregateId,
-          transitionId: transition.id,
-          evidence: record.evidence
-        });
-      }
+        durationMs: Math.max(0, Date.parse(now) - Date.parse(updated.startedAt)),
+        outcome: definition.outcome
+          ? {
+              valueUnit: definition.outcome.valueUnit,
+              metrics: {}
+            }
+          : undefined
+      });
+      await this.emit(completedEvent);
     }
 
     return {
       status: "executed",
-      fromState: previousState,
+      fromState: instance.currentState,
       toState: transition.to,
-      ...(softFailures.length > 0 ? { guardFailures: softFailures } : {}),
+      ...(guardSummary.softFailures.length > 0
+        ? {
+            guardFailures: guardSummary.softFailures.map((failure) => ({
+              guardId: failure.guardId,
+              message: failure.message,
+              severity: "soft" as const
+            }))
+          }
+        : {}),
       event: transitionEvent
     };
   }
 
-  async getState(aggregateId: AggregateId): Promise<LoopInstance | null> {
-    return this.opts.store.getInstance(aggregateId);
+  async cancelLoop(aggregateId: AggregateId, actor: ActorRef, reason?: string): Promise<LoopCancelledEvent> {
+    const instance = await this.options.storage.getLoop(aggregateId);
+    if (!instance) {
+      throw new Error(`Loop instance not found for aggregateId ${aggregateId}`);
+    }
+    const now = this.now();
+    const updated: RuntimeLoopInstance = {
+      ...instance,
+      status: "cancelled",
+      completedAt: now,
+      updatedAt: now
+    };
+    await this.options.storage.updateLoop(updated);
+    const event = createLoopCancelledEvent({
+      loopId: updated.loopId,
+      aggregateId: updated.aggregateId,
+      correlationId: updated.correlationId,
+      fromState: instance.currentState,
+      actor,
+      reason
+    });
+    await this.emit(event);
+    return event;
   }
 
-  async getHistory(aggregateId: AggregateId): Promise<TransitionRecord[]> {
-    return this.opts.store.getTransitionHistory(aggregateId);
+  async failLoop(
+    aggregateId: AggregateId,
+    fromState: StateId,
+    error: { code: string; message: string; stack?: string }
+  ): Promise<LoopFailedEvent> {
+    const instance = await this.options.storage.getLoop(aggregateId);
+    if (!instance) {
+      throw new Error(`Loop instance not found for aggregateId ${aggregateId}`);
+    }
+    const now = this.now();
+    const updated: RuntimeLoopInstance = {
+      ...instance,
+      status: "failed",
+      completedAt: now,
+      updatedAt: now
+    };
+    await this.options.storage.updateLoop(updated);
+    const event = createLoopFailedEvent({
+      loopId: updated.loopId,
+      aggregateId: updated.aggregateId,
+      correlationId: updated.correlationId,
+      fromState,
+      error
+    });
+    await this.emit(event);
+    return event;
   }
 
-  async listOpen(loopId: string, orgId: string): Promise<LoopInstance[]> {
-    return this.opts.store.listOpenInstances(loopId as never, orgId);
+  async getLoop(aggregateId: AggregateId): Promise<RuntimeLoopInstance | null> {
+    return this.options.storage.getLoop(aggregateId);
+  }
+
+  async getHistory(aggregateId: AggregateId): Promise<RuntimeTransitionRecord[]> {
+    return this.options.storage.getTransitions(aggregateId);
   }
 }
 
-export function createLoopEngine(options: LoopEngineOptions): LoopEngine {
-  return new LoopEngine(options);
+export function createLoopSystem(options: LoopSystemOptions): LoopSystem {
+  return new LoopSystem(options);
 }

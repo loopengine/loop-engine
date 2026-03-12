@@ -1,0 +1,24 @@
+name: Feature Request
+description: Propose a new feature or change
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    label: Problem this solves
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    label: Proposed solution
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    label: Scope
+    options:
+      - New package
+      - Existing package change
+      - Breaking change
+      - Documentation
+    validations:
+      required: true

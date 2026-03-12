@@ -1,7 +1,7 @@
 {
-  "name": "@loop-engine/adapter-openclaw",
+  "name": "@loop-engine/adapter-commerce-gateway",
   "version": "0.1.0",
-  "description": "OpenClaw gateway EventBus adapter for Loop Engine",
+  "description": "LLM Commerce Gateway adapter for Loop Engine — AI procurement and pricing actors",
   "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -20,17 +20,26 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@loop-engine/events": "workspace:*",
-    "@loop-engine/runtime": "workspace:*"
+    "@loop-engine/core": "workspace:*",
+    "@loop-engine/sdk": "workspace:*"
   },
   "peerDependencies": {
-    "ws": "^8.0.0"
+    "@anthropic-ai/sdk": ">=0.39.0",
+    "openai": ">=4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@anthropic-ai/sdk": {
+      "optional": true
+    },
+    "openai": {
+      "optional": true
+    }
   },
   "devDependencies": {
-    "@types/ws": "^8.0.0",
+    "@anthropic-ai/sdk": "^0.39.0",
+    "openai": "^4.0.0",
     "tsup": "^8.0.0",
-    "typescript": "^5.0.0",
-    "ws": "^8.0.0"
+    "typescript": "^5.0.0"
   },
   "files": [
     "dist/",

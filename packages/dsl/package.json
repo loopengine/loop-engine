@@ -21,13 +21,15 @@
   },
   "dependencies": {
     "@loop-engine/core": "workspace:*",
-    "js-yaml": "^4.1.0",
-    "zod": "^3.22.0"
+    "js-yaml": "^4.1.1",
+    "zod": "^3.25.76"
   },
-  "devDependencies": {},
   "files": [
     "dist/",
     "README.md",
     "LICENSE"
-  ]
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }

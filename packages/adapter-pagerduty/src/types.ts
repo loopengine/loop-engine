@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 Better Data, Inc.
 import type { ActorRef } from "@loop-engine/core";
 
 export type IncidentSeverity = "critical" | "error" | "warning" | "info";

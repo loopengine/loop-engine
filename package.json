@@ -14,18 +14,18 @@
     "release": "turbo run build --filter=./packages/* && changeset publish"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.0",
-    "@changesets/changelog-github": "^0.5.1",
+    "@changesets/changelog-github": "^0.5.2",
+    "@changesets/cli": "^2.30.0",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^25.4.0",
+    "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "tsx": "^4.0.0",
-    "tsup": "^8.0.0",
-    "turbo": "^2.0.0",
-    "typescript": "^5.4.0",
-    "vitest": "^1.6.0",
-    "zod": "^3.22.0"
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "turbo": "^2.8.16",
+    "typescript": "^5.9.3",
+    "vitest": "^1.6.1",
+    "zod": "^3.25.76"
   },
   "packageManager": "pnpm@9.0.0"
 }

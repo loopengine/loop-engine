@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 Better Data, Inc.
 import { aggregateId, transitionId, type AggregateId, type ActorRef, type Evidence, type LoopDefinition } from "@loop-engine/core";
 import type { LoopEngine } from "@loop-engine/runtime";
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 Better Data, Inc.
 import type { PagerDutyNotifier } from "./pagerduty-notifier";
 
 export function shouldResolveForState(state: string): boolean {

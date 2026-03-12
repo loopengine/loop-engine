@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 Better Data, Inc.
 import type { ApprovalContext, IncidentSeverity, PagerDutyEventPayload, PagerDutyNotifierOptions } from "./types";
 
 function getSeverity(options: PagerDutyNotifierOptions, context: ApprovalContext): IncidentSeverity {

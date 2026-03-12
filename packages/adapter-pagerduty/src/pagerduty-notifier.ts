@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 Better Data, Inc.
 import { buildResolvePayload, buildTriggerPayload } from "./incident-builder";
 import type { ApprovalContext, PagerDutyEventPayload, PagerDutyNotifierOptions } from "./types";
 

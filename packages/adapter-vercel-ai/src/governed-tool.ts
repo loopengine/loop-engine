@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 Better Data, Inc.
 import type { CoreTool, GovernedToolConfig, PendingApprovalResult } from "./types";
 import { startGovernedLoop, transitionToState } from "./loop-tool-bridge";
 

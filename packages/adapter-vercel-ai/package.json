@@ -2,7 +2,7 @@
   "name": "@loop-engine/adapter-vercel-ai",
   "version": "0.1.0",
   "description": "Govern Vercel AI SDK tool calls with Loop Engine approval gates and audit trails",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -24,18 +24,21 @@
     "@loop-engine/runtime": "workspace:*"
   },
   "peerDependencies": {
-    "ai": ">=3.0.0",
-    "@loop-engine/core": "workspace:*"
+    "@loop-engine/core": "workspace:*",
+    "ai": ">=3.0.0"
   },
   "devDependencies": {
     "ai": "^3.4.33",
-    "tsup": "^8.0.0",
-    "typescript": "^5.0.0",
-    "zod": "^3.22.0"
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "zod": "^3.25.76"
   },
   "files": [
     "dist/",
     "README.md",
     "LICENSE"
-  ]
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }

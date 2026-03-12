@@ -1,5 +1,5 @@
-// @license MIT
-// SPDX-License-Identifier: MIT
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 import { describe, expect, it } from "vitest";
 import { actorId, transitionId, type TransitionSpec } from "@loop-engine/core";
 import { buildActorEvidence } from "../evidence";

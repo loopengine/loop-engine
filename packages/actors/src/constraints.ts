@@ -1,5 +1,5 @@
-// @license MIT
-// SPDX-License-Identifier: MIT
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 import type { TransitionId, TransitionSpec } from "@loop-engine/core";
 import type { Actor } from "./types";
 

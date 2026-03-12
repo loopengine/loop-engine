@@ -1,5 +1,5 @@
-// @license MIT
-// SPDX-License-Identifier: MIT
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 import type { AggregateId, LoopInstance, StateId, TransitionRecord } from "@loop-engine/core";
 
 export interface LoopTimeline {

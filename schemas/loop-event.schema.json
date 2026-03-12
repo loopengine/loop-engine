@@ -1,6 +1,453 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "LoopEvent",
-  "description": "Placeholder. Generated in Prompt 4 from LoopEventSchema.",
-  "type": "object"
+  "description": "JSON Schema equivalent of packages/events/src/schemas.ts LoopEventSchema.",
+  "oneOf": [
+    {
+      "$ref": "#/definitions/LoopStartedEvent"
+    },
+    {
+      "$ref": "#/definitions/TransitionRequestedEvent"
+    },
+    {
+      "$ref": "#/definitions/TransitionExecutedEvent"
+    },
+    {
+      "$ref": "#/definitions/TransitionBlockedEvent"
+    },
+    {
+      "$ref": "#/definitions/GuardFailedEvent"
+    },
+    {
+      "$ref": "#/definitions/LoopCompletedEvent"
+    },
+    {
+      "$ref": "#/definitions/LoopErrorEvent"
+    },
+    {
+      "$ref": "#/definitions/LoopSpawnedEvent"
+    },
+    {
+      "$ref": "#/definitions/SignalReceivedEvent"
+    },
+    {
+      "$ref": "#/definitions/OutcomeRecordedEvent"
+    }
+  ],
+  "definitions": {
+    "BaseEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "eventId",
+        "loopId",
+        "aggregateId",
+        "orgId",
+        "occurredAt",
+        "correlationId"
+      ],
+      "properties": {
+        "eventId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "loopId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "aggregateId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "orgId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "occurredAt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "correlationId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "causationId": {
+          "type": "string"
+        }
+      }
+    },
+    "Actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["human", "automation", "ai-agent", "webhook", "system"]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "LoopStartedEvent": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseEvent"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "initialState", "actor"],
+          "properties": {
+            "type": {
+              "const": "loop.started"
+            },
+            "initialState": {
+              "type": "string",
+              "minLength": 1
+            },
+            "actor": {
+              "$ref": "#/definitions/Actor"
+            }
+          }
+        }
+      ]
+    },
+    "TransitionRequestedEvent": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseEvent"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "transitionId", "actor", "evidence", "requestedAt"],
+          "properties": {
+            "type": {
+              "const": "loop.transition.requested"
+            },
+            "transitionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "actor": {
+              "$ref": "#/definitions/Actor"
+            },
+            "evidence": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "requestedAt": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      ]
+    },
+    "TransitionExecutedEvent": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseEvent"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "fromState", "toState", "transitionId", "actor", "evidence"],
+          "properties": {
+            "type": {
+              "const": "loop.transition.executed"
+            },
+            "fromState": {
+              "type": "string",
+              "minLength": 1
+            },
+            "toState": {
+              "type": "string",
+              "minLength": 1
+            },
+            "transitionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "actor": {
+              "$ref": "#/definitions/Actor"
+            },
+            "evidence": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "durationMs": {
+              "type": "number"
+            }
+          }
+        }
+      ]
+    },
+    "TransitionBlockedEvent": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseEvent"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "transitionId", "reason", "actor"],
+          "properties": {
+            "type": {
+              "const": "loop.transition.blocked"
+            },
+            "transitionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "reason": {
+              "type": "string",
+              "enum": [
+                "guard_failed",
+                "unauthorized_actor",
+                "invalid_transition",
+                "loop_closed"
+              ]
+            },
+            "actor": {
+              "$ref": "#/definitions/Actor"
+            },
+            "guardFailures": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["guardId", "message"],
+                "properties": {
+                  "guardId": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "GuardFailedEvent": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseEvent"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "fromState",
+            "attemptedTransitionId",
+            "guardId",
+            "guardFailureMessage",
+            "actor"
+          ],
+          "properties": {
+            "type": {
+              "const": "loop.guard.failed"
+            },
+            "fromState": {
+              "type": "string",
+              "minLength": 1
+            },
+            "attemptedTransitionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "guardId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "guardFailureMessage": {
+              "type": "string",
+              "minLength": 1
+            },
+            "severity": {
+              "type": "string",
+              "enum": ["hard", "soft"]
+            },
+            "actor": {
+              "$ref": "#/definitions/Actor"
+            }
+          }
+        }
+      ]
+    },
+    "LoopCompletedEvent": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseEvent"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "terminalState",
+            "actor",
+            "durationMs",
+            "transitionCount",
+            "outcomeId",
+            "valueUnit"
+          ],
+          "properties": {
+            "type": {
+              "const": "loop.completed"
+            },
+            "terminalState": {
+              "type": "string",
+              "minLength": 1
+            },
+            "actor": {
+              "$ref": "#/definitions/Actor"
+            },
+            "durationMs": {
+              "type": "number"
+            },
+            "transitionCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "outcomeId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "valueUnit": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      ]
+    },
+    "LoopErrorEvent": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseEvent"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "errorState", "errorCode", "errorMessage", "actor"],
+          "properties": {
+            "type": {
+              "const": "loop.error"
+            },
+            "errorState": {
+              "type": "string",
+              "minLength": 1
+            },
+            "errorCode": {
+              "type": "string",
+              "minLength": 1
+            },
+            "errorMessage": {
+              "type": "string",
+              "minLength": 1
+            },
+            "actor": {
+              "$ref": "#/definitions/Actor"
+            }
+          }
+        }
+      ]
+    },
+    "LoopSpawnedEvent": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseEvent"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "parentAggregateId", "childLoopId", "childAggregateId"],
+          "properties": {
+            "type": {
+              "const": "loop.spawned"
+            },
+            "parentAggregateId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "childLoopId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "childAggregateId": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      ]
+    },
+    "SignalReceivedEvent": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseEvent"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "signalType", "confidence"],
+          "properties": {
+            "type": {
+              "const": "loop.signal.received"
+            },
+            "signalType": {
+              "type": "string",
+              "minLength": 1
+            },
+            "confidence": {
+              "type": "number"
+            },
+            "triggeredLoopId": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "OutcomeRecordedEvent": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseEvent"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "outcomeId", "valueUnit", "durationMs"],
+          "properties": {
+            "type": {
+              "const": "loop.outcome.recorded"
+            },
+            "outcomeId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "valueUnit": {
+              "type": "string",
+              "minLength": 1
+            },
+            "businessMetrics": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "durationMs": {
+              "type": "number"
+            }
+          }
+        }
+      ]
+    }
+  }
 }

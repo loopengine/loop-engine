@@ -2,7 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { parseLoopYaml } from "@loop-engine/dsl";
-import { createLoopSystem } from "@loop-engine/sdk";
+import { InMemoryEventBus } from "@loop-engine/events";
+import { defaultRegistry as guardRegistry } from "@loop-engine/guards";
+import { createLoopEngine } from "@loop-engine/runtime";
 import { DevtoolsPanel } from "@loop-engine/ui-devtools";
 
 const procurementYaml = `id: scm.procurement
@@ -33,6 +35,45 @@ outcome:
 
 type EventItem = { type: string; occurredAt: string; payload: unknown };
 
+class InMemoryLoopRegistry {
+  constructor(private readonly loops: any[]) {}
+  get(id: any): any {
+    return this.loops.find((loop) => loop.id === id);
+  }
+  list(domain?: string): any[] {
+    return domain ? this.loops.filter((loop) => loop.domain === domain) : this.loops;
+  }
+}
+
+class InMemoryLoopStore {
+  private readonly instances = new Map<string, any>();
+  private readonly history = new Map<string, any[]>();
+
+  async getInstance(aggregateId: any): Promise<any | null> {
+    return this.instances.get(String(aggregateId)) ?? null;
+  }
+
+  async saveInstance(instance: any): Promise<void> {
+    this.instances.set(String(instance.aggregateId), instance);
+  }
+
+  async getTransitionHistory(aggregateId: any): Promise<any[]> {
+    return this.history.get(String(aggregateId)) ?? [];
+  }
+
+  async saveTransitionRecord(record: any): Promise<void> {
+    const key = String(record.aggregateId);
+    const current = this.history.get(key) ?? [];
+    this.history.set(key, [...current, record]);
+  }
+
+  async listOpenInstances(loopId: any, orgId: string): Promise<any[]> {
+    return [...this.instances.values()].filter(
+      (instance) => instance.loopId === loopId && instance.orgId === orgId && instance.status === "OPEN"
+    );
+  }
+}
+
 export default function Page(): React.ReactElement {
   const [yaml, setYaml] = useState(procurementYaml);
   const [aggregateId, setAggregateId] = useState("DEMO-001");
@@ -55,17 +96,23 @@ export default function Page(): React.ReactElement {
 
   const runStart = async (): Promise<void> => {
     if (!definition) return;
-    const system = createLoopSystem({ loops: [definition] });
-    system.eventBus.subscribe(async (event) => {
+    const eventBus = new InMemoryEventBus();
+    const system = createLoopEngine({
+      registry: new InMemoryLoopRegistry([definition]),
+      store: new InMemoryLoopStore(),
+      eventBus,
+      guardEvaluator: guardRegistry.createEvaluator()
+    });
+    eventBus.subscribe(async (event) => {
       setEvents((prev) => [{ type: (event as { type: string }).type, occurredAt: new Date().toISOString(), payload: event }, ...prev]);
     });
-    await system.engine.start({
+    await system.start({
       loopId: definition.id as never,
       aggregateId: aggregateId as never,
       orgId: "demo-org",
       actor: { type: "human", id: "user@example.com" }
     });
-    const loopState = await system.engine.getState(aggregateId as never);
+    const loopState = await system.getState(aggregateId as never);
     setState(String(loopState?.currentState ?? "UNKNOWN"));
     setCurrentLoopId(String(definition.id));
     const transitions = definition.transitions.filter((t) => t.from === loopState?.currentState);

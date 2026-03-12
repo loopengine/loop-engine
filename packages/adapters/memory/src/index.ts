@@ -1,5 +1,5 @@
-// @license MIT
-// SPDX-License-Identifier: MIT
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 import type { AggregateId, LoopId, LoopInstance, TransitionRecord } from "@loop-engine/core";
 import type { LoopStore } from "@loop-engine/runtime";
 

@@ -1,5 +1,5 @@
-// @license MIT
-// SPDX-License-Identifier: MIT
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 import type { LoopEvent } from "@loop-engine/events";
 import type { EventBus } from "@loop-engine/runtime";
 
@@ -33,7 +33,10 @@ export function httpEventBus(options: {
       }
     },
     subscribe(): () => void {
-      throw new Error("WebhookEventBus does not support subscribe");
+      throw new Error(
+        "[loop-engine/adapter-http] WebhookEventBus does not support subscribe. " +
+          "Track adapter enhancements at https://github.com/loopengine/loop-engine/issues"
+      );
     }
   };
 }

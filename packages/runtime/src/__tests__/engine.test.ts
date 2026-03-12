@@ -1,7 +1,8 @@
-// @license MIT
-// SPDX-License-Identifier: MIT
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 import { describe, expect, it } from "vitest";
 import { aggregateId, correlationId, loopId, outcomeId, stateId, transitionId, type LoopDefinition, type LoopInstance, type LoopRegistry, type TransitionRecord } from "@loop-engine/core";
+import type { LoopEvent } from "@loop-engine/events";
 import type { EventBus, GuardEvaluator, LoopStore } from "../interfaces";
 import { createLoopEngine } from "../engine";
 
@@ -161,7 +162,7 @@ describe("LoopEngine", () => {
 
   it("terminal state transition emits LoopCompletedEvent", async () => {
     const store = new MemoryStore();
-    const events: unknown[] = [];
+    const events: LoopEvent[] = [];
     const eventBus: EventBus = {
       async emit(event) {
         events.push(event);
@@ -189,7 +190,7 @@ describe("LoopEngine", () => {
       actor: { type: "human", id: "user@example.com" },
       evidence: { approved: true }
     });
-    expect(events.some((e: any) => e.type === "loop.completed")).toBe(true);
+    expect(events.some((event) => event.type === "loop.completed")).toBe(true);
   });
 
   it("getHistory() returns ordered transition records", async () => {

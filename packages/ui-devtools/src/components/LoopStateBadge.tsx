@@ -1,5 +1,5 @@
-// @license MIT
-// SPDX-License-Identifier: MIT
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 type BadgeSize = "xs" | "sm" | "md" | "lg";
 
 const sizeClass: Record<BadgeSize, string> = {

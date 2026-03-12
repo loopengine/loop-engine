@@ -1,52 +1,73 @@
 # OSS / Proprietary Boundary
 
-This document defines what belongs in this repository and what belongs
-in Better Data's proprietary platform.
+This repository is the OSS Loop Engine implementation.
 
-## The Rule
+## One-sentence boundary rule
 
-> Does this code describe what a loop IS, or how a loop RUNS in production?
+If it defines portable loop semantics/contracts, it belongs here; if it depends on
+Better Data hosted tenant, billing, or proprietary intelligence systems, it does not.
 
-**IS -> this repo (OSS)**  
-**RUNS in production -> Better Data's platform (proprietary)**
+## OSS packages in this repo
 
-## OSS: what lives here
+From `packages/`:
 
-- Loop definition schema and DSL (what a loop looks like)
-- Loop instance type model (what an executing loop is at a point in time)
-- Event schema (what every transition emits)
-- Actor model (who can act, with what evidence)
-- Guard specification (what guards exist, declared)
-- Signal detection primitives
-- Observability schema (what metrics are tracked)
-- Reference loop definitions (loops/ directory)
-- Adapter interfaces (how to plug in a store or event bus)
+- `@loop-engine/core`
+- `@loop-engine/dsl`
+- `@loop-engine/runtime`
+- `@loop-engine/events`
+- `@loop-engine/actors`
+- `@loop-engine/guards`
+- `@loop-engine/signals`
+- `@loop-engine/observability`
+- `@loop-engine/sdk`
+- `@loop-engine/registry-client`
+- `@loop-engine/ui-devtools`
+- `@loop-engine/adapter-memory`
+- `@loop-engine/adapter-postgres`
+- `@loop-engine/adapter-kafka`
+- `@loop-engine/adapter-http`
 
-## Proprietary: what does NOT live here
+## What belongs in OSS
 
-- Guard evaluation that calls Better Data hosted services
-- AI optimization models (forecasting, demand prediction)
-- Industry Packs (vertical-specific loop policy packs)
-- Tenant isolation and multi-tenancy
-- Billing metering
-- Registry backend (the client is OSS; the server is proprietary)
-- Better Data SCM module domain services
+- Core loop type system and schemas
+- Runtime contracts (`LoopStore`, `EventBus`, `GuardEvaluator`)
+- Domain-neutral actor/guard/event/signal primitives
+- Reference loop definitions under `loops/`
+- Portable adapters and registry clients
 
-## How proprietary code uses this repo
+## What stays proprietary
 
-Better Data's platform (bd-forge-main) imports `@loop-engine/*` as npm dependencies.
-The proprietary loop-engine package uses `@loop-engine/core` types to define its
-internal execution context. It never modifies or forks OSS types - it extends them.
+- Multi-tenant and entitlement enforcement
+- Hosted billing/metering and account controls
+- Better Data-specific optimization models
+- Better Data private registry backend behavior
+- Product-specific business modules outside portable loop semantics
 
-## What a fork can and cannot do
+## Boundary checks used in this repo
 
-A fork of this repo can:
-- Build a complete Loop Engine runtime
-- Implement any adapter
-- Host their own registry
-- Build AI optimization on top
+Automated checks:
 
-A fork cannot:
-- Use Better Data Industry Packs
-- Access Better Data hosted registry without an API key
-- Call themselves "Better Data" or use the Better Data brand
+```bash
+pnpm check-boundary
+```
+
+Helpful manual scans:
+
+```bash
+rg "@betterdata|@repo/" packages loops scripts
+rg "procurement|inventory|shipment|lot" packages/core/src
+```
+
+## Quick reference: which package to use for what
+
+| I want to... | Use |
+|---|---|
+| Define a loop type | `@loop-engine/dsl` |
+| Run loops in my application | `@loop-engine/sdk` |
+| Subscribe to loop events | `@loop-engine/events` |
+| Add custom guard logic | `@loop-engine/guards` |
+| Track who did what | `@loop-engine/actors` |
+| Detect patterns in loop behavior | `@loop-engine/signals` |
+| Build loop dashboards | `@loop-engine/observability` |
+| Add React devtools | `@loop-engine/ui-devtools` |
+| Persist loops to PostgreSQL | `@loop-engine/adapter-postgres` |

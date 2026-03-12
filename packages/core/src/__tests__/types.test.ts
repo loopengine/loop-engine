@@ -1,5 +1,5 @@
-// @license MIT
-// SPDX-License-Identifier: MIT
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 import { describe, expect, it } from "vitest";
 import type { LoopStatus, TransitionSpec } from "../types";
 import { loopId, stateId, transitionId } from "../types";

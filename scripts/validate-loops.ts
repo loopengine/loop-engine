@@ -1,5 +1,5 @@
-// @license MIT
-// SPDX-License-Identifier: MIT
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { ParseError, parseLoopYaml } from "../packages/dsl/src/parser";

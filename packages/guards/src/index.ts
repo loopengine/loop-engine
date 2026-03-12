@@ -1,5 +1,5 @@
-// @license MIT
-// SPDX-License-Identifier: MIT
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 import { guardId } from "@loop-engine/core";
 import { approvalObtainedGuard } from "./built-in/approval-obtained";
 import { actorPermissionGuard } from "./built-in/actor-permission";

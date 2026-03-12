@@ -1,5 +1,5 @@
-// @license MIT
-// SPDX-License-Identifier: MIT
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 import type { LoopDefinition, StateId, TransitionId } from "@loop-engine/core";
 
 export function StateDiagram({

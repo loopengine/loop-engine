@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@loop-engine/dsl": "workspace:*",
+    "@loop-engine/events": "workspace:*",
+    "@loop-engine/guards": "workspace:*",
+    "@loop-engine/runtime": "workspace:*",
     "@loop-engine/sdk": "workspace:*",
     "@loop-engine/ui-devtools": "workspace:*",
     "next": "^15.0.0",

@@ -1,5 +1,5 @@
-// @license MIT
-// SPDX-License-Identifier: MIT
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 
@@ -137,11 +137,11 @@ async function run(): Promise<void> {
         message: 'package has "private": true'
       });
     }
-    if (pkg.license !== "MIT") {
+    if (pkg.license !== "Apache-2.0") {
       violations.push({
         check: "license",
         file: path.join(dir, "package.json"),
-        message: 'package license must be "MIT"'
+        message: 'package license must be "Apache-2.0"'
       });
     }
   }
@@ -201,11 +201,11 @@ async function run(): Promise<void> {
   }
   for (const file of srcFiles.filter((f) => /\.(ts|tsx|js|jsx)$/.test(f))) {
     const source = await readFile(file, "utf8");
-    if (!source.includes("SPDX-License-Identifier: MIT")) {
+    if (!source.includes("SPDX-License-Identifier: Apache-2.0")) {
       violations.push({
-        check: "mit-headers",
+        check: "apache-headers",
         file,
-        message: "missing SPDX MIT header"
+        message: "missing SPDX Apache-2.0 header"
       });
     }
   }
@@ -216,7 +216,7 @@ async function run(): Promise<void> {
     console.log("PASS adapter-peer-deps");
     console.log("PASS publishability");
     console.log("PASS license");
-    console.log("PASS mit-headers");
+    console.log("PASS apache-headers");
     return;
   }
 

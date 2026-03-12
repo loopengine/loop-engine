@@ -1,5 +1,5 @@
-// @license MIT
-// SPDX-License-Identifier: MIT
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 import { describe, expect, it } from "vitest";
 import { aggregateId, correlationId, loopId, stateId, transitionId, type LoopInstance, type TransitionRecord } from "@loop-engine/core";
 import { MemoryStore } from "../index";

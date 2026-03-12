@@ -1,6 +1,232 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "LoopDefinition",
-  "description": "Placeholder. Generated in Prompt 2 from LoopDefinitionSchema.",
-  "type": "object"
+  "description": "JSON Schema equivalent of packages/dsl/src/schema.ts LoopDefinitionSchema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "version",
+    "description",
+    "domain",
+    "states",
+    "initialState",
+    "transitions",
+    "outcome"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semver version (x.y.z)."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "domain": {
+      "type": "string",
+      "minLength": 1
+    },
+    "states": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/StateSpec"
+      }
+    },
+    "initialState": {
+      "type": "string",
+      "minLength": 1
+    },
+    "transitions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TransitionSpec"
+      }
+    },
+    "outcome": {
+      "$ref": "#/definitions/OutcomeSpec"
+    },
+    "participants": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "spawnableLoops": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "definitions": {
+    "BusinessMetric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "unit", "improvableByAI"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "improvableByAI": {
+          "type": "boolean"
+        }
+      }
+    },
+    "GuardSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description", "failureMessage", "severity", "evaluatedBy"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "failureMessage": {
+          "type": "string",
+          "minLength": 1
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["hard", "soft"]
+        },
+        "evaluatedBy": {
+          "type": "string",
+          "enum": ["runtime", "module", "external"]
+        }
+      }
+    },
+    "SideEffectSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description", "triggeredBy"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "triggeredBy": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "TransitionSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "from", "to", "allowedActors"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "from": {
+          "type": "string",
+          "minLength": 1
+        },
+        "to": {
+          "type": "string",
+          "minLength": 1
+        },
+        "allowedActors": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": ["human", "automation", "ai-agent", "webhook", "system"]
+          }
+        },
+        "guards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GuardSpec"
+          }
+        },
+        "sideEffects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SideEffectSpec"
+          }
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "StateSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "isTerminal": {
+          "type": "boolean"
+        },
+        "isError": {
+          "type": "boolean"
+        }
+      }
+    },
+    "OutcomeSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description", "valueUnit", "measurable"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "valueUnit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "measurable": {
+          "type": "boolean"
+        },
+        "businessMetrics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BusinessMetric"
+          }
+        }
+      }
+    }
+  }
 }

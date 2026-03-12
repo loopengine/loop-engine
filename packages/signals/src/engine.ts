@@ -1,5 +1,5 @@
-// @license MIT
-// SPDX-License-Identifier: MIT
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 import { signalId, type Signal } from "@loop-engine/core";
 import type { LoopEvent } from "@loop-engine/events";
 import { loopNotStartedRule } from "./built-in/loop-not-started";

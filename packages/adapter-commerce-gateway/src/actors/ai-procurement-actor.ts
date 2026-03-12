@@ -1,3 +1,5 @@
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 import type { Evidence } from "@loop-engine/core";

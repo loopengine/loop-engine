@@ -1,5 +1,5 @@
-// @license MIT
-// SPDX-License-Identifier: MIT
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 
 // Branded ID types for type safety
 export type LoopId = string & { readonly __brand: "LoopId" };

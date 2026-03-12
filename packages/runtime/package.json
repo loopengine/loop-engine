@@ -1,20 +1,21 @@
 {
   "name": "@loop-engine/runtime",
   "version": "0.1.0",
-  "license": "MIT",
+  "description": "Loop Engine runtime for state transitions, guard evaluation, and event emission",
+  "license": "Apache-2.0",
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.js",
+      "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts"
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsup",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run"
   },
@@ -26,8 +27,9 @@
     "@loop-engine/guards": "workspace:*"
   },
   "peerDependencies": {
-    "@loop-engine/events": ">=0.1.0"
+    "@loop-engine/events": "workspace:*"
   },
+  "devDependencies": {},
   "files": [
     "dist/",
     "README.md",

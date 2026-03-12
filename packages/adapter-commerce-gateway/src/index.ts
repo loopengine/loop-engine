@@ -1,3 +1,5 @@
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 export { CommerceGatewayClient } from "./client/commerce-gateway-client";
 export type {
   CommerceGatewayClientOptions,

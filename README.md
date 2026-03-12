@@ -1,10 +1,14 @@
 # Loop Engine
 
-Loop Engine is an open-source runtime for constrained, observable, and improvable
-operational loops.
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache%202.0-2ea44f.svg)](./LICENSE)
+[![npm org](https://img.shields.io/badge/npm-%40loop--engine-cb3837.svg)](https://www.npmjs.com/org/loop-engine)
+[![CI](https://github.com/loopengine/loop-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/loopengine/loop-engine/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-loopengine.io-2563EB.svg)](https://loopengine.io)
 
-It helps teams model enterprise processes as finite-state control systems that can
-be operated by humans, automation, and AI.
+> Open runtime for constrained, observable, and improvable enterprise loops.
+
+Loop Engine helps teams model enterprise processes as finite-state control systems
+operated by humans, automation, and AI.
 
 Created by [Better Data](https://betterdata.co).
 
@@ -27,22 +31,17 @@ npm install @loop-engine/sdk
 ```
 
 ```typescript
-import { createLoopEngine } from "@loop-engine/sdk";
+import { createLoopSystem } from "@loop-engine/sdk";
+import { aggregateId } from "@loop-engine/core";
+import type { LoopDefinition } from "@loop-engine/core";
 
-const engine = createLoopEngine({ store: memoryStore() });
+const loop: LoopDefinition = { id: "finance.expense-approval", version: "1.0.0", domain: "finance", description: "Expense approval", states: [{ id: "OPEN" }, { id: "APPROVED", isTerminal: true }], initialState: "OPEN", transitions: [{ id: "approve", from: "OPEN", to: "APPROVED", allowedActors: ["human"] }], outcome: { id: "decision_recorded", description: "Expense decision recorded", valueUnit: "decision", measurable: true } };
 
-await engine.start({
-  loopId: "scm.procurement",
-  aggregateId: "PO-2026-0012"
-});
-
-await engine.transition({
-  aggregateId: "PO-2026-0012",
-  transitionId: "confirm_po",
-  actor: { type: "human", id: "drew.kim@example.com" },
-  evidence: { approved: true, method: "3-way-match" }
-});
+const { engine } = await createLoopSystem({ loops: [loop] });
+await engine.start({ loopId: "finance.expense-approval", aggregateId: aggregateId("EXP-001"), orgId: "acme", actor: { type: "human", id: "approver@acme.com" } });
 ```
+
+Full getting-started docs: [loopengine.io/docs/getting-started/quick-start](https://loopengine.io/docs/getting-started/quick-start)
 
 ## Packages
 
@@ -62,6 +61,11 @@ await engine.transition({
 | @loop-engine/adapter-memory | In-memory store (testing/dev) |
 | @loop-engine/adapter-postgres | PostgreSQL persistence |
 | @loop-engine/adapter-kafka | Kafka event bus |
+| @loop-engine/adapter-http | HTTP webhook event bus |
+| @loop-engine/adapter-openclaw | OpenClaw messaging gateway adapter |
+| @loop-engine/adapter-commerce-gateway | Commerce Gateway integration for governed AI workflows |
+
+npm organization: [npmjs.com/org/loop-engine](https://www.npmjs.com/org/loop-engine)
 
 ## Examples
 
@@ -70,8 +74,17 @@ For complete reference implementations, see [loop-examples](https://github.com/l
 
 ## Documentation
 
-[loopengine.dev](https://loopengine.dev)
+[loopengine.io](https://loopengine.io)
+
+## Contributing
+
+- Read [CONTRIBUTING.md](./CONTRIBUTING.md)
+- RFC process: [loopengine.io/docs/governance/rfc-process](https://loopengine.io/docs/governance/rfc-process)
 
 ## License
 
-MIT
+Loop Engine is licensed under the Apache License 2.0. See the [LICENSE](./LICENSE) file for details.
+
+## Trademarks
+
+Loop Engine is a trademark of Better Data Inc. The Apache License 2.0 applies to the source code in this repository and does not grant rights to use Better Data's trademarks, service marks, or product names except as permitted by applicable law.

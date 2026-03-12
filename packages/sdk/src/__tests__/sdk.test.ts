@@ -1,5 +1,5 @@
-// @license MIT
-// SPDX-License-Identifier: MIT
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 import { describe, expect, it } from "vitest";
 import { loopId, outcomeId, stateId, transitionId, type LoopDefinition } from "@loop-engine/core";
 import { createLoopSystem } from "../index";
@@ -30,8 +30,8 @@ function demoLoop(): LoopDefinition {
 }
 
 describe("sdk", () => {
-  it("createLoopSystem returns engine and eventBus", () => {
-    const system = createLoopSystem({ loops: [demoLoop()] });
+  it("createLoopSystem returns engine and eventBus", async () => {
+    const system = await createLoopSystem({ loops: [demoLoop()] });
     expect(system.engine).toBeDefined();
     expect(system.eventBus).toBeDefined();
   });

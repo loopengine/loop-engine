@@ -1,3 +1,5 @@
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 import type { Evidence } from "@loop-engine/core";
 import type { DemandForecast, InventoryRecord, Supplier } from "../client/types";
 

@@ -65,9 +65,9 @@ to this repo — they belong in `betterdataco/*`, not here.
 5. If approved: open a PR referencing the RFC issue
 6. Link the merged PR back to the RFC issue when closing
 
-Full RFC guidance: [docs/governance/rfc-process](https://loopengine.dev/docs/governance/rfc-process)
+Full RFC guidance: [docs/governance/rfc-process](https://loopengine.io/docs/governance/rfc-process)
 
 ## Contact
 
 Governance questions: [oss@betterdata.co](mailto:oss@betterdata.co)
-Code of Conduct reports: [conduct@loopengine.dev](mailto:conduct@loopengine.dev)
+Code of Conduct reports: [conduct@loopengine.io](mailto:conduct@loopengine.io)

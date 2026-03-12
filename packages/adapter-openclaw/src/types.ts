@@ -1,10 +1,14 @@
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 import type { EventBus } from "@loop-engine/runtime";
+import type { LoopEvent } from "@loop-engine/events";
 
 export interface OpenClawAdapterOptions {
   gatewayUrl?: string;
   channel: string;
   target: string;
   accountId?: string;
+  idempotencyKey?: (event: LoopEvent) => string;
   events?: string[];
   loopIds?: string[];
   approvalStates?: string[];

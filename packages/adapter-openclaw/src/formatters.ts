@@ -1,3 +1,5 @@
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 import type { LoopEvent } from "@loop-engine/events";
 import type { OpenClawGatewayRequest } from "./types";
 
@@ -6,7 +8,8 @@ export function formatEventMessage(
   channel: string,
   target: string,
   approvalStates: string[],
-  accountId?: string
+  accountId?: string,
+  idempotencyKey?: string
 ): OpenClawGatewayRequest {
   const message = formatContent(event, approvalStates);
   return {
@@ -18,7 +21,7 @@ export function formatEventMessage(
       message,
       channel,
       ...(accountId ? { accountId } : {}),
-      idempotencyKey: `${event.eventId}-${event.type}`
+      idempotencyKey: idempotencyKey ?? `${event.eventId}-${event.type}`
     }
   };
 }

@@ -1,3 +1,5 @@
+// @license Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 import { InMemoryEventBus, type LoopEvent } from "@loop-engine/events";
 import type { EventBus } from "@loop-engine/runtime";
 import WebSocket from "ws";
@@ -5,10 +7,11 @@ import { formatEventMessage } from "./formatters";
 import type { OpenClawAdapterOptions } from "./types";
 
 type ResolvedOptions = Required<
-  Omit<OpenClawAdapterOptions, "inner" | "accountId">
+  Omit<OpenClawAdapterOptions, "inner" | "accountId" | "idempotencyKey">
 > & {
   inner: EventBus;
   accountId?: string;
+  idempotencyKey?: (event: LoopEvent) => string;
 };
 
 export class OpenClawEventBus implements EventBus {
@@ -17,7 +20,23 @@ export class OpenClawEventBus implements EventBus {
   private readonly options: ResolvedOptions;
   private isConnected = false;
 
-  constructor(options: OpenClawAdapterOptions) {
+  constructor(options: OpenClawAdapterOptions);
+  constructor(inner: EventBus, options: Omit<OpenClawAdapterOptions, "inner">);
+  constructor(
+    innerOrOptions: EventBus | OpenClawAdapterOptions,
+    maybeOptions?: Omit<OpenClawAdapterOptions, "inner">
+  ) {
+    let inputOptions: OpenClawAdapterOptions;
+    if (isEventBus(innerOrOptions)) {
+      if (!maybeOptions) {
+        throw new Error(
+          "[@loop-engine/adapter-openclaw] OpenClawEventBus(innerBus, options) requires options with channel and target."
+        );
+      }
+      inputOptions = { ...maybeOptions, inner: innerOrOptions };
+    } else {
+      inputOptions = innerOrOptions;
+    }
     this.options = {
       gatewayUrl: "ws://127.0.0.1:18789",
       events: ["loop.transition.executed", "loop.completed", "loop.guard.failed"],
@@ -26,7 +45,7 @@ export class OpenClawEventBus implements EventBus {
       autoReconnect: true,
       reconnectDelay: 5000,
       inner: new InMemoryEventBus(),
-      ...options
+      ...inputOptions
     };
     this.connect();
   }
@@ -64,7 +83,8 @@ export class OpenClawEventBus implements EventBus {
       this.options.channel,
       this.options.target,
       this.options.approvalStates,
-      this.options.accountId
+      this.options.accountId,
+      this.options.idempotencyKey?.(event)
     );
     this.ws.send(JSON.stringify(message));
   }
@@ -89,4 +109,8 @@ export class OpenClawEventBus implements EventBus {
       }
     });
   }
+}
+
+function isEventBus(value: EventBus | OpenClawAdapterOptions): value is EventBus {
+  return typeof (value as EventBus).emit === "function" && typeof (value as EventBus).subscribe === "function";
 }

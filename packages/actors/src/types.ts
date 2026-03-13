@@ -38,6 +38,35 @@ export interface AIAgentSubmission {
   };
 }
 
+export interface LoopActorPromptSignal {
+  signalId: string;
+  name: string;
+  description?: string;
+  allowedActors?: string[];
+}
+
+export interface LoopActorPromptContext {
+  loopId: string;
+  loopName: string;
+  currentState: string;
+  availableSignals: LoopActorPromptSignal[];
+  instruction: string;
+  evidence?: Record<string, unknown>;
+}
+
+export interface AIActorDecision {
+  signalId: string;
+  reasoning: string;
+  confidence: number;
+  dataPoints?: Record<string, unknown>;
+}
+
+export type ActorDecisionErrorCode =
+  | "INVALID_SIGNAL"
+  | "INVALID_CONFIDENCE"
+  | "PARSE_FAILED"
+  | "API_ERROR";
+
 export const HumanActorSchema = z.object({
   id: z.string().min(1),
   type: z.literal("human"),

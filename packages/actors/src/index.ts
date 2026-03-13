@@ -3,3 +3,4 @@
 export * from "./types";
 export * from "./authorization";
 export * from "./ai-evidence";
+export * from "./decision-error";

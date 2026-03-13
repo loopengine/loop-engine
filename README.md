@@ -1,90 +1,149 @@
 # Loop Engine
 
-[![License: Apache-2.0](https://img.shields.io/badge/license-Apache%202.0-2ea44f.svg)](./LICENSE)
-[![npm org](https://img.shields.io/badge/npm-%40loop--engine-cb3837.svg)](https://www.npmjs.com/org/loop-engine)
-[![CI](https://github.com/loopengine/loop-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/loopengine/loop-engine/actions/workflows/ci.yml)
-[![Docs](https://img.shields.io/badge/docs-loopengine.io-2563EB.svg)](https://loopengine.io)
+> Open runtime for governed, observable enterprise loops.
 
-> Open runtime for constrained, observable, and improvable enterprise loops.
+[![npm](https://img.shields.io/npm/v/@loop-engine/sdk.svg?label=@loop-engine/sdk)](https://www.npmjs.com/package/@loop-engine/sdk)
+[![Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![loopengine.io](https://img.shields.io/badge/docs-loopengine.io-blue)](https://loopengine.io)
 
-Loop Engine helps teams model enterprise processes as finite-state control systems
-operated by humans, automation, and AI.
+## What is Loop Engine?
 
-Created by [Better Data](https://betterdata.co).
+Loop Engine is an open runtime for governing decisions made by AI agents, humans, and automations working together.
 
-## What it is
+Every transition through a loop:
+- Names the actor responsible (human, automation, or AI agent)
+- Evaluates guard policies before allowing the action
+- Attaches structured evidence - what information the actor used
+- Emits an immutable event with full attribution
 
-The Loop Engine gives AI and automation structure, boundaries, and feedback - not
-improvisation. Every process is a bounded state machine. Every action has an
-attributed actor. Every completed loop emits structured training data.
+This creates a decision record produced at runtime, not reconstructed afterward.
 
-- **Portable loop definitions** - define any process as a bounded state machine
-- **Deterministic guards** - enforce policy before AI or automation can act
-- **First-class actor model** - human, automation, and AI actions are all attributed
-- **Structured events** - every transition emits training-quality data
-- **Self-learning loops** - closed loops generate improvement signals automatically
+## Why Loop Engine?
 
-## Quick start
+AI systems make recommendations. Humans approve decisions. Workflows execute actions. But who governed what happened in between?
+
+Loop Engine sits between AI reasoning and operational execution. It enforces who can do what, under what conditions, with what evidence.
+
+```text
+AI Agent
+   ↓
+Loop Engine    ← decision governance
+   ↓
+Workflow / ERP / Infrastructure
+```
+
+## Quick Start
 
 ```bash
 npm install @loop-engine/sdk
 ```
 
 ```typescript
-import { createLoopSystem } from "@loop-engine/sdk";
-import { aggregateId } from "@loop-engine/core";
-import type { LoopDefinition } from "@loop-engine/core";
+import { createLoopSystem, parseLoopYaml, GuardRegistry } from '@loop-engine/sdk'
+import { MemoryLoopStorageAdapter } from '@loop-engine/adapter-memory'
 
-const loop: LoopDefinition = { id: "finance.expense-approval", version: "1.0.0", domain: "finance", description: "Expense approval", states: [{ id: "OPEN" }, { id: "APPROVED", isTerminal: true }], initialState: "OPEN", transitions: [{ id: "approve", from: "OPEN", to: "APPROVED", allowedActors: ["human"] }], outcome: { id: "decision_recorded", description: "Expense decision recorded", valueUnit: "decision", measurable: true } };
+const definition = parseLoopYaml(`
+  loopId: expense.approval
+  name: Expense Approval
+  version: 1.0.0
+  description: Human expense approval
+  initialState: submitted
+  states:
+    - stateId: submitted
+      label: Submitted
+    - stateId: approved
+      label: Approved
+      terminal: true
+    - stateId: rejected
+      label: Rejected
+      terminal: true
+  transitions:
+    - transitionId: approve
+      from: submitted
+      to: approved
+      signal: approve
+      allowedActors: [human]
+    - transitionId: reject
+      from: submitted
+      to: rejected
+      signal: reject
+      allowedActors: [human]
+`)
 
-const { engine } = await createLoopSystem({ loops: [loop] });
-await engine.start({ loopId: "finance.expense-approval", aggregateId: aggregateId("EXP-001"), orgId: "acme", actor: { type: "human", id: "approver@acme.com" } });
+const guards = new GuardRegistry()
+guards.registerBuiltIns()
+
+const { engine } = await createLoopSystem({
+  loops: [definition],
+  storage: new MemoryLoopStorageAdapter(),
+  guards
+})
+
+const loop = await engine.startLoop({
+  loopId: definition.loopId,
+  aggregateId: 'expense-4200' as never,
+  actor: { id: 'alice', type: 'human' as const },
+  metadata: { submittedBy: 'alice', amount: 4200 }
+})
+
+await engine.transition({
+  aggregateId: loop.aggregateId,
+  transitionId: 'approve' as never,
+  actor: { id: 'bob', type: 'human' as const },
+  evidence: { reviewNote: 'Within budget policy' }
+})
 ```
-
-Full getting-started docs: [loopengine.io/docs/getting-started/quick-start](https://loopengine.io/docs/getting-started/quick-start)
 
 ## Packages
 
-| Package | Purpose |
-|---------|---------|
-| @loop-engine/core | Domain model types - zero dependencies |
-| @loop-engine/dsl | YAML/JSON loop authoring, parsing, validation |
-| @loop-engine/runtime | State machine executor |
-| @loop-engine/guards | Deterministic policy checks |
-| @loop-engine/signals | Event-to-signal detection |
-| @loop-engine/events | Canonical event schema |
-| @loop-engine/actors | Actor model + AI actor constraints |
-| @loop-engine/observability | Loop history, timelines, metrics |
-| @loop-engine/sdk | Friendly developer interface (start here) |
-| @loop-engine/registry-client | Fetch loop definitions from a registry |
-| @loop-engine/ui-devtools | React devtools panel |
-| @loop-engine/adapter-memory | In-memory store (testing/dev) |
-| @loop-engine/adapter-postgres | PostgreSQL persistence |
-| @loop-engine/adapter-kafka | Kafka event bus |
-| @loop-engine/adapter-http | HTTP webhook event bus |
-| @loop-engine/adapter-openclaw | OpenClaw messaging gateway adapter |
-| @loop-engine/adapter-commerce-gateway | Commerce Gateway integration for governed AI workflows |
-
-npm organization: [npmjs.com/org/loop-engine](https://www.npmjs.com/org/loop-engine)
-
-## Examples
-
-See [examples/mini](./examples/mini) for lightweight runnable examples.
-For complete reference implementations, see [loop-examples](https://github.com/loopengine/loop-examples).
+| Package | Description |
+|---|---|
+| [`@loop-engine/sdk`](packages/sdk) | Main SDK - start here |
+| [`@loop-engine/core`](packages/core) | Branded types and Zod schemas |
+| [`@loop-engine/dsl`](packages/dsl) | YAML loop definition parser |
+| [`@loop-engine/runtime`](packages/runtime) | Loop lifecycle and transitions |
+| [`@loop-engine/actors`](packages/actors) | Actor types and authorization |
+| [`@loop-engine/guards`](packages/guards) | Guard evaluation pipeline |
+| [`@loop-engine/events`](packages/events) | Typed event definitions |
+| [`@loop-engine/signals`](packages/signals) | Learning signal schema |
+| [`@loop-engine/observability`](packages/observability) | Timeline and replay |
+| [`@loop-engine/adapter-memory`](packages/adapter-memory) | In-memory storage |
+| [`@loop-engine/adapter-postgres`](packages/adapters/postgres) | PostgreSQL storage |
+| [`@loop-engine/adapter-kafka`](packages/adapters/kafka) | Kafka event streaming |
+| [`@loop-engine/adapter-anthropic`](packages/adapter-anthropic) | Claude AI actor |
+| [`@loop-engine/adapter-openai`](packages/adapter-openai) | OpenAI AI actor |
+| [`@loop-engine/adapter-grok`](packages/adapter-grok) | Grok (xAI) AI actor |
+| [`@loop-engine/adapter-gemini`](packages/adapter-gemini) | Gemini AI actor |
+| [`@loop-engine/adapter-openclaw`](packages/adapter-openclaw) | OpenClaw integration |
+| [`@loop-engine/adapter-commerce-gateway`](packages/adapter-commerce-gateway) | Commerce Gateway |
+| [`@loop-engine/adapter-pagerduty`](packages/adapter-pagerduty) | PagerDuty incidents |
+| [`@loop-engine/adapter-vercel-ai`](packages/adapter-vercel-ai) | Vercel AI SDK |
 
 ## Documentation
 
-[loopengine.io](https://loopengine.io)
+Full docs at **[loopengine.io](https://loopengine.io)**
+
+- [Quick Start](https://loopengine.io/docs/getting-started/quick-start)
+- [Core Concepts](https://loopengine.io/docs/core-concepts)
+- [Examples](https://loopengine.io/docs/examples)
+- [Integrations](https://loopengine.io/docs/integrations)
+
+## Examples
+
+Runnable examples in [github.com/loopengine/loop-examples](https://github.com/loopengine/loop-examples):
+
+- Expense Approval - human-only approval gate
+- AI Replenishment - Claude + OpenAI as governed actors
+- Demand Signal - rule-based loop triggering
+- Postgres Persistence - production storage adapter
+- Event Streaming - Kafka event pipeline
 
 ## Contributing
 
-- Read [CONTRIBUTING.md](./CONTRIBUTING.md)
-- RFC process: [loopengine.io/docs/governance/rfc-process](https://loopengine.io/docs/governance/rfc-process)
+See [CONTRIBUTING.md](CONTRIBUTING.md). Open issues and RFCs at [github.com/loopengine/loop-engine/discussions](https://github.com/loopengine/loop-engine/discussions).
 
 ## License
 
-Loop Engine is licensed under the Apache License 2.0. See the [LICENSE](./LICENSE) file for details.
+Apache-2.0 - see [LICENSE](LICENSE) for details.
 
-## Trademarks
-
-Loop Engine is a trademark of Better Data Inc. The Apache License 2.0 applies to the source code in this repository and does not grant rights to use Better Data's trademarks, service marks, or product names except as permitted by applicable law.
+Created and maintained by [Better Data](https://betterdata.co).

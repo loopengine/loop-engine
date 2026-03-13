@@ -1,32 +1,33 @@
 ---
-name: Bug report
-about: Report a reproducible defect in Loop Engine
-title: "[Bug]: "
-labels: ["bug"]
-assignees: []
+name: Bug Report
+about: Report a bug in Loop Engine
+labels: bug
 ---
 
-## Summary
+**Package**
+Which @loop-engine/* package is affected?
 
-Describe the issue clearly.
+**Version**
+What version are you running? (npm show @loop-engine/[package] version)
 
-## Reproduction
+**Description**
+Clear description of the bug.
 
-1. Go to "..."
-2. Run "..."
-3. Observe "..."
+**Reproduction**
+Minimal code that reproduces the issue:
 
-## Expected behavior
+```typescript
+// paste here
+```
 
-What should happen instead.
+**Expected behavior**
+What should happen?
 
-## Environment
+**Actual behavior**
+What happens instead?
 
-- Package(s):
-- Version(s):
+**Environment**
 - Node version:
-- OS:
+- Package version:
+- TypeScript version:
 
-## Additional context
-
-Include logs, stack traces, and minimal reproduction snippets.

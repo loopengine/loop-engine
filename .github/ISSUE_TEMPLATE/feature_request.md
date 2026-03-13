@@ -1,29 +1,17 @@
 ---
-name: Feature request
-about: Propose an improvement for Loop Engine
-title: "[Feature]: "
-labels: ["enhancement"]
-assignees: []
+name: Feature Request
+about: Suggest a new feature or improvement
+labels: enhancement
 ---
 
-## Problem statement
+**Problem**
+What problem does this feature solve?
 
-What user or engineering problem are you trying to solve?
+**Proposed solution**
+How should it work?
 
-## Proposed solution
+**Alternatives considered**
+What other approaches did you consider?
 
-Describe the desired behavior and API shape.
-
-## Alternatives considered
-
-What alternatives did you evaluate?
-
-## Scope and compatibility
-
-- Breaking change: yes/no
-- Affected packages:
-- Migration impact:
-
-## Additional context
-
-Links to relevant issues, docs, or design notes.
+**Additional context**
+Links, examples, or related issues.

@@ -1,33 +1,29 @@
 ## Summary
 
-Describe what changed and why.
+Brief description of what this PR does.
 
-## Scope
+## Type of change
 
-- [ ] `@loop-engine/core`
-- [ ] `@loop-engine/dsl`
-- [ ] `@loop-engine/runtime`
-- [ ] `@loop-engine/events`
-- [ ] `@loop-engine/guards`
-- [ ] `@loop-engine/actors`
-- [ ] Adapter package(s)
-- [ ] Docs/examples
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Breaking change
+- [ ] Documentation update
+- [ ] Dependency update
 
-## Validation
+## Packages affected
 
-- [ ] `pnpm build`
-- [ ] `pnpm lint`
-- [ ] `pnpm test`
+Which @loop-engine/* packages does this change?
 
-## Compatibility
+## Testing
 
-- [ ] No breaking change
-- [ ] Breaking change with migration notes
-- [ ] RFC required (core/events/dsl surface)
+- [ ] Tests added or updated
+- [ ] All tests pass (`pnpm test`)
+- [ ] Build passes (`pnpm build`)
+- [ ] Lint passes (`pnpm lint`)
 
 ## Checklist
 
-- [ ] Added/updated tests for behavior changes
-- [ ] Updated documentation when APIs changed
-- [ ] No proprietary imports or boundary violations
-- [ ] License headers/metadata are Apache-2.0 compliant
+- [ ] SPDX license header present in new files
+- [ ] No proprietary Better Data types in OSS packages
+- [ ] CHANGELOG.md updated (for non-trivial changes)
+- [ ] Documentation updated if needed

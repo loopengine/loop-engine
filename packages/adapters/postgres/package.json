@@ -1,6 +1,22 @@
 {
   "name": "@loop-engine/adapter-postgres",
-  "version": "0.1.0",
+  "version": "0.1.2",
+  "keywords": [
+    "loop-engine",
+    "workflow",
+    "governance",
+    "state-machine",
+    "audit-trail",
+    "actors",
+    "guards",
+    "enterprise",
+    "supply-chain",
+    "decision-governance",
+    "postgres",
+    "postgresql",
+    "storage",
+    "persistence"
+  ],
   "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.cjs",

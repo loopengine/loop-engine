@@ -1,8 +1,7 @@
 {
-  "name": "@loop-engine/observability",
+  "name": "@loop-engine/adapter-grok",
   "version": "0.1.2",
-  "description": "Metrics, timelines, and replay utilities for Loop Engine execution traces",
-  "license": "Apache-2.0",
+  "description": "Loop Engine AI actor adapter for Grok (xAI)",
   "keywords": [
     "loop-engine",
     "workflow",
@@ -14,11 +13,13 @@
     "enterprise",
     "supply-chain",
     "decision-governance",
-    "observability",
-    "timeline",
-    "replay",
-    "devtools"
+    "grok",
+    "xai",
+    "ai",
+    "llm",
+    "grok-3"
   ],
+  "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -32,20 +33,27 @@
   },
   "scripts": {
     "build": "tsup",
+    "lint": "tsc -p tsconfig.json --noEmit",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "peerDependencies": {
+    "openai": "^4.0.0"
+  },
+  "devDependencies": {
+    "openai": "^4.0.0"
+  },
   "dependencies": {
     "@loop-engine/core": "workspace:*",
-    "@loop-engine/runtime": "workspace:*"
+    "@loop-engine/actors": "workspace:*",
+    "@loop-engine/sdk": "workspace:*"
   },
-  "devDependencies": {},
   "files": [
     "dist/",
     "README.md",
     "LICENSE"
-  ],
-  "engines": {
-    "node": ">=18.0.0"
-  }
+  ]
 }

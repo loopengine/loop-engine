@@ -22,6 +22,72 @@
         "dist/**"
       ]
     },
+    "@loop-engine/actors#build": {
+      "dependsOn": [
+        "^build",
+        "@loop-engine/core#build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@loop-engine/dsl#build": {
+      "dependsOn": [
+        "^build",
+        "@loop-engine/core#build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@loop-engine/events#build": {
+      "dependsOn": [
+        "^build",
+        "@loop-engine/core#build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@loop-engine/guards#build": {
+      "dependsOn": [
+        "^build",
+        "@loop-engine/actors#build",
+        "@loop-engine/core#build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@loop-engine/registry-client#build": {
+      "dependsOn": [
+        "^build",
+        "@loop-engine/core#build",
+        "@loop-engine/dsl#build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@loop-engine/signals#build": {
+      "dependsOn": [
+        "^build",
+        "@loop-engine/core#build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@loop-engine/adapter-memory#build": {
+      "dependsOn": [
+        "^build",
+        "@loop-engine/core#build",
+        "@loop-engine/runtime#build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
     "@loop-engine/runtime#build": {
       "dependsOn": [
         "^build",

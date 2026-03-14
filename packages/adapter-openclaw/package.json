@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-openclaw",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "OpenClaw gateway EventBus adapter for Loop Engine",
   "keywords": [
     "loop-engine",
@@ -19,6 +19,11 @@
     "integration"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loopengine/loop-engine",
+    "directory": "packages/adapter-openclaw"
+  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

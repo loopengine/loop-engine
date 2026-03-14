@@ -1,7 +1,12 @@
 {
   "name": "@loop-engine/dsl",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loopengine/loop-engine",
+    "directory": "packages/dsl"
+  },
   "description": "YAML/JSON loop authoring, parsing, and validation",
   "keywords": [
     "loop-engine",

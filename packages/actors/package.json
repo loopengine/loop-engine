@@ -1,8 +1,13 @@
 {
   "name": "@loop-engine/actors",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Actor types, constraints, and evidence helpers for Loop Engine transitions",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loopengine/loop-engine",
+    "directory": "packages/actors"
+  },
   "keywords": [
     "loop-engine",
     "workflow",

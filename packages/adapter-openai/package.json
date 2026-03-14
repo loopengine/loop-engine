@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-openai",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "OpenAI adapter for creating Loop Engine AI actor submissions",
   "keywords": [
     "loop-engine",
@@ -20,6 +20,11 @@
     "llm"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loopengine/loop-engine",
+    "directory": "packages/adapter-openai"
+  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

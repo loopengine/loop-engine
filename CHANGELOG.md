@@ -5,6 +5,14 @@ All notable changes to Loop Engine will be documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)  
 Versioning: [Semantic Versioning](https://semver.org/)
 
+## [0.1.3] — 2026-03-14
+
+### Added
+- `repository` field added to all 23 published `@loop-engine/*` package manifests, including correct `directory` mapping for `packages/*` and `packages/adapters/*`
+
+### Changed
+- Version bumped from `0.1.2` to `0.1.3` across all `@loop-engine/*` packages
+
 ## [0.1.2] — 2026-03-13
 
 ### Added
@@ -52,6 +60,7 @@ Versioning: [Semantic Versioning](https://semver.org/)
 - Apache-2.0 license
 - Full test suite across all packages
 
+[0.1.3]: https://github.com/loopengine/loop-engine/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/loopengine/loop-engine/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/loopengine/loop-engine/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/loopengine/loop-engine/releases/tag/v0.1.0

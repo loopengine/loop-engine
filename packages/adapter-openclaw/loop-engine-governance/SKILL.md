@@ -29,7 +29,7 @@ The expense approval example requires no API key and is the recommended starting
 
 ```bash
 # Core (required for all examples)
-npm install @loop-engine/sdk @loop-engine/adapter-memory
+npm install @loop-engine/sdk @loop-engine/adapter-memory @loop-engine/adapter-openclaw
 
 # For the Claude example only
 npm install @loop-engine/adapter-anthropic @anthropic-ai/sdk
@@ -43,6 +43,7 @@ npm install @loop-engine/adapter-grok openai
 
 Verify package maintainers before installing:
 - `@loop-engine/*` — published by the `betterdata` npm org
+- `@loop-engine/adapter-openclaw` — published by the `betterdata` npm org
 - `@anthropic-ai/sdk` — published by Anthropic
 - `openai` — published by OpenAI
 
@@ -70,6 +71,7 @@ The included examples use synthetic illustrative data only:
 Loop Engine captures evidence in its local audit trail. The evidence object
 is also sent to the LLM provider API as part of the actor prompt. These are
 two separate destinations — plan accordingly.
+Loop Engine itself never transmits data externally. Only the AI provider adapter calls send data — and only what you explicitly pass as `evidence`.
 
 ## What this skill does
 
@@ -86,7 +88,7 @@ step can be governed by:
 ```
 OpenClaw agent proposes action
         ↓
-Loop Engine evaluates guards
+Loop Engine evaluates guards       ← @loop-engine/adapter-openclaw
         ↓
 Human approves (if policy requires)
         ↓

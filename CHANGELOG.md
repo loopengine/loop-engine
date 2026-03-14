@@ -5,6 +5,13 @@ All notable changes to Loop Engine will be documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)  
 Versioning: [Semantic Versioning](https://semver.org/)
 
+## [0.1.5] — 2026-03-14
+
+### Fixed
+- Replaced `workspace:*` references with explicit version pins for npm compatibility
+- Fixed stale dependency pins in published tarballs
+- Clean build verified — `npm install @loop-engine/sdk` works correctly
+
 ## [0.1.3] — 2026-03-14
 
 ### Added
@@ -60,6 +67,7 @@ Versioning: [Semantic Versioning](https://semver.org/)
 - Apache-2.0 license
 - Full test suite across all packages
 
+[0.1.5]: https://github.com/loopengine/loop-engine/compare/v0.1.4...v0.1.5
 [0.1.3]: https://github.com/loopengine/loop-engine/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/loopengine/loop-engine/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/loopengine/loop-engine/compare/v0.1.0...v0.1.1

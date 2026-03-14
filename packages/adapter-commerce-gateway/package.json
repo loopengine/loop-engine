@@ -41,8 +41,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@loop-engine/core": "0.1.5",
-    "@loop-engine/sdk": "0.1.5"
+    "@loop-engine/core": "workspace:*",
+    "@loop-engine/sdk": "workspace:*"
   },
   "peerDependencies": {
     "@anthropic-ai/sdk": ">=0.39.0",

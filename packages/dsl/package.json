@@ -41,7 +41,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loop-engine/core": "0.1.5",
+    "@loop-engine/core": "workspace:*",
     "yaml": "^2.3.0",
     "zod": "^3.22.0"
   },

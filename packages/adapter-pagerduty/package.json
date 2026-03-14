@@ -41,10 +41,10 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@loop-engine/core": "0.1.5"
+    "@loop-engine/core": "workspace:*"
   },
   "peerDependencies": {
-    "@loop-engine/core": "0.1.5"
+    "@loop-engine/core": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.5.1",

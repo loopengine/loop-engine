@@ -42,8 +42,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loop-engine/actors": "0.1.5",
-    "@loop-engine/core": "0.1.5",
+    "@loop-engine/actors": "workspace:*",
+    "@loop-engine/core": "workspace:*",
     "openai": "^6.4.1"
   },
   "files": [

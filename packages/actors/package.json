@@ -40,7 +40,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loop-engine/core": "0.1.5",
+    "@loop-engine/core": "workspace:*",
     "zod": "^3.22.0"
   },
   "devDependencies": {},

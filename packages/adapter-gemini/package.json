@@ -52,9 +52,9 @@
     "@google/generative-ai": "^0.21.0"
   },
   "dependencies": {
-    "@loop-engine/core": "0.1.5",
-    "@loop-engine/actors": "0.1.5",
-    "@loop-engine/sdk": "0.1.5"
+    "@loop-engine/core": "workspace:*",
+    "@loop-engine/actors": "workspace:*",
+    "@loop-engine/sdk": "workspace:*"
   },
   "files": [
     "dist/",

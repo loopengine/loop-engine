@@ -39,8 +39,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@loop-engine/events": "0.1.5",
-    "@loop-engine/runtime": "0.1.5"
+    "@loop-engine/events": "workspace:*",
+    "@loop-engine/runtime": "workspace:*"
   },
   "files": [
     "dist/",

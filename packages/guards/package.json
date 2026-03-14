@@ -40,8 +40,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loop-engine/core": "0.1.5",
-    "@loop-engine/actors": "0.1.5"
+    "@loop-engine/core": "workspace:*",
+    "@loop-engine/actors": "workspace:*"
   },
   "devDependencies": {},
   "files": [

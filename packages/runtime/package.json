@@ -41,14 +41,14 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loop-engine/core": "0.1.5",
-    "@loop-engine/dsl": "0.1.5",
-    "@loop-engine/events": "0.1.5",
-    "@loop-engine/actors": "0.1.5",
-    "@loop-engine/guards": "0.1.5"
+    "@loop-engine/core": "workspace:*",
+    "@loop-engine/dsl": "workspace:*",
+    "@loop-engine/events": "workspace:*",
+    "@loop-engine/actors": "workspace:*",
+    "@loop-engine/guards": "workspace:*"
   },
   "peerDependencies": {
-    "@loop-engine/events": "0.1.5"
+    "@loop-engine/events": "workspace:*"
   },
   "devDependencies": {},
   "files": [

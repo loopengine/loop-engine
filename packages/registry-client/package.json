@@ -45,8 +45,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loop-engine/core": "0.1.5",
-    "@loop-engine/dsl": "0.1.5"
+    "@loop-engine/core": "workspace:*",
+    "@loop-engine/dsl": "workspace:*"
   },
   "devDependencies": {
     "@types/express": "^4.17.25",

@@ -43,8 +43,8 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.55.0",
-    "@loop-engine/actors": "0.1.5",
-    "@loop-engine/core": "0.1.5"
+    "@loop-engine/actors": "workspace:*",
+    "@loop-engine/core": "workspace:*"
   },
   "files": [
     "dist/",

@@ -41,8 +41,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loop-engine/core": "0.1.5",
-    "@loop-engine/runtime": "0.1.5"
+    "@loop-engine/core": "workspace:*",
+    "@loop-engine/runtime": "workspace:*"
   },
   "devDependencies": {},
   "files": [

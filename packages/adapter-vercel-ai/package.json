@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-vercel-ai",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Govern Vercel AI SDK tool calls with Loop Engine approval gates and audit trails",
   "keywords": [
     "loop-engine",
@@ -41,11 +41,11 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@loop-engine/core": "workspace:*",
-    "@loop-engine/runtime": "workspace:*"
+    "@loop-engine/core": "0.1.3",
+    "@loop-engine/runtime": "0.1.3"
   },
   "peerDependencies": {
-    "@loop-engine/core": "workspace:*",
+    "@loop-engine/core": "0.1.3",
     "ai": ">=3.0.0"
   },
   "devDependencies": {

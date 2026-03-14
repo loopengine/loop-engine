@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/runtime",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Loop Engine runtime for state transitions, guard evaluation, and event emission",
   "license": "Apache-2.0",
   "repository": {
@@ -41,14 +41,14 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loop-engine/core": "workspace:*",
-    "@loop-engine/dsl": "workspace:*",
-    "@loop-engine/events": "workspace:*",
-    "@loop-engine/actors": "workspace:*",
-    "@loop-engine/guards": "workspace:*"
+    "@loop-engine/core": "0.1.3",
+    "@loop-engine/dsl": "0.1.3",
+    "@loop-engine/events": "0.1.3",
+    "@loop-engine/actors": "0.1.3",
+    "@loop-engine/guards": "0.1.3"
   },
   "peerDependencies": {
-    "@loop-engine/events": "workspace:*"
+    "@loop-engine/events": "0.1.3"
   },
   "devDependencies": {},
   "files": [

@@ -16,6 +16,10 @@ import { createLoopSystem, parseLoopYaml, CommonGuards } from '@loop-engine/sdk'
 import { MemoryAdapter } from '@loop-engine/adapter-memory'
 import { createGrokActorAdapter } from '@loop-engine/adapter-grok'
 
+// DATA PRIVACY NOTICE: This example sends transaction context to the
+// xAI Grok API. In production, redact or tokenize PII before passing
+// as evidence. See SKILL.md for full data privacy guidance.
+
 const definition = parseLoopYaml(`
   loopId: fraud.review
   name: Fraud Review Loop
@@ -83,6 +87,7 @@ const definition = parseLoopYaml(`
 `)
 
 async function main() {
+  // Required: XAI_API_KEY — see SKILL.md for data privacy considerations
   if (!process.env.XAI_API_KEY) {
     throw new Error('XAI_API_KEY environment variable required')
   }
@@ -105,7 +110,7 @@ async function main() {
     merchantName: 'Electronics Depot Online',
     merchantCountry: 'US',
     cardLast4: '7291',
-    cardholderName: 'Maria Santos',
+    cardholderName: 'SYNTHETIC-TEST-USER', // redact real names in production
     timestamp: new Date().toISOString(),
   }
 
@@ -162,6 +167,8 @@ async function main() {
       'Score fraud probability from 0 (legitimate) to 1 (confirmed fraud). ' +
       'Escalate if score >= 0.6. Dismiss if score < 0.6 with high confidence.',
     evidence: {
+      // NOTE: deviceFingerprint and cardholderName are synthetic in this example
+      // Replace with anonymized or tokenized values in production
       ...transaction,
       cardholderAvgMonthlySpend: 1580,
       cardholderAvg30DayTransaction: 1420,

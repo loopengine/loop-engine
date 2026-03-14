@@ -16,6 +16,10 @@ import { createLoopSystem, parseLoopYaml, CommonGuards } from '@loop-engine/sdk'
 import { MemoryAdapter } from '@loop-engine/adapter-memory'
 import { createAnthropicActorAdapter } from '@loop-engine/adapter-anthropic'
 
+// DATA PRIVACY NOTICE: This example sends inventory context to the
+// Anthropic Claude API. Review what business data you pass as evidence
+// in production. See SKILL.md for full data privacy guidance.
+
 const definition = parseLoopYaml(`
   loopId: scm.replenishment
   name: AI Replenishment
@@ -64,6 +68,7 @@ const definition = parseLoopYaml(`
 `)
 
 async function main() {
+  // Required: ANTHROPIC_API_KEY — see SKILL.md for data privacy considerations
   if (!process.env.ANTHROPIC_API_KEY) {
     throw new Error('ANTHROPIC_API_KEY environment variable required')
   }

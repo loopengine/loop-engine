@@ -16,6 +16,10 @@ import { createLoopSystem, parseLoopYaml, CommonGuards } from '@loop-engine/sdk'
 import { MemoryAdapter } from '@loop-engine/adapter-memory'
 import { createOpenAIActorAdapter } from '@loop-engine/adapter-openai'
 
+// DATA PRIVACY NOTICE: This example sends infrastructure change metadata
+// to the OpenAI API. Review what system details you pass as evidence
+// in production. See SKILL.md for full data privacy guidance.
+
 const definition = parseLoopYaml(`
   loopId: infra.change.approval
   name: Infrastructure Change Approval
@@ -74,6 +78,7 @@ const definition = parseLoopYaml(`
 `)
 
 async function main() {
+  // Required: OPENAI_API_KEY — see SKILL.md for data privacy considerations
   if (!process.env.OPENAI_API_KEY) {
     throw new Error('OPENAI_API_KEY environment variable required')
   }

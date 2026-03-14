@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "test": "turbo run test",
+    "test": "turbo run test --",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "validate-loops": "tsx scripts/validate-loops.ts",

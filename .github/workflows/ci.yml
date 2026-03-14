@@ -22,7 +22,7 @@ jobs:
       - run: pnpm build
       - run: pnpm typecheck
       - run: pnpm lint
-      - run: pnpm test -- --coverage
+      - run: pnpm test
       - uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: false

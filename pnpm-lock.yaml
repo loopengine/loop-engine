@@ -102,8 +102,8 @@ importers:
   packages/actors:
     dependencies:
       '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: 0.1.5
+        version: 0.1.5
       zod:
         specifier: ^3.22.0
         version: 3.25.76
@@ -114,20 +114,20 @@ importers:
         specifier: ^0.55.0
         version: 0.55.1
       '@loop-engine/actors':
-        specifier: workspace:*
-        version: link:../actors
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: 0.1.5
+        version: 0.1.5
 
   packages/adapter-commerce-gateway:
     dependencies:
       '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/sdk':
-        specifier: workspace:*
-        version: link:../sdk
+        specifier: 0.1.5
+        version: 0.1.5
     devDependencies:
       '@anthropic-ai/sdk':
         specifier: ^0.39.0
@@ -145,14 +145,14 @@ importers:
   packages/adapter-gemini:
     dependencies:
       '@loop-engine/actors':
-        specifier: workspace:*
-        version: link:../actors
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/sdk':
-        specifier: workspace:*
-        version: link:../sdk
+        specifier: 0.1.5
+        version: 0.1.5
     devDependencies:
       '@google/generative-ai':
         specifier: ^0.21.0
@@ -161,14 +161,14 @@ importers:
   packages/adapter-grok:
     dependencies:
       '@loop-engine/actors':
-        specifier: workspace:*
-        version: link:../actors
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/sdk':
-        specifier: workspace:*
-        version: link:../sdk
+        specifier: 0.1.5
+        version: 0.1.5
     devDependencies:
       openai:
         specifier: ^4.0.0
@@ -177,20 +177,20 @@ importers:
   packages/adapter-memory:
     dependencies:
       '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/runtime':
-        specifier: workspace:*
-        version: link:../runtime
+        specifier: 0.1.5
+        version: 0.1.5(@loop-engine/events@0.1.5)
 
   packages/adapter-openai:
     dependencies:
       '@loop-engine/actors':
-        specifier: workspace:*
-        version: link:../actors
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: 0.1.5
+        version: 0.1.5
       openai:
         specifier: ^6.4.1
         version: 6.27.0(ws@8.19.0)(zod@3.25.76)
@@ -198,11 +198,11 @@ importers:
   packages/adapter-openclaw:
     dependencies:
       '@loop-engine/events':
-        specifier: workspace:*
-        version: link:../events
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/runtime':
-        specifier: workspace:*
-        version: link:../runtime
+        specifier: 0.1.5
+        version: 0.1.5(@loop-engine/events@0.1.5)
     devDependencies:
       '@types/ws':
         specifier: ^8.18.1
@@ -220,8 +220,8 @@ importers:
   packages/adapter-pagerduty:
     dependencies:
       '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: 0.1.5
+        version: 0.1.5
     devDependencies:
       tsup:
         specifier: ^8.5.1
@@ -233,11 +233,11 @@ importers:
   packages/adapter-vercel-ai:
     dependencies:
       '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/runtime':
-        specifier: workspace:*
-        version: link:../runtime
+        specifier: 0.1.5
+        version: 0.1.5(@loop-engine/events@0.1.5)
     devDependencies:
       ai:
         specifier: ^3.4.33
@@ -255,20 +255,20 @@ importers:
   packages/adapters/http:
     dependencies:
       '@loop-engine/events':
-        specifier: workspace:*
-        version: link:../../events
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/runtime':
-        specifier: workspace:*
-        version: link:../../runtime
+        specifier: 0.1.5
+        version: 0.1.5(@loop-engine/events@0.1.5)
 
   packages/adapters/kafka:
     dependencies:
       '@loop-engine/events':
-        specifier: workspace:*
-        version: link:../../events
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/runtime':
-        specifier: workspace:*
-        version: link:../../runtime
+        specifier: 0.1.5
+        version: 0.1.5(@loop-engine/events@0.1.5)
       kafkajs:
         specifier: ^2.0.0
         version: 2.2.4
@@ -276,11 +276,11 @@ importers:
   packages/adapters/postgres:
     dependencies:
       '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../../core
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/runtime':
-        specifier: workspace:*
-        version: link:../../runtime
+        specifier: 0.1.5
+        version: 0.1.5(@loop-engine/events@0.1.5)
       pg:
         specifier: ^8.0.0
         version: 8.20.0
@@ -294,8 +294,8 @@ importers:
   packages/dsl:
     dependencies:
       '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: 0.1.5
+        version: 0.1.5
       yaml:
         specifier: ^2.3.0
         version: 2.8.2
@@ -306,8 +306,8 @@ importers:
   packages/events:
     dependencies:
       '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: 0.1.5
+        version: 0.1.5
       zod:
         specifier: ^3.22.0
         version: 3.25.76
@@ -315,29 +315,29 @@ importers:
   packages/guards:
     dependencies:
       '@loop-engine/actors':
-        specifier: workspace:*
-        version: link:../actors
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: 0.1.5
+        version: 0.1.5
 
   packages/observability:
     dependencies:
       '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/runtime':
-        specifier: workspace:*
-        version: link:../runtime
+        specifier: 0.1.5
+        version: 0.1.5(@loop-engine/events@0.1.5)
 
   packages/registry-client:
     dependencies:
       '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/dsl':
-        specifier: workspace:*
-        version: link:../dsl
+        specifier: 0.1.5
+        version: 0.1.5
     devDependencies:
       '@types/express':
         specifier: ^4.17.25
@@ -349,56 +349,56 @@ importers:
   packages/runtime:
     dependencies:
       '@loop-engine/actors':
-        specifier: workspace:*
-        version: link:../actors
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/dsl':
-        specifier: workspace:*
-        version: link:../dsl
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/events':
-        specifier: workspace:*
-        version: link:../events
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/guards':
-        specifier: workspace:*
-        version: link:../guards
+        specifier: 0.1.5
+        version: 0.1.5
 
   packages/sdk:
     dependencies:
       '@loop-engine/adapter-memory':
-        specifier: workspace:*
-        version: link:../adapter-memory
+        specifier: 0.1.5
+        version: 0.1.5(@loop-engine/events@0.1.5)
       '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/dsl':
-        specifier: workspace:*
-        version: link:../dsl
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/events':
-        specifier: workspace:*
-        version: link:../events
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/guards':
-        specifier: workspace:*
-        version: link:../guards
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/observability':
-        specifier: workspace:*
-        version: link:../observability
+        specifier: 0.1.5
+        version: 0.1.5(@loop-engine/events@0.1.5)
       '@loop-engine/registry-client':
-        specifier: workspace:*
-        version: link:../registry-client
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/runtime':
-        specifier: workspace:*
-        version: link:../runtime
+        specifier: 0.1.5
+        version: 0.1.5(@loop-engine/events@0.1.5)
       '@loop-engine/signals':
-        specifier: workspace:*
-        version: link:../signals
+        specifier: 0.1.5
+        version: 0.1.5
 
   packages/signals:
     dependencies:
       '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: 0.1.5
+        version: 0.1.5
       zod:
         specifier: ^3.22.0
         version: 3.25.76
@@ -406,14 +406,14 @@ importers:
   packages/ui-devtools:
     dependencies:
       '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/events':
-        specifier: workspace:*
-        version: link:../events
+        specifier: 0.1.5
+        version: 0.1.5
       '@loop-engine/observability':
-        specifier: workspace:*
-        version: link:../observability
+        specifier: 0.1.5
+        version: 0.1.5(@loop-engine/events@0.1.5)
       react:
         specifier: ^18 || ^19
         version: 19.2.4
@@ -1081,6 +1081,52 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@loop-engine/actors@0.1.5':
+    resolution: {integrity: sha512-YHa2uQMgql8PTxOqJr9BEjag8Vx7/p3awm+6oFFPf3ItqtlnmkU56fkmf/r0PBTlg3HhIf09rzxln90OV5QLgA==}
+    engines: {node: '>=18.0.0'}
+
+  '@loop-engine/adapter-memory@0.1.5':
+    resolution: {integrity: sha512-HKKRBdYgXo9KflxpiQq4pkGj+1NtLOEQbC4pNaZ1rhrnbwy7ptHirN6yZDyaqve15hsEj5C4Y/n+AoJUg5324A==}
+    engines: {node: '>=18.0.0'}
+
+  '@loop-engine/core@0.1.5':
+    resolution: {integrity: sha512-de2IDWZR25Sn1P2Y/I9qSNrd43mXVMf5Q3LzXS8e+UWd8sZJw9O/2ex2+4I8MFuR1JWw83Olte4NXIUUrfgmow==}
+    engines: {node: '>=18.0.0'}
+
+  '@loop-engine/dsl@0.1.5':
+    resolution: {integrity: sha512-LDsm0CsbpWxyxTiWM1s6OhgLT5qyYYA0rRIv0F0zP0bzFQLrEfOF/p2mNtO5FGKClN9EcYg9Xnj3Mdazpa6/0g==}
+    engines: {node: '>=18.0.0'}
+
+  '@loop-engine/events@0.1.5':
+    resolution: {integrity: sha512-36ovPNXIy/mE/lfSraMO4G1Oe3iDYUXHRNfXXMKq/bMA+E6e2nxDPNEbRUI9d7wh9P7/Rr1SPLXJpUAt904dcg==}
+    engines: {node: '>=18.0.0'}
+
+  '@loop-engine/guards@0.1.5':
+    resolution: {integrity: sha512-IM2zWyH4BpEomYZJwmRv2hl9gMnaY0OZYLHuShgfNxZ0++hx53B2k8/BNCoMysgO7Nn6SxWvysPMTbTkyB3YTA==}
+    engines: {node: '>=18.0.0'}
+
+  '@loop-engine/observability@0.1.5':
+    resolution: {integrity: sha512-sTKUgqJj3arg2LLgpkM2rD+Bhr3GxvMcrP69ukB1DU0GEXSZYoRTebsAUIu2cz8JwE4wI5QbIeZKh+wLDV8fsw==}
+    engines: {node: '>=18.0.0'}
+
+  '@loop-engine/registry-client@0.1.5':
+    resolution: {integrity: sha512-b7bAr6zhMTeG0O/dO8EbQFEOKmQsO420V2I+nxyIcDSKe0T81gt0PBJsAiiqbkbcx1bNBCTO8RE/ZbrKJcFG0Q==}
+    engines: {node: '>=18.0.0'}
+
+  '@loop-engine/runtime@0.1.5':
+    resolution: {integrity: sha512-RtG/3TN6MBP1X1/TcgKJkIK839oH5VgH+TbF+fn91n0bqks40l6ed1brSDwoDsQ/8TwIG7tM9G0Is4YE+4eJzw==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@loop-engine/events': 0.1.5
+
+  '@loop-engine/sdk@0.1.5':
+    resolution: {integrity: sha512-rIWA2JcAztswTdsKRkfCy7w0GmNHvBASWeuydB2MgflFng47k67uu2G6LiaPM7SBfyCrC7KcfJCAZ5QUQirEOg==}
+    engines: {node: '>=18.0.0'}
+
+  '@loop-engine/signals@0.1.5':
+    resolution: {integrity: sha512-bJ7w++//dx4uqszJ2zwOU7U4HzY54xmKNiXitkipWWMX/MfEguJH1xIEErOEWhNhWhmq7vi70y9zNeSDr0OSLQ==}
+    engines: {node: '>=18.0.0'}
 
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -3501,6 +3547,75 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@loop-engine/actors@0.1.5':
+    dependencies:
+      '@loop-engine/core': 0.1.5
+      zod: 3.25.76
+
+  '@loop-engine/adapter-memory@0.1.5(@loop-engine/events@0.1.5)':
+    dependencies:
+      '@loop-engine/core': 0.1.5
+      '@loop-engine/runtime': 0.1.5(@loop-engine/events@0.1.5)
+    transitivePeerDependencies:
+      - '@loop-engine/events'
+
+  '@loop-engine/core@0.1.5':
+    dependencies:
+      zod: 3.25.76
+
+  '@loop-engine/dsl@0.1.5':
+    dependencies:
+      '@loop-engine/core': 0.1.5
+      yaml: 2.8.2
+      zod: 3.25.76
+
+  '@loop-engine/events@0.1.5':
+    dependencies:
+      '@loop-engine/core': 0.1.5
+      zod: 3.25.76
+
+  '@loop-engine/guards@0.1.5':
+    dependencies:
+      '@loop-engine/actors': 0.1.5
+      '@loop-engine/core': 0.1.5
+
+  '@loop-engine/observability@0.1.5(@loop-engine/events@0.1.5)':
+    dependencies:
+      '@loop-engine/core': 0.1.5
+      '@loop-engine/runtime': 0.1.5(@loop-engine/events@0.1.5)
+    transitivePeerDependencies:
+      - '@loop-engine/events'
+
+  '@loop-engine/registry-client@0.1.5':
+    dependencies:
+      '@loop-engine/core': 0.1.5
+      '@loop-engine/dsl': 0.1.5
+
+  '@loop-engine/runtime@0.1.5(@loop-engine/events@0.1.5)':
+    dependencies:
+      '@loop-engine/actors': 0.1.5
+      '@loop-engine/core': 0.1.5
+      '@loop-engine/dsl': 0.1.5
+      '@loop-engine/events': 0.1.5
+      '@loop-engine/guards': 0.1.5
+
+  '@loop-engine/sdk@0.1.5':
+    dependencies:
+      '@loop-engine/adapter-memory': 0.1.5(@loop-engine/events@0.1.5)
+      '@loop-engine/core': 0.1.5
+      '@loop-engine/dsl': 0.1.5
+      '@loop-engine/events': 0.1.5
+      '@loop-engine/guards': 0.1.5
+      '@loop-engine/observability': 0.1.5(@loop-engine/events@0.1.5)
+      '@loop-engine/registry-client': 0.1.5
+      '@loop-engine/runtime': 0.1.5(@loop-engine/events@0.1.5)
+      '@loop-engine/signals': 0.1.5
+
+  '@loop-engine/signals@0.1.5':
+    dependencies:
+      '@loop-engine/core': 0.1.5
+      zod: 3.25.76
 
   '@manypkg/find-root@1.1.0':
     dependencies:

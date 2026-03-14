@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/observability",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Metrics, timelines, and replay utilities for Loop Engine execution traces",
   "license": "Apache-2.0",
   "repository": {
@@ -41,8 +41,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loop-engine/core": "0.1.4",
-    "@loop-engine/runtime": "0.1.4"
+    "@loop-engine/core": "0.1.5",
+    "@loop-engine/runtime": "0.1.5"
   },
   "devDependencies": {},
   "files": [

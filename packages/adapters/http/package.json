@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-http",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "keywords": [
     "loop-engine",
     "workflow",
@@ -39,8 +39,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@loop-engine/events": "0.1.4",
-    "@loop-engine/runtime": "0.1.4"
+    "@loop-engine/events": "0.1.5",
+    "@loop-engine/runtime": "0.1.5"
   },
   "files": [
     "dist/",

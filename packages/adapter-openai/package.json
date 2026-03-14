@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-openai",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "OpenAI adapter for creating Loop Engine AI actor submissions",
   "keywords": [
     "loop-engine",
@@ -42,8 +42,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loop-engine/actors": "0.1.4",
-    "@loop-engine/core": "0.1.4",
+    "@loop-engine/actors": "0.1.5",
+    "@loop-engine/core": "0.1.5",
     "openai": "^6.4.1"
   },
   "files": [

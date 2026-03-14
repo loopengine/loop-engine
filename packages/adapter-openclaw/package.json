@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-openclaw",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "OpenClaw gateway EventBus adapter for Loop Engine",
   "keywords": [
     "loop-engine",
@@ -41,8 +41,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@loop-engine/events": "0.1.4",
-    "@loop-engine/runtime": "0.1.4"
+    "@loop-engine/events": "0.1.5",
+    "@loop-engine/runtime": "0.1.5"
   },
   "peerDependencies": {
     "ws": "^8.0.0"

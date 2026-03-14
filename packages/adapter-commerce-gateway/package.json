@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-commerce-gateway",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "LLM Commerce Gateway adapter for Loop Engine — AI procurement and pricing actors",
   "keywords": [
     "loop-engine",
@@ -41,8 +41,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@loop-engine/core": "0.1.4",
-    "@loop-engine/sdk": "0.1.4"
+    "@loop-engine/core": "0.1.5",
+    "@loop-engine/sdk": "0.1.5"
   },
   "peerDependencies": {
     "@anthropic-ai/sdk": ">=0.39.0",

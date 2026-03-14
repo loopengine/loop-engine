@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-memory",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "In-memory LoopStorageAdapter for local development and tests",
   "keywords": [
     "loop-engine",
@@ -41,8 +41,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loop-engine/core": "0.1.4",
-    "@loop-engine/runtime": "0.1.4"
+    "@loop-engine/core": "0.1.5",
+    "@loop-engine/runtime": "0.1.5"
   },
   "files": [
     "dist/",

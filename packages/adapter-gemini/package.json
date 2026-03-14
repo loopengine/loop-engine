@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-gemini",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Loop Engine AI actor adapter for Google Gemini",
   "keywords": [
     "loop-engine",
@@ -52,9 +52,9 @@
     "@google/generative-ai": "^0.21.0"
   },
   "dependencies": {
-    "@loop-engine/core": "0.1.4",
-    "@loop-engine/actors": "0.1.4",
-    "@loop-engine/sdk": "0.1.4"
+    "@loop-engine/core": "0.1.5",
+    "@loop-engine/actors": "0.1.5",
+    "@loop-engine/sdk": "0.1.5"
   },
   "files": [
     "dist/",

@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-pagerduty",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Route Loop Engine approval-required states to PagerDuty incidents",
   "keywords": [
     "loop-engine",
@@ -41,10 +41,10 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@loop-engine/core": "0.1.4"
+    "@loop-engine/core": "0.1.5"
   },
   "peerDependencies": {
-    "@loop-engine/core": "0.1.4"
+    "@loop-engine/core": "0.1.5"
   },
   "devDependencies": {
     "tsup": "^8.5.1",

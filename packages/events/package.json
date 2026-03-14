@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/events",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Typed Loop Engine lifecycle event contracts and in-memory event bus",
   "license": "Apache-2.0",
   "repository": {
@@ -40,7 +40,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loop-engine/core": "0.1.4",
+    "@loop-engine/core": "0.1.5",
     "zod": "^3.22.0"
   },
   "files": [

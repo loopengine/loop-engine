@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/sdk",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Primary Loop Engine entrypoint combining runtime, DSL, guards, signals, and adapters",
   "keywords": [
     "loop-engine",
@@ -39,15 +39,15 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loop-engine/core": "0.1.4",
-    "@loop-engine/runtime": "0.1.4",
-    "@loop-engine/dsl": "0.1.4",
-    "@loop-engine/guards": "0.1.4",
-    "@loop-engine/signals": "0.1.4",
-    "@loop-engine/events": "0.1.4",
-    "@loop-engine/observability": "0.1.4",
-    "@loop-engine/adapter-memory": "0.1.4",
-    "@loop-engine/registry-client": "0.1.4"
+    "@loop-engine/core": "0.1.5",
+    "@loop-engine/runtime": "0.1.5",
+    "@loop-engine/dsl": "0.1.5",
+    "@loop-engine/guards": "0.1.5",
+    "@loop-engine/signals": "0.1.5",
+    "@loop-engine/events": "0.1.5",
+    "@loop-engine/observability": "0.1.5",
+    "@loop-engine/adapter-memory": "0.1.5",
+    "@loop-engine/registry-client": "0.1.5"
   },
   "devDependencies": {},
   "files": [

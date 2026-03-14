@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/guards",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Deterministic policy guard registry and built-in guard evaluators",
   "license": "Apache-2.0",
   "repository": {
@@ -40,8 +40,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loop-engine/core": "0.1.4",
-    "@loop-engine/actors": "0.1.4"
+    "@loop-engine/core": "0.1.5",
+    "@loop-engine/actors": "0.1.5"
   },
   "devDependencies": {},
   "files": [

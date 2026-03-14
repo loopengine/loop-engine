@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/dsl",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -41,7 +41,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loop-engine/core": "0.1.4",
+    "@loop-engine/core": "0.1.5",
     "yaml": "^2.3.0",
     "zod": "^3.22.0"
   },

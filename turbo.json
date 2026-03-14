@@ -12,6 +12,16 @@
         "dist/**"
       ]
     },
+    "@loop-engine/observability#build": {
+      "dependsOn": [
+        "^build",
+        "@loop-engine/core#build",
+        "@loop-engine/runtime#build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
     "test": {
       "dependsOn": [
         "build"

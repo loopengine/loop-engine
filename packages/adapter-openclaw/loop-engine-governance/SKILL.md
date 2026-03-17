@@ -20,7 +20,7 @@ This skill includes four examples. Each requires different credentials:
 | `example-expense-approval.ts` | None | No external API calls |
 | `example-ai-replenishment-claude.ts` | `ANTHROPIC_API_KEY` | Anthropic |
 | `example-infrastructure-change-openai.ts` | `OPENAI_API_KEY` | OpenAI |
-| `example-fraud-review-grok.ts` | `XAI_API_KEY` | xAI |
+| `example-fraud-review-grok.ts` | `XAI_API_KEY` | xAI (does not require openai package) |
 
 Only set the env var for the example you intend to run.
 The expense approval example requires no API key and is the recommended starting point.
@@ -37,8 +37,8 @@ npm install @loop-engine/adapter-anthropic @anthropic-ai/sdk
 # For the OpenAI example only
 npm install @loop-engine/adapter-openai openai
 
-# For the Grok example only
-npm install @loop-engine/adapter-grok openai
+# For the Grok example only (does not require openai package)
+npm install @loop-engine/adapter-grok
 ```
 
 Verify package maintainers before installing:
@@ -124,7 +124,7 @@ transition. Missing any required field blocks the transition.
 ## Quick start (no API key required)
 
 ```typescript
-import { createLoopSystem, parseLoopYaml, CommonGuards } from '@loop-engine/sdk'
+import { createLoopSystem, parseLoopYaml, CommonGuards, guardEvidence } from '@loop-engine/sdk'
 import { MemoryAdapter } from '@loop-engine/adapter-memory'
 
 const definition = parseLoopYaml(`
@@ -154,11 +154,14 @@ const system = createLoopSystem({
 
 const loop = await system.startLoop({ definition, context: {} })
 
+// Only a human actor can approve — AI and automation actors are blocked.
+// guardEvidence strips PII fields and prompt-injection patterns before
+// the evidence object is forwarded to any external LLM adapter.
 await system.transition({
   loopId: loop.loopId,
   signalId: 'approve',
   actor: { id: 'alice', type: 'human' },
-  evidence: { reviewNote: 'Approved' },
+  evidence: guardEvidence({ reviewNote: 'Looks good' }),
 })
 ```
 
@@ -173,6 +176,24 @@ await system.transition({
 
 All examples use synthetic data. Do not use real PII or regulated data
 without reviewing your provider's data processing agreements.
+
+## Evidence sanitization
+
+All evidence objects must be guarded before being forwarded to external LLM adapters.
+`guardEvidence` (exported from `@loop-engine/sdk`) enforces three rules at the skill boundary:
+
+1. **PII field blocking** — fields whose names match known PII patterns (`ssn`, `email`, `phone`,
+   `dob`, `password`, `token`, `healthrecord`, `mrn`, and 20+ others) are dropped before forwarding.
+2. **Prompt injection stripping** — string values beginning with role prefixes (`system:`, `user:`,
+   `assistant:`) are stripped to prevent instruction injection via evidence payloads.
+3. **Value length cap** — string values are truncated at 512 characters to prevent context stuffing.
+
+Always wrap caller-supplied evidence with `guardEvidence()` before passing it to
+`system.transition()`. The Quick Start above shows the correct pattern.
+
+## Documentation
+
+https://loopengine.io/docs/integrations/openclaw
 
 ## License
 

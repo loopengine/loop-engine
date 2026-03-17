@@ -14,6 +14,8 @@ import {
   type LoopSystem
 } from "@loop-engine/runtime";
 import { SignalRegistry } from "@loop-engine/signals";
+export { guardEvidence } from "./lib/guardEvidence";
+export type { EvidenceRecord } from "./lib/guardEvidence";
 
 class InMemoryLoopRegistry implements LoopDefinitionRegistry {
   constructor(private readonly loops: LoopDefinition[]) {}

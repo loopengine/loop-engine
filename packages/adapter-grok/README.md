@@ -9,8 +9,11 @@ Grok (xAI) adapter for Loop Engine - use Grok as a governed AI actor via xAI's O
 ## Install
 
 ```bash
-npm install @loop-engine/adapter-grok openai
+npm install @loop-engine/adapter-grok
 ```
+
+This adapter uses `openai` as a compatibility shim because the xAI Grok endpoint
+is OpenAI API-compatible. No OpenAI credentials are used — set `XAI_API_KEY` only.
 
 ## Quick Start
 

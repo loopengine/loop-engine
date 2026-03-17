@@ -1,7 +1,7 @@
 {
   "name": "@loop-engine/adapter-grok",
   "version": "0.1.5",
-  "description": "Loop Engine AI actor adapter for Grok (xAI)",
+  "description": "Loop Engine AI actor adapter for Grok (xAI); openai SDK included as compatibility shim for xAI endpoint — see README",
   "keywords": [
     "loop-engine",
     "workflow",
@@ -45,16 +45,11 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "peerDependencies": {
-    "openai": "^4.0.0"
-  },
-  "devDependencies": {
-    "openai": "^4.0.0"
-  },
   "dependencies": {
     "@loop-engine/core": "workspace:*",
     "@loop-engine/actors": "workspace:*",
-    "@loop-engine/sdk": "workspace:*"
+    "@loop-engine/sdk": "workspace:*",
+    "openai": "^4.0.0"
   },
   "files": [
     "dist/",

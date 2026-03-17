@@ -169,7 +169,6 @@ importers:
       '@loop-engine/sdk':
         specifier: workspace:*
         version: link:../sdk
-    devDependencies:
       openai:
         specifier: ^4.0.0
         version: 4.104.0(ws@8.19.0)(zod@3.25.76)

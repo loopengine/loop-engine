@@ -27,11 +27,6 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts"
-    },
-    "./betterdata": {
-      "import": "./dist/betterdata.js",
-      "require": "./dist/betterdata.cjs",
-      "types": "./dist/betterdata.d.ts"
     }
   },
   "scripts": {

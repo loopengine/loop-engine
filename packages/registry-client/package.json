@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/registry-client",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Registry discovery client for loop definition catalogs.",
   "license": "Apache-2.0",
   "repository": {

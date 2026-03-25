@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/registry-client",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Registry discovery client for loop definition catalogs.",
   "license": "Apache-2.0",
   "repository": {
@@ -27,6 +27,11 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts"
+    },
+    "./betterdata": {
+      "import": "./dist/betterdata.js",
+      "require": "./dist/betterdata.cjs",
+      "types": "./dist/betterdata.d.ts"
     }
   },
   "scripts": {

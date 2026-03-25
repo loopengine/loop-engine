@@ -1,28 +1,22 @@
 {
   "name": "@loop-engine/ui-devtools",
   "version": "0.1.5",
-  "description": "React devtools components for inspecting Loop Engine state, events, and metrics",
+  "description": "Devtools and replay UI for debugging governed loops.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/loopengine/loop-engine",
+    "url": "git+https://github.com/loopengine/loop-engine.git",
     "directory": "packages/ui-devtools"
   },
   "keywords": [
     "loop-engine",
-    "workflow",
-    "governance",
+    "observability",
     "state-machine",
-    "audit-trail",
-    "actors",
-    "guards",
-    "enterprise",
-    "supply-chain",
-    "decision-governance",
+    "ai-governance",
+    "human-in-the-loop",
     "devtools",
-    "react",
-    "ui",
-    "debug"
+    "debug",
+    "replay"
   ],
   "type": "module",
   "main": "./dist/index.cjs",
@@ -60,5 +54,7 @@
   ],
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "homepage": "https://loopengine.io/docs/packages/devtools",
+  "sideEffects": false
 }

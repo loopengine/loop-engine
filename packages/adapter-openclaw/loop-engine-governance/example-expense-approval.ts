@@ -1,5 +1,5 @@
 /**
- * Loop Engine — Expense Approval Example
+ * Loop Engine — Expense Approval Example (local governance mode)
  * 
  * The simplest governed loop pattern.
  * A human-only guard ensures the approval transition can never

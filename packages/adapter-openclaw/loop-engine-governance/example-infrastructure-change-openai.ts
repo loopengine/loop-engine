@@ -1,5 +1,5 @@
 /**
- * Loop Engine — Infrastructure Change Approval (OpenAI GPT-4o)
+ * Loop Engine — Infrastructure Change Approval (OpenAI GPT-4o, provider-backed)
  * 
  * GPT-4o analyzes the blast radius of a proposed infrastructure change.
  * A confidence guard blocks high-risk changes from auto-proceeding.
@@ -80,7 +80,9 @@ const definition = parseLoopYaml(`
 async function main() {
   // Required: OPENAI_API_KEY — see SKILL.md for data privacy considerations
   if (!process.env.OPENAI_API_KEY) {
-    throw new Error('OPENAI_API_KEY environment variable required')
+    throw new Error(
+      "Missing OPENAI_API_KEY. This provider-backed example sends prompt/evidence context to OpenAI."
+    )
   }
 
   const system = createLoopSystem({

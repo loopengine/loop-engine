@@ -10,6 +10,17 @@ const DEFAULT_MODEL_ID = "grok-3";
 const DEFAULT_MAX_TOKENS = 1024;
 const DEFAULT_CONFIDENCE_THRESHOLD = 0.7;
 
+function requireApiKey(apiKey: string, envVar: string): void {
+  if (typeof apiKey !== "string" || apiKey.trim().length === 0) {
+    throw new ActorDecisionError({
+      code: "API_ERROR",
+      raw: apiKey,
+      message:
+        `[loop-engine/adapter-grok] Missing API key. This is an external provider-backed adapter and sends prompt/evidence context to xAI Grok. Set ${envVar} before creating the adapter.`
+    });
+  }
+}
+
 function buildSystemPrompt(systemPrompt?: string): string {
   const required = [
     "You are an AI actor operating within a governed workflow loop.",
@@ -104,6 +115,7 @@ export class GrokLoopActor {
   private readonly config: Required<Omit<GrokLoopActorConfig, "systemPrompt">> & Pick<GrokLoopActorConfig, "systemPrompt">;
 
   constructor(apiKey: string, config: GrokLoopActorConfig = {}) {
+    requireApiKey(apiKey, "XAI_API_KEY");
     this.config = {
       modelId: config.modelId ?? DEFAULT_MODEL_ID,
       maxTokens: config.maxTokens ?? DEFAULT_MAX_TOKENS,

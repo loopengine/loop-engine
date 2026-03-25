@@ -1,30 +1,28 @@
 {
   "name": "@loop-engine/adapter-gemini",
-  "version": "0.1.5",
-  "description": "Loop Engine AI actor adapter for Google Gemini",
+  "version": "0.1.6",
+  "description": "Google Gemini adapter for governed AI loop actors.",
   "keywords": [
     "loop-engine",
-    "workflow",
-    "governance",
+    "ai-adapter",
     "state-machine",
-    "audit-trail",
-    "actors",
-    "guards",
-    "enterprise",
-    "supply-chain",
-    "decision-governance",
+    "ai-governance",
+    "human-in-the-loop",
     "gemini",
     "google",
-    "ai",
-    "llm",
-    "gemini-pro"
+    "llm"
   ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/loopengine/loop-engine",
+    "url": "git+https://github.com/loopengine/loop-engine.git",
     "directory": "packages/adapter-gemini"
   },
+  "homepage": "https://loopengine.io/docs/packages/adapter-gemini",
+  "bugs": {
+    "url": "https://github.com/loopengine/loop-engine/issues"
+  },
+  "author": "Better Data, Inc. (https://betterdata.co)",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -60,5 +58,6 @@
     "dist/",
     "README.md",
     "LICENSE"
-  ]
+  ],
+  "sideEffects": false
 }

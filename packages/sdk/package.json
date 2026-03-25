@@ -1,25 +1,11 @@
 {
   "name": "@loop-engine/sdk",
-  "version": "0.1.5",
-  "description": "Primary Loop Engine entrypoint combining runtime, DSL, guards, signals, and adapters",
-  "keywords": [
-    "loop-engine",
-    "workflow",
-    "governance",
-    "state-machine",
-    "audit-trail",
-    "actors",
-    "guards",
-    "enterprise",
-    "supply-chain",
-    "decision-governance",
-    "sdk",
-    "typescript"
-  ],
+  "version": "0.1.7",
+  "description": "Entry point for building and running governed loops.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/loopengine/loop-engine",
+    "url": "git+https://github.com/loopengine/loop-engine.git",
     "directory": "packages/sdk"
   },
   "type": "module",
@@ -39,17 +25,16 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loop-engine/core": "workspace:*",
-    "@loop-engine/runtime": "workspace:*",
-    "@loop-engine/dsl": "workspace:*",
-    "@loop-engine/guards": "workspace:*",
-    "@loop-engine/signals": "workspace:*",
-    "@loop-engine/events": "workspace:*",
-    "@loop-engine/observability": "workspace:*",
     "@loop-engine/adapter-memory": "workspace:*",
-    "@loop-engine/registry-client": "workspace:*"
+    "@loop-engine/core": "workspace:*",
+    "@loop-engine/dsl": "workspace:*",
+    "@loop-engine/events": "workspace:*",
+    "@loop-engine/guards": "workspace:*",
+    "@loop-engine/observability": "workspace:*",
+    "@loop-engine/registry-client": "workspace:*",
+    "@loop-engine/runtime": "workspace:*",
+    "@loop-engine/signals": "workspace:*"
   },
-  "devDependencies": {},
   "files": [
     "dist/",
     "README.md",
@@ -57,5 +42,15 @@
   ],
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "homepage": "https://loopengine.io/docs/packages/sdk",
+  "keywords": [
+    "loop-engine",
+    "core",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "entry-point",
+    "builder"
+  ]
 }

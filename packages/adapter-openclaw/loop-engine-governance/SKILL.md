@@ -1,77 +1,87 @@
 # loop-engine-governance
 
-Add governed decision loops to any OpenClaw workflow — human approval gates,
-AI confidence guards, and full audit trails without changing your agent logic.
+## Overview
 
-## Source and maintainer
+`loop-engine-governance` adds policy enforcement to OpenClaw workflows by routing decisions through Loop Engine transitions and guards.
 
-- **Package:** `@loop-engine/adapter-openclaw` on npm
-- **Source:** https://github.com/loopengine/loop-engine/tree/main/packages/adapter-openclaw
-- **Maintainer:** Better Data, Inc. (https://betterdata.co)
-- **Docs:** https://loopengine.io/docs/integrations/openclaw
-- **License:** Apache-2.0 (Loop Engine packages) / MIT-0 (this skill)
+## Modes of operation
 
-## Required environment variables
+### Local governance mode (no external LLM provider)
 
-This skill includes four examples. Each requires different credentials:
+- Uses Loop Engine runtime, guards, and audit trail only.
+- No external LLM API calls occur in this mode.
+- Suitable for human-only and automation-only loop flows.
 
-| Example | Required env var | Provider |
-|---|---|---|
-| `example-expense-approval.ts` | None | No external API calls |
-| `example-ai-replenishment-claude.ts` | `ANTHROPIC_API_KEY` | Anthropic |
-| `example-infrastructure-change-openai.ts` | `OPENAI_API_KEY` | OpenAI |
-| `example-fraud-review-grok.ts` | `XAI_API_KEY` | xAI (does not require openai package) |
+### LLM-augmented mode (external provider calls enabled)
 
-Only set the env var for the example you intend to run.
-The expense approval example requires no API key and is the recommended starting point.
+- Enabled only when a provider adapter is explicitly configured.
+- Provider-backed examples call external APIs and may transmit prompt/evidence context to that provider.
 
-## Install
+## Installation
 
 ```bash
-# Core (required for all examples)
+# Core (required for all modes)
 npm install @loop-engine/sdk @loop-engine/adapter-memory @loop-engine/adapter-openclaw
 
-# For the Claude example only
+# Optional: provider-backed adapters (install only what you use)
 npm install @loop-engine/adapter-anthropic @anthropic-ai/sdk
-
-# For the OpenAI example only
 npm install @loop-engine/adapter-openai openai
-
-# For the Grok example only (does not require openai package)
 npm install @loop-engine/adapter-grok
 ```
 
-Verify package maintainers before installing:
-- `@loop-engine/*` — published by the `betterdata` npm org
-- `@loop-engine/adapter-openclaw` — published by the `betterdata` npm org
-- `@anthropic-ai/sdk` — published by Anthropic
-- `openai` — published by OpenAI
+## Configuration
 
-## Data sent to external providers
+- Local mode requires loop definitions, storage, and guard registry configuration only.
+- Provider-backed mode additionally requires the corresponding provider adapter and API key.
+- External provider calls are activated by adapter usage (for example `createOpenAIActorAdapter(...)`), not by Loop Engine core alone.
 
-**Read this before running the AI examples.**
+## Environment variables
 
-The AI examples send structured context to external LLM provider APIs as part
-of the loop actor submission. This includes whatever you pass as `evidence`
-to `createSubmission()`.
+Provider keys are required only for provider-backed examples:
 
-The included examples use synthetic illustrative data only:
-- `example-ai-replenishment-claude.ts` — fictional inventory figures
-- `example-infrastructure-change-openai.ts` — fictional infrastructure metadata
-- `example-fraud-review-grok.ts` — fictional transaction and cardholder data
+| Example | Mode | Required env var |
+|---|---|---|
+| `example-expense-approval.ts` | local governance | none |
+| `example-openclaw-integration.ts` | local governance + OpenClaw gateway | none |
+| `example-ai-replenishment-claude.ts` | provider-backed (Anthropic) | `ANTHROPIC_API_KEY` |
+| `example-infrastructure-change-openai.ts` | provider-backed (OpenAI) | `OPENAI_API_KEY` |
+| `example-fraud-review-grok.ts` | provider-backed (xAI) | `XAI_API_KEY` |
 
-**Before using in production:**
-- Do not send real PII, cardholder data, or regulated information to LLM
-  providers without reviewing their data processing agreements
-- Review your LLM provider's data retention and training policies
-- For regulated industries (healthcare, finance, pharma), confirm your
-  provider agreement covers the data classification you intend to send
-- Consider redacting or tokenizing sensitive fields before passing as evidence
+Additional provider key used elsewhere in this repo:
 
-Loop Engine captures evidence in its local audit trail. The evidence object
-is also sent to the LLM provider API as part of the actor prompt. These are
-two separate destinations — plan accordingly.
-Loop Engine itself never transmits data externally. Only the AI provider adapter calls send data — and only what you explicitly pass as `evidence`.
+- `GOOGLE_AI_API_KEY` for `@loop-engine/adapter-gemini` examples and adapter usage.
+
+## External network and data flow
+
+- **No provider adapter configured:** no external LLM network calls.
+- **Provider adapter configured:** prompt/evidence context passed to `createSubmission(...)` may be sent to:
+  - OpenAI (`@loop-engine/adapter-openai`)
+  - Anthropic (`@loop-engine/adapter-anthropic`)
+  - xAI Grok (`@loop-engine/adapter-grok`)
+  - Google Gemini (`@loop-engine/adapter-gemini`)
+- OpenClaw integration (`@loop-engine/adapter-openclaw`) uses a WebSocket gateway connection (`gatewayUrl`, default `ws://127.0.0.1:18789`) for event forwarding.
+
+## Sensitive data guidance
+
+- Do not send raw PII, PHI, PCI, credentials, or other regulated data to provider-backed examples without review.
+- Redact, tokenize, or minimize sensitive fields before submitting evidence context.
+- Review provider retention, training, and contractual controls before production use.
+
+## Provenance
+
+- **Canonical repository:** https://github.com/loopengine/loop-engine
+- **Skill source path:** `packages/adapter-openclaw/loop-engine-governance/`
+- **Maintainer organization:** Better Data, Inc. (https://betterdata.co)
+- **Documentation site:** https://loopengine.io/docs/integrations/openclaw
+
+## Package/source references
+
+- `@loop-engine/adapter-openclaw`: https://www.npmjs.com/package/@loop-engine/adapter-openclaw
+- `@loop-engine/sdk`: https://www.npmjs.com/package/@loop-engine/sdk
+- `@loop-engine/adapter-openai`: https://www.npmjs.com/package/@loop-engine/adapter-openai
+- `@loop-engine/adapter-anthropic`: https://www.npmjs.com/package/@loop-engine/adapter-anthropic
+- `@loop-engine/adapter-grok`: https://www.npmjs.com/package/@loop-engine/adapter-grok
+- `@loop-engine/adapter-gemini`: https://www.npmjs.com/package/@loop-engine/adapter-gemini
 
 ## What this skill does
 
@@ -190,6 +200,13 @@ All evidence objects must be guarded before being forwarded to external LLM adap
 
 Always wrap caller-supplied evidence with `guardEvidence()` before passing it to
 `system.transition()`. The Quick Start above shows the correct pattern.
+
+## Security notes
+
+- Local governance mode runs without external LLM provider calls.
+- Provider-backed mode requires explicit adapter activation and the corresponding API key.
+- Evidence and prompt context can leave the local environment only in provider-backed mode.
+- This skill does not claim compliance certifications or data-processing guarantees.
 
 ## Documentation
 

@@ -36,6 +36,14 @@ export interface AnthropicActorAdapter {
   createSubmission(params: CreateAnthropicSubmissionParams): Promise<AIAgentSubmission>;
 }
 
+function requireApiKey(apiKey: string, envVar: string): void {
+  if (typeof apiKey !== "string" || apiKey.trim().length === 0) {
+    throw new Error(
+      `[loop-engine/adapter-anthropic] Missing API key. This is an external provider-backed adapter and sends prompt/evidence context to Anthropic. Set ${envVar} before creating the adapter.`
+    );
+  }
+}
+
 function asRecord(value: unknown): Record<string, unknown> | undefined {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return undefined;
@@ -82,6 +90,7 @@ function parseModelOutput(rawContent: string): ParsedModelOutput {
 export function createAnthropicActorAdapter(
   options: AnthropicActorAdapterOptions
 ): AnthropicActorAdapter {
+  requireApiKey(options.apiKey, "ANTHROPIC_API_KEY");
   const model = options.model ?? "claude-3-5-sonnet-latest";
   const client =
     options.client ??

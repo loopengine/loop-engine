@@ -5,10 +5,14 @@ Add governed decision loops to OpenClaw workflows with human approval gates, AI 
 ## Registry metadata
 
 - **Name:** `loop-engine-governance`
-- **Maintainer:** Better Data OSS Team (`oss@betterdata.co`)
+- **Maintainer:** Better Data, Inc. (https://betterdata.co)
+- **Canonical source:** https://github.com/loopengine/loop-engine
+- **Skill source path:** `packages/adapter-openclaw/loop-engine-governance/`
 - **Homepage:** https://loopengine.io/docs/integrations/openclaw
-- **Source:** https://github.com/loopengine/loop-engine/tree/main/packages/adapter-openclaw/loop-engine-governance
-- **Package org:** https://www.npmjs.com/org/loop-engine
+- **Published package:** `@loop-engine/adapter-openclaw` (npm)
+- **Local-safe default mode:** Yes (no external LLM calls unless an LLM adapter is explicitly configured)
+- **External providers (optional):** OpenAI, Anthropic, xAI, Google (Gemini adapter)
+- **External network integrations:** OpenClaw gateway WebSocket (`gatewayUrl`, default `ws://127.0.0.1:18789`)
 
 ## What this skill does
 
@@ -27,7 +31,7 @@ Install base dependencies:
 npm install @loop-engine/sdk @loop-engine/adapter-openclaw @loop-engine/adapter-memory
 ```
 
-Install AI provider adapters as needed:
+Install optional provider adapters only when LLM-backed mode is needed:
 
 ```bash
 # Anthropic / Claude examples
@@ -37,25 +41,23 @@ npm install @loop-engine/adapter-anthropic @anthropic-ai/sdk
 npm install @loop-engine/adapter-openai openai
 
 # Grok (xAI) examples
-npm install @loop-engine/adapter-grok openai
+npm install @loop-engine/adapter-grok
 
 # Gemini examples
 npm install @loop-engine/adapter-gemini @google/generative-ai
 ```
 
-Maintainer verification: Better Data maintains `@loop-engine/*` packages published under the Loop Engine npm org and source-controlled in the Loop Engine GitHub repository listed above.
-
 ## Environment variables
 
-Declare provider keys before running examples that call external LLM APIs:
+Provider keys are optional in local-only mode and required only for provider-backed mode:
 
-| Example | Required env vars |
+| Mode / example | Env vars |
 |---|---|
-| `example-expense-approval.ts` | none (human-only governance flow) |
+| Local governance mode (human-only or automation-only examples) | none |
 | `example-ai-replenishment-claude.ts` | `ANTHROPIC_API_KEY` |
 | `example-infrastructure-change-openai.ts` | `OPENAI_API_KEY` |
 | `example-fraud-review-grok.ts` | `XAI_API_KEY` |
-| Gemini-based examples | `GOOGLE_AI_API_KEY` |
+| Gemini-backed examples in this repo (`@loop-engine/adapter-gemini`) | `GOOGLE_AI_API_KEY` |
 
 ## Data handling and privacy disclosure
 

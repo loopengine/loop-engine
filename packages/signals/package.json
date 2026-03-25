@@ -1,28 +1,13 @@
 {
   "name": "@loop-engine/signals",
   "version": "0.1.5",
-  "description": "Signal detection rules and signal engine for proactive loop triggers",
+  "description": "Signal primitives for feedback and training loops.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/loopengine/loop-engine",
+    "url": "git+https://github.com/loopengine/loop-engine.git",
     "directory": "packages/signals"
   },
-  "keywords": [
-    "loop-engine",
-    "workflow",
-    "governance",
-    "state-machine",
-    "audit-trail",
-    "actors",
-    "guards",
-    "enterprise",
-    "supply-chain",
-    "decision-governance",
-    "signals",
-    "learning",
-    "feedback-loop"
-  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -43,7 +28,6 @@
     "@loop-engine/core": "workspace:*",
     "zod": "^3.22.0"
   },
-  "devDependencies": {},
   "files": [
     "dist/",
     "README.md",
@@ -51,5 +35,17 @@
   ],
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "homepage": "https://loopengine.io/docs/packages/signals",
+  "sideEffects": false,
+  "keywords": [
+    "loop-engine",
+    "core",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "signal",
+    "feedback",
+    "training"
+  ]
 }

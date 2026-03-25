@@ -1,3 +1,4 @@
+// Local governance + OpenClaw gateway mode (no external LLM provider).
 import { createLoopSystem, parseLoopYaml } from "@loop-engine/sdk";
 import { OpenClawEventBus } from "@loop-engine/adapter-openclaw";
 // This example demonstrates @loop-engine/adapter-openclaw directly.

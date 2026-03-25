@@ -1,30 +1,28 @@
 {
   "name": "@loop-engine/adapter-anthropic",
-  "version": "0.1.5",
-  "description": "Anthropic adapter for creating Loop Engine AI actor submissions",
+  "version": "0.1.6",
+  "description": "Anthropic Claude adapter for governed AI loop actors.",
   "keywords": [
     "loop-engine",
-    "workflow",
-    "governance",
+    "ai-adapter",
     "state-machine",
-    "audit-trail",
-    "actors",
-    "guards",
-    "enterprise",
-    "supply-chain",
-    "decision-governance",
-    "anthropic",
+    "ai-governance",
+    "human-in-the-loop",
     "claude",
-    "ai",
-    "llm",
-    "claude-opus"
+    "anthropic",
+    "llm"
   ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/loopengine/loop-engine",
+    "url": "git+https://github.com/loopengine/loop-engine.git",
     "directory": "packages/adapter-anthropic"
   },
+  "homepage": "https://loopengine.io/docs/packages/adapter-anthropic",
+  "bugs": {
+    "url": "https://github.com/loopengine/loop-engine/issues"
+  },
+  "author": "Better Data, Inc. (https://betterdata.co)",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -53,5 +51,6 @@
   ],
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "sideEffects": false
 }

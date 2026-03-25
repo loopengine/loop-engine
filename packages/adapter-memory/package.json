@@ -1,27 +1,11 @@
 {
   "name": "@loop-engine/adapter-memory",
   "version": "0.1.5",
-  "description": "In-memory LoopStorageAdapter for local development and tests",
-  "keywords": [
-    "loop-engine",
-    "workflow",
-    "governance",
-    "state-machine",
-    "audit-trail",
-    "actors",
-    "guards",
-    "enterprise",
-    "supply-chain",
-    "decision-governance",
-    "memory",
-    "in-memory",
-    "testing",
-    "development"
-  ],
+  "description": "In-memory loop state store for local development.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/loopengine/loop-engine",
+    "url": "git+https://github.com/loopengine/loop-engine.git",
     "directory": "packages/adapter-memory"
   },
   "type": "module",
@@ -51,5 +35,17 @@
   ],
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "homepage": "https://loopengine.io/docs/packages/adapter-memory",
+  "sideEffects": false,
+  "keywords": [
+    "loop-engine",
+    "store",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "memory",
+    "in-memory",
+    "dev"
+  ]
 }

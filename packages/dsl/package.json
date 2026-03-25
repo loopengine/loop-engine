@@ -4,26 +4,10 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/loopengine/loop-engine",
+    "url": "git+https://github.com/loopengine/loop-engine.git",
     "directory": "packages/dsl"
   },
-  "description": "YAML/JSON loop authoring, parsing, and validation",
-  "keywords": [
-    "loop-engine",
-    "workflow",
-    "governance",
-    "state-machine",
-    "audit-trail",
-    "actors",
-    "guards",
-    "enterprise",
-    "supply-chain",
-    "decision-governance",
-    "yaml",
-    "dsl",
-    "parser",
-    "loop-definition"
-  ],
+  "description": "YAML and builder APIs for loop definition authoring.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -52,5 +36,17 @@
   ],
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "homepage": "https://loopengine.io/docs/packages/dsl",
+  "sideEffects": false,
+  "keywords": [
+    "loop-engine",
+    "core",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "yaml",
+    "builder",
+    "definition"
+  ]
 }

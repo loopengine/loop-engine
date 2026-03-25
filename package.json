@@ -1,11 +1,22 @@
 {
   "name": "loop-engine",
   "private": true,
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loopengine/loop-engine"
+  },
+  "homepage": "https://loopengine.io",
+  "bugs": {
+    "url": "https://github.com/loopengine/loop-engine/issues"
+  },
+  "author": "Better Data, Inc. (https://betterdata.co)",
   "scripts": {
     "build": "turbo run build",
     "test": "turbo run test --",
-    "lint": "turbo run lint",
+    "lint": "turbo run lint && pnpm check-security-metadata",
     "typecheck": "turbo run typecheck",
+    "check-security-metadata": "tsx scripts/check-security-metadata.ts",
     "validate-loops": "tsx scripts/validate-loops.ts",
     "generate-schemas": "tsx scripts/generate-schemas.ts",
     "check-boundary": "tsx scripts/check-boundary.ts",

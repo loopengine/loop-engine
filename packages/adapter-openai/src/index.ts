@@ -36,6 +36,14 @@ export interface OpenAIActorAdapter {
   createSubmission(params: CreateOpenAISubmissionParams): Promise<AIAgentSubmission>;
 }
 
+function requireApiKey(apiKey: string, envVar: string): void {
+  if (typeof apiKey !== "string" || apiKey.trim().length === 0) {
+    throw new Error(
+      `[loop-engine/adapter-openai] Missing API key. This is an external provider-backed adapter and sends prompt/evidence context to OpenAI. Set ${envVar} before creating the adapter.`
+    );
+  }
+}
+
 function asRecord(value: unknown): Record<string, unknown> | undefined {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return undefined;
@@ -80,6 +88,7 @@ function parseModelOutput(rawContent: string): ParsedModelOutput {
 }
 
 export function createOpenAIActorAdapter(options: OpenAIActorAdapterOptions): OpenAIActorAdapter {
+  requireApiKey(options.apiKey, "OPENAI_API_KEY");
   const model = options.model ?? "gpt-4o";
   const client =
     options.client ??

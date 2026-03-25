@@ -1,28 +1,13 @@
 {
   "name": "@loop-engine/guards",
   "version": "0.1.5",
-  "description": "Deterministic policy guard registry and built-in guard evaluators",
+  "description": "Approval, confidence, and policy guard framework.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/loopengine/loop-engine",
+    "url": "git+https://github.com/loopengine/loop-engine.git",
     "directory": "packages/guards"
   },
-  "keywords": [
-    "loop-engine",
-    "workflow",
-    "governance",
-    "state-machine",
-    "audit-trail",
-    "actors",
-    "guards",
-    "enterprise",
-    "supply-chain",
-    "decision-governance",
-    "policy",
-    "enforcement",
-    "confidence-threshold"
-  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -40,10 +25,9 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@loop-engine/core": "workspace:*",
-    "@loop-engine/actors": "workspace:*"
+    "@loop-engine/actors": "workspace:*",
+    "@loop-engine/core": "workspace:*"
   },
-  "devDependencies": {},
   "files": [
     "dist/",
     "README.md",
@@ -51,5 +35,17 @@
   ],
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "homepage": "https://loopengine.io/docs/packages/guards",
+  "sideEffects": false,
+  "keywords": [
+    "loop-engine",
+    "core",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "approval",
+    "confidence",
+    "guard"
+  ]
 }

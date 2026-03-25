@@ -1,26 +1,22 @@
 {
   "name": "@loop-engine/adapter-kafka",
   "version": "0.1.5",
+  "description": "Kafka-backed loop persistence and event streaming adapter.",
+  "homepage": "https://loopengine.io/docs/packages/adapter-kafka",
   "keywords": [
     "loop-engine",
-    "workflow",
-    "governance",
+    "store",
     "state-machine",
-    "audit-trail",
-    "actors",
-    "guards",
-    "enterprise",
-    "supply-chain",
-    "decision-governance",
+    "ai-governance",
+    "human-in-the-loop",
     "kafka",
     "streaming",
-    "events",
-    "pubsub"
+    "queue"
   ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/loopengine/loop-engine",
+    "url": "git+https://github.com/loopengine/loop-engine.git",
     "directory": "packages/adapters/kafka"
   },
   "type": "module",
@@ -52,5 +48,6 @@
   ],
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "sideEffects": false
 }

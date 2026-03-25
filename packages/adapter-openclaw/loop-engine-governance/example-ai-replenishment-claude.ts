@@ -1,5 +1,5 @@
 /**
- * Loop Engine — AI Replenishment Example (Claude)
+ * Loop Engine — AI Replenishment Example (Claude, provider-backed)
  * 
  * Anthropic Claude analyzes inventory data and recommends a reorder.
  * A confidence-threshold guard blocks low-confidence recommendations.
@@ -70,7 +70,9 @@ const definition = parseLoopYaml(`
 async function main() {
   // Required: ANTHROPIC_API_KEY — see SKILL.md for data privacy considerations
   if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error('ANTHROPIC_API_KEY environment variable required')
+    throw new Error(
+      "Missing ANTHROPIC_API_KEY. This provider-backed example sends prompt/evidence context to Anthropic."
+    )
   }
 
   const system = createLoopSystem({

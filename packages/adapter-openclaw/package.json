@@ -1,29 +1,28 @@
 {
   "name": "@loop-engine/adapter-openclaw",
-  "version": "0.1.5",
-  "description": "OpenClaw gateway EventBus adapter for Loop Engine",
+  "version": "0.1.7",
+  "description": "OpenClaw adapter for governed agent skills and approvals.",
   "keywords": [
     "loop-engine",
-    "workflow",
-    "governance",
+    "framework-adapter",
     "state-machine",
-    "audit-trail",
-    "actors",
-    "guards",
-    "enterprise",
-    "supply-chain",
-    "decision-governance",
+    "ai-governance",
+    "human-in-the-loop",
     "openclaw",
-    "agentic",
-    "commerce",
-    "integration"
+    "agent",
+    "skill"
   ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/loopengine/loop-engine",
+    "url": "git+https://github.com/loopengine/loop-engine.git",
     "directory": "packages/adapter-openclaw"
   },
+  "homepage": "https://loopengine.io/docs/packages/adapter-openclaw",
+  "bugs": {
+    "url": "https://github.com/loopengine/loop-engine/issues"
+  },
+  "author": "Better Data, Inc. (https://betterdata.co)",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -60,5 +59,6 @@
   ],
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "sideEffects": false
 }

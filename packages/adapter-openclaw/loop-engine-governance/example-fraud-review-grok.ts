@@ -1,5 +1,5 @@
 /**
- * Loop Engine — Fraud Review Loop (Grok / xAI)
+ * Loop Engine — Fraud Review Loop (Grok / xAI, provider-backed)
  * 
  * Grok 3 scores a flagged transaction for fraud indicators.
  * A confidence guard determines whether to auto-dismiss or escalate.
@@ -9,7 +9,6 @@
  * 
  * Install:
  *   npm install @loop-engine/sdk @loop-engine/adapter-memory @loop-engine/adapter-grok
- *   npm install openai
  */
 
 import { createLoopSystem, parseLoopYaml, CommonGuards } from '@loop-engine/sdk'
@@ -89,7 +88,9 @@ const definition = parseLoopYaml(`
 async function main() {
   // Required: XAI_API_KEY — see SKILL.md for data privacy considerations
   if (!process.env.XAI_API_KEY) {
-    throw new Error('XAI_API_KEY environment variable required')
+    throw new Error(
+      "Missing XAI_API_KEY. This provider-backed example sends prompt/evidence context to xAI Grok."
+    )
   }
 
   const system = createLoopSystem({

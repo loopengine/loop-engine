@@ -1,28 +1,13 @@
 {
   "name": "@loop-engine/events",
   "version": "0.1.5",
-  "description": "Typed Loop Engine lifecycle event contracts and in-memory event bus",
+  "description": "Event bus contracts for loop execution signals.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/loopengine/loop-engine",
+    "url": "git+https://github.com/loopengine/loop-engine.git",
     "directory": "packages/events"
   },
-  "keywords": [
-    "loop-engine",
-    "workflow",
-    "governance",
-    "state-machine",
-    "audit-trail",
-    "actors",
-    "guards",
-    "enterprise",
-    "supply-chain",
-    "decision-governance",
-    "events",
-    "event-sourcing",
-    "typed-events"
-  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -50,5 +35,17 @@
   ],
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "homepage": "https://loopengine.io/docs/packages/events",
+  "sideEffects": false,
+  "keywords": [
+    "loop-engine",
+    "core",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "event-bus",
+    "pubsub",
+    "signals"
+  ]
 }

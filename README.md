@@ -142,6 +142,14 @@ Runnable examples in [github.com/loopengine/loop-examples](https://github.com/lo
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Open issues and RFCs at [github.com/loopengine/loop-engine/discussions](https://github.com/loopengine/loop-engine/discussions).
 
+## Provenance and package trust
+
+- **Canonical repository:** https://github.com/loopengine/loop-engine
+- **Maintainer organization:** Better Data, Inc. (https://betterdata.co)
+- **Package family:** `@loop-engine/*` packages in `packages/`
+- **Issue tracker:** https://github.com/loopengine/loop-engine/issues
+- **Documentation site:** https://loopengine.io
+
 ## License
 
 Apache-2.0 - see [LICENSE](LICENSE) for details.

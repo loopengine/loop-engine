@@ -14,6 +14,17 @@ const DEFAULT_MODEL_ID = "gemini-1.5-pro";
 const DEFAULT_MAX_OUTPUT_TOKENS = 1024;
 const DEFAULT_CONFIDENCE_THRESHOLD = 0.7;
 
+function requireApiKey(apiKey: string, envVar: string): void {
+  if (typeof apiKey !== "string" || apiKey.trim().length === 0) {
+    throw new ActorDecisionError({
+      code: "API_ERROR",
+      raw: apiKey,
+      message:
+        `[loop-engine/adapter-gemini] Missing API key. This is an external provider-backed adapter and sends prompt/evidence context to Google Gemini. Set ${envVar} before creating the adapter.`
+    });
+  }
+}
+
 function buildSystemInstruction(systemPrompt?: string): string {
   const required = [
     "You are an AI actor operating within a governed workflow loop.",
@@ -118,6 +129,7 @@ export class GeminiLoopActor {
     Pick<GeminiLoopActorConfig, "systemPrompt">;
 
   constructor(apiKey: string, config: GeminiLoopActorConfig = {}) {
+    requireApiKey(apiKey, "GOOGLE_AI_API_KEY");
     this.genAI = new GoogleGenerativeAI(apiKey);
     this.config = {
       modelId: config.modelId ?? DEFAULT_MODEL_ID,

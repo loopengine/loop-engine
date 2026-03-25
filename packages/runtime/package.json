@@ -1,29 +1,13 @@
 {
   "name": "@loop-engine/runtime",
   "version": "0.1.5",
-  "description": "Loop Engine runtime for state transitions, guard evaluation, and event emission",
+  "description": "Execution engine for loop state transitions and lifecycle.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/loopengine/loop-engine",
+    "url": "git+https://github.com/loopengine/loop-engine.git",
     "directory": "packages/runtime"
   },
-  "keywords": [
-    "loop-engine",
-    "workflow",
-    "governance",
-    "state-machine",
-    "audit-trail",
-    "actors",
-    "guards",
-    "enterprise",
-    "supply-chain",
-    "decision-governance",
-    "runtime",
-    "execution",
-    "lifecycle",
-    "transitions"
-  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -41,16 +25,15 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@loop-engine/actors": "workspace:*",
     "@loop-engine/core": "workspace:*",
     "@loop-engine/dsl": "workspace:*",
     "@loop-engine/events": "workspace:*",
-    "@loop-engine/actors": "workspace:*",
     "@loop-engine/guards": "workspace:*"
   },
   "peerDependencies": {
     "@loop-engine/events": "workspace:*"
   },
-  "devDependencies": {},
   "files": [
     "dist/",
     "README.md",
@@ -58,5 +41,16 @@
   ],
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "homepage": "https://loopengine.io/docs/packages/runtime",
+  "keywords": [
+    "loop-engine",
+    "core",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "execution",
+    "lifecycle",
+    "engine"
+  ]
 }

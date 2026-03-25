@@ -1,27 +1,22 @@
 {
   "name": "@loop-engine/registry-client",
   "version": "0.1.5",
-  "description": "Loop definition registry adapters for local, HTTP, and Better Data registry sources",
+  "description": "Registry discovery client for loop definition catalogs.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/loopengine/loop-engine",
+    "url": "git+https://github.com/loopengine/loop-engine.git",
     "directory": "packages/registry-client"
   },
   "keywords": [
     "loop-engine",
-    "workflow",
-    "governance",
+    "observability",
     "state-machine",
-    "audit-trail",
-    "actors",
-    "guards",
-    "enterprise",
-    "supply-chain",
-    "decision-governance",
+    "ai-governance",
+    "human-in-the-loop",
     "registry",
-    "loop-registry",
-    "client"
+    "discovery",
+    "catalog"
   ],
   "type": "module",
   "main": "./dist/index.cjs",
@@ -59,5 +54,7 @@
   ],
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "homepage": "https://loopengine.io/docs/packages/registry-client",
+  "sideEffects": false
 }

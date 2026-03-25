@@ -1,0 +1,321 @@
+{
+  "name": "@loop-engine/core",
+  "description": "Canonical loop types, contracts, and model primitives.",
+  "keywords": [
+    "loop-engine",
+    "core",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "types",
+    "contracts",
+    "model"
+  ]
+}
+{
+  "name": "@loop-engine/actors",
+  "description": "Actor attribution model for human and AI actions.",
+  "keywords": [
+    "loop-engine",
+    "core",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "actor",
+    "attribution",
+    "ai-agent"
+  ]
+}
+{
+  "name": "@loop-engine/dsl",
+  "description": "YAML and builder APIs for loop definition authoring.",
+  "keywords": [
+    "loop-engine",
+    "core",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "yaml",
+    "builder",
+    "definition"
+  ]
+}
+{
+  "name": "@loop-engine/adapter-pagerduty",
+  "description": "PagerDuty routing adapter for human approval delivery.",
+  "keywords": [
+    "loop-engine",
+    "routing-adapter",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "pagerduty",
+    "oncall",
+    "approval"
+  ]
+}
+{
+  "name": "@loop-engine/events",
+  "description": "Event bus contracts for loop execution signals.",
+  "keywords": [
+    "loop-engine",
+    "core",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "event-bus",
+    "pubsub",
+    "signals"
+  ]
+}
+{
+  "name": "@loop-engine/signals",
+  "description": "Signal primitives for feedback and training loops.",
+  "keywords": [
+    "loop-engine",
+    "core",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "signal",
+    "feedback",
+    "training"
+  ]
+}
+{
+  "name": "@loop-engine/adapter-anthropic",
+  "description": "Anthropic Claude adapter for governed AI loop actors.",
+  "keywords": [
+    "loop-engine",
+    "ai-adapter",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "claude",
+    "anthropic",
+    "llm"
+  ]
+}
+{
+  "name": "@loop-engine/guards",
+  "description": "Approval, confidence, and policy guard framework.",
+  "keywords": [
+    "loop-engine",
+    "core",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "approval",
+    "confidence",
+    "guard"
+  ]
+}
+{
+  "name": "@loop-engine/adapter-openai",
+  "description": "OpenAI adapter for governed GPT loop actors.",
+  "keywords": [
+    "loop-engine",
+    "ai-adapter",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "openai",
+    "gpt-4o",
+    "llm"
+  ]
+}
+{
+  "name": "@loop-engine/registry-client",
+  "description": "Registry discovery client for loop definition catalogs.",
+  "keywords": [
+    "loop-engine",
+    "observability",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "registry",
+    "discovery",
+    "catalog"
+  ]
+}
+{
+  "name": "@loop-engine/runtime",
+  "description": "Execution engine for loop state transitions and lifecycle.",
+  "keywords": [
+    "loop-engine",
+    "core",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "execution",
+    "lifecycle",
+    "engine"
+  ]
+}
+{
+  "name": "@loop-engine/adapter-memory",
+  "description": "In-memory loop state store for local development.",
+  "keywords": [
+    "loop-engine",
+    "store",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "memory",
+    "in-memory",
+    "dev"
+  ]
+}
+{
+  "name": "@loop-engine/adapter-vercel-ai",
+  "description": "Vercel AI SDK adapter for governed tool-call approval flows.",
+  "keywords": [
+    "loop-engine",
+    "framework-adapter",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "vercel",
+    "ai-sdk",
+    "tool-use"
+  ]
+}
+{
+  "name": "@loop-engine/adapter-openclaw",
+  "description": "OpenClaw adapter for governed agent skills and approvals.",
+  "keywords": [
+    "loop-engine",
+    "framework-adapter",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "openclaw",
+    "agent",
+    "skill"
+  ]
+}
+{
+  "name": "@loop-engine/adapter-http",
+  "description": "HTTP routing adapter for approval and event delivery endpoints.",
+  "keywords": [
+    "loop-engine",
+    "routing-adapter",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "http",
+    "webhook",
+    "delivery"
+  ]
+}
+{
+  "name": "@loop-engine/adapter-kafka",
+  "description": "Kafka-backed loop persistence and event streaming adapter.",
+  "keywords": [
+    "loop-engine",
+    "store",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "kafka",
+    "streaming",
+    "queue"
+  ]
+}
+{
+  "name": "@loop-engine/adapter-postgres",
+  "description": "PostgreSQL loop state store for durable production workloads.",
+  "keywords": [
+    "loop-engine",
+    "store",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "postgres",
+    "postgresql",
+    "prisma"
+  ]
+}
+{
+  "name": "@loop-engine/observability",
+  "description": "Metrics, timelines, and audit telemetry for loop execution.",
+  "keywords": [
+    "loop-engine",
+    "observability",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "metrics",
+    "timeline",
+    "audit"
+  ]
+}
+{
+  "name": "@loop-engine/sdk",
+  "description": "Entry point for building and running governed loops.",
+  "keywords": [
+    "loop-engine",
+    "core",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "entry-point",
+    "builder"
+  ]
+}
+{
+  "name": "@loop-engine/ui-devtools",
+  "description": "Devtools and replay UI for debugging governed loops.",
+  "keywords": [
+    "loop-engine",
+    "observability",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "devtools",
+    "debug",
+    "replay"
+  ]
+}
+{
+  "name": "@loop-engine/adapter-gemini",
+  "description": "Google Gemini adapter for governed AI loop actors.",
+  "keywords": [
+    "loop-engine",
+    "ai-adapter",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "gemini",
+    "google",
+    "llm"
+  ]
+}
+{
+  "name": "@loop-engine/adapter-commerce-gateway",
+  "description": "Commerce Gateway framework adapter for governed tool routing.",
+  "keywords": [
+    "loop-engine",
+    "framework-adapter",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "commerce-gateway",
+    "mcp",
+    "tool-routing"
+  ]
+}
+{
+  "name": "@loop-engine/adapter-grok",
+  "description": "xAI Grok adapter for governed AI loop actors.",
+  "keywords": [
+    "loop-engine",
+    "ai-adapter",
+    "state-machine",
+    "ai-governance",
+    "human-in-the-loop",
+    "grok",
+    "xai",
+    "llm"
+  ]
+}

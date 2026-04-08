@@ -5,6 +5,14 @@ All notable changes to Loop Engine will be documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)  
 Versioning: [Semantic Versioning](https://semver.org/)
 
+## Unreleased
+
+### Added
+- `@loop-engine/adapter-perplexity` — Perplexity Sonar `LLMAdapter` with citations, retries, and `guardEvidence` integration
+- `@loop-engine/core` — `LLMAdapter`, `AdapterInput` / `AdapterOutput`, and deep `guardEvidence()` for adapter audit redaction
+- Docs: `docs/integrations-perplexity.md` (Sonar vs [Perplexity Computer skills](https://www.perplexity.ai/computer/skills))
+- Release contract stub: `.rc/adapter-perplexity.json` (RC **DRAFT** until promoted **LOCKED**)
+
 ## [0.1.5] — 2026-03-14
 
 ### Fixed

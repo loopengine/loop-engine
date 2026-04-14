@@ -13,6 +13,8 @@ Versioning: [Semantic Versioning](https://semver.org/)
 - Docs: `docs/integrations-perplexity.md` (Sonar vs [Perplexity Computer skills](https://www.perplexity.ai/computer/skills))
 - Release contract stub: `.rc/adapter-perplexity.json` (RC **DRAFT** until promoted **LOCKED**)
 
+<!-- Note: v0.1.4 was an internal tag not published to npm. Compare link is intentionally v0.1.4...v0.1.5. -->
+
 ## [0.1.5] — 2026-03-14
 
 ### Fixed

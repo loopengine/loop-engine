@@ -1,6 +1,6 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
-export * from "@loop-engine/core";
+/** Internal monorepo package — public surface is `@loop-engine/sdk` (do not re-export `core` here; avoids duplicate exports in SDK). */
 export { LoopBuilder } from "./builder";
 export type {
   LoopBuilderGuardInput,

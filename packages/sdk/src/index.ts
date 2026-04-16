@@ -32,7 +32,6 @@ class InMemoryLoopRegistry implements LoopDefinitionRegistry {
 }
 
 export { createLoopSystem as createLoopSystemRuntime } from "@loop-engine/runtime";
-export { validateLoopDefinition } from "@loop-engine/dsl";
 export { InMemoryEventBus } from "@loop-engine/events";
 export { computeMetrics, buildTimeline } from "@loop-engine/observability";
 export { localRegistry, httpRegistry } from "@loop-engine/registry-client";
@@ -57,9 +56,23 @@ export type {
 
 // Consolidated core surface: expose full APIs from internal core-layer packages.
 export * from "@loop-engine/core";
-/** Primary fluent authoring API for {@link LoopDefinition} (also re-exported via `export *`). */
-export { LoopBuilder } from "@loop-engine/dsl";
-export * from "@loop-engine/dsl";
+/** DSL (LoopBuilder, YAML, validation) — implemented in private workspace package `@loop-engine/dsl`, exported only from SDK. */
+export {
+  LoopBuilder,
+  validateLoopDefinition,
+  parseLoopYaml,
+  parseLoopYamlSafe,
+  serializeLoopYaml
+} from "@loop-engine/dsl";
+export type {
+  LoopBuilderGuardInput,
+  LoopBuilderGuardLegacy,
+  LoopBuilderGuardShorthand,
+  LoopBuilderOutcomeInput,
+  LoopBuilderTransitionInput,
+  ValidationError,
+  ValidationResult
+} from "@loop-engine/dsl";
 export * from "@loop-engine/guards";
 export * from "@loop-engine/actors";
 export * from "@loop-engine/events";

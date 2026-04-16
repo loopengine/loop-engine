@@ -371,9 +371,6 @@ importers:
       '@loop-engine/core':
         specifier: workspace:*
         version: link:../core
-      '@loop-engine/dsl':
-        specifier: workspace:*
-        version: link:../dsl
       '@loop-engine/events':
         specifier: workspace:*
         version: link:../events

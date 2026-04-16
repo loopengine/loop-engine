@@ -22,6 +22,9 @@ const PACKAGES_DIR = path.join(ROOT, "packages");
 const CORE_BANNED_TOKENS = ["procurement", "inventory", "shipment", "lot"];
 const ADAPTER_EXTERNALS = ["pg", "kafkajs"];
 
+/** Internal-only workspace packages (not published; API surfaced via another package, e.g. `@loop-engine/sdk`). */
+const PRIVATE_PACKAGES_ALLOWED = new Set(["@loop-engine/dsl"]);
+
 async function listDirs(dir: string): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true });
   return entries.filter((e) => e.isDirectory()).map((e) => path.join(dir, e.name));
@@ -130,7 +133,7 @@ async function run(): Promise<void> {
       }
     }
 
-    if (pkg.private === true) {
+    if (pkg.private === true && !(pkg.name && PRIVATE_PACKAGES_ALLOWED.has(pkg.name))) {
       violations.push({
         check: "publishability",
         file: path.join(dir, "package.json"),

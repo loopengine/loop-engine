@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/runtime",
-  "version": "0.1.6",
+  "version": "0.1.5",
   "description": "Execution engine for loop state transitions and lifecycle.",
   "license": "Apache-2.0",
   "repository": {
@@ -27,7 +27,6 @@
   "dependencies": {
     "@loop-engine/actors": "workspace:*",
     "@loop-engine/core": "workspace:*",
-    "@loop-engine/dsl": "workspace:*",
     "@loop-engine/events": "workspace:*",
     "@loop-engine/guards": "workspace:*"
   },
@@ -52,8 +51,5 @@
     "execution",
     "lifecycle",
     "engine"
-  ],
-  "publishConfig": {
-    "access": "public"
-  }
+  ]
 }

@@ -18,8 +18,9 @@
 #
 # Trusted publishing (OIDC): do NOT set NODE_AUTH_TOKEN / NPM_TOKEN on the publish step — that forces token auth and
 # yields EOTP in CI. npm + pnpm use the GitHub OIDC token when id-token: write is set and npm CLI is new enough.
-# Requirements (npm docs): Node >= 22.14.0, npm CLI >= 11.5.1. Each published package needs Trusted Publisher on npmjs
-# (same repo + workflow filename rc-tag-release.yml).
+# Requirements (npm docs): Node >= 22.14.0, npm CLI >= 11.5.1. Use Node 24 on the runner — it bundles npm 11.x. Do not run
+# `npm install -g npm@...` here; it can break the toolcache install (e.g. MODULE_NOT_FOUND promise-retry).
+# Each published package needs Trusted Publisher on npmjs (same repo + workflow filename rc-tag-release.yml).
 #
 # Optional: NPM_READ_TOKEN + NODE_AUTH_TOKEN only if you add private @scope deps during install (public monorepo: omit).
 
@@ -60,11 +61,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "24"
           cache: pnpm
 
-      - name: Ensure npm CLI for OIDC (trusted publishing)
-        run: npm install -g npm@^11.5.1 && node --version && npm --version
+      - name: Show Node and npm versions (OIDC needs npm >= 11.5.1)
+        run: node --version && npm --version
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

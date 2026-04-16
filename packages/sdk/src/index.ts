@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { createMemoryLoopStorageAdapter } from "@loop-engine/adapter-memory";
 import type { LoopDefinition } from "@loop-engine/core";
-import { validateLoopDefinition } from "@loop-engine/dsl";
 import { InMemoryEventBus } from "@loop-engine/events";
 import { GuardRegistry } from "@loop-engine/guards";
 import { computeMetrics, buildTimeline } from "@loop-engine/observability";
@@ -14,6 +13,7 @@ import {
   type LoopSystem
 } from "@loop-engine/runtime";
 import { SignalRegistry } from "@loop-engine/signals";
+import { validateLoopDefinition } from "@loop-engine/loop-definition";
 export { createAIActor } from "./ai";
 export type { AIActor, AIActorConfig, AIProvider } from "./ai";
 export { guardEvidence } from "./lib/guardEvidence";
@@ -40,39 +40,28 @@ export { createMemoryLoopStorageAdapter };
 export { GuardRegistry };
 export { SignalRegistry };
 export type {
-  LoopDefinition,
-  LoopId,
-  TransitionId,
-  StateId,
-  ActorRef,
-  AggregateId
-} from "@loop-engine/core";
-export type {
   RuntimeLoopInstance,
   RuntimeTransitionRecord,
   LoopStorageAdapter,
   LoopSystem
 } from "@loop-engine/runtime";
 
-// Consolidated core surface: expose full APIs from internal core-layer packages.
+// Core types — always re-exported from sdk
 export * from "@loop-engine/core";
-/** DSL (LoopBuilder, YAML, validation) — implemented in private workspace package `@loop-engine/dsl`, exported only from SDK. */
-export {
-  LoopBuilder,
-  validateLoopDefinition,
-  parseLoopYaml,
-  parseLoopYamlSafe,
-  serializeLoopYaml
-} from "@loop-engine/dsl";
+
+// LoopBuilder, parser, serializer, validator — implementation lives in @loop-engine/loop-definition (shared with registry-client)
+export { LoopBuilder } from "@loop-engine/loop-definition";
 export type {
   LoopBuilderGuardInput,
   LoopBuilderGuardLegacy,
   LoopBuilderGuardShorthand,
   LoopBuilderOutcomeInput,
-  LoopBuilderTransitionInput,
-  ValidationError,
-  ValidationResult
-} from "@loop-engine/dsl";
+  LoopBuilderTransitionInput
+} from "@loop-engine/loop-definition";
+export { parseLoopYaml, parseLoopYamlSafe, serializeLoopYaml } from "@loop-engine/loop-definition";
+export { validateLoopDefinition };
+export type { ValidationError, ValidationResult } from "@loop-engine/loop-definition";
+
 export * from "@loop-engine/guards";
 export * from "@loop-engine/actors";
 export * from "@loop-engine/events";

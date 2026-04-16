@@ -71,9 +71,6 @@ importers:
 
   apps/playground:
     dependencies:
-      '@loop-engine/dsl':
-        specifier: workspace:*
-        version: link:../../packages/dsl
       '@loop-engine/events':
         specifier: workspace:*
         version: link:../../packages/events
@@ -308,18 +305,6 @@ importers:
         specifier: ^3.22.0
         version: 3.25.76
 
-  packages/dsl:
-    dependencies:
-      '@loop-engine/core':
-        specifier: workspace:*
-        version: link:../core
-      yaml:
-        specifier: ^2.3.0
-        version: 2.8.2
-      zod:
-        specifier: ^3.22.0
-        version: 3.25.76
-
   packages/events:
     dependencies:
       '@loop-engine/core':
@@ -338,6 +323,18 @@ importers:
         specifier: workspace:*
         version: link:../core
 
+  packages/loop-definition:
+    dependencies:
+      '@loop-engine/core':
+        specifier: workspace:*
+        version: link:../core
+      yaml:
+        specifier: ^2.3.0
+        version: 2.8.2
+      zod:
+        specifier: ^3.22.0
+        version: 3.25.76
+
   packages/observability:
     dependencies:
       '@loop-engine/core':
@@ -352,9 +349,9 @@ importers:
       '@loop-engine/core':
         specifier: workspace:*
         version: link:../core
-      '@loop-engine/dsl':
+      '@loop-engine/loop-definition':
         specifier: workspace:*
-        version: link:../dsl
+        version: link:../loop-definition
     devDependencies:
       '@types/express':
         specifier: ^4.17.25
@@ -389,15 +386,15 @@ importers:
       '@loop-engine/core':
         specifier: workspace:*
         version: link:../core
-      '@loop-engine/dsl':
-        specifier: workspace:*
-        version: link:../dsl
       '@loop-engine/events':
         specifier: workspace:*
         version: link:../events
       '@loop-engine/guards':
         specifier: workspace:*
         version: link:../guards
+      '@loop-engine/loop-definition':
+        specifier: workspace:*
+        version: link:../loop-definition
       '@loop-engine/observability':
         specifier: workspace:*
         version: link:../observability

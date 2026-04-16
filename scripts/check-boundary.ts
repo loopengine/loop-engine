@@ -22,8 +22,8 @@ const PACKAGES_DIR = path.join(ROOT, "packages");
 const CORE_BANNED_TOKENS = ["procurement", "inventory", "shipment", "lot"];
 const ADAPTER_EXTERNALS = ["pg", "kafkajs"];
 
-/** Internal-only workspace packages (not published; API surfaced via another package, e.g. `@loop-engine/sdk`). */
-const PRIVATE_PACKAGES_ALLOWED = new Set(["@loop-engine/dsl"]);
+/** Internal-only workspace packages (not published; API surfaced via another package). */
+const PRIVATE_PACKAGES_ALLOWED = new Set<string>();
 
 async function listDirs(dir: string): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true });

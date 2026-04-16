@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { parseLoopYaml } from "@loop-engine/dsl";
+import { parseLoopYaml } from "@loop-engine/sdk/dsl";
 import { InMemoryEventBus } from "@loop-engine/events";
 import { GuardRegistry } from "@loop-engine/guards";
 import { createLoopSystem } from "@loop-engine/runtime";

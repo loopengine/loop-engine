@@ -9,7 +9,6 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@loop-engine/dsl": "workspace:*",
     "@loop-engine/events": "workspace:*",
     "@loop-engine/guards": "workspace:*",
     "@loop-engine/runtime": "workspace:*",

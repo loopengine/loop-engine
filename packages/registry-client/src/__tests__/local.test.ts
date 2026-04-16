@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { LoopDefinitionSchema, type LoopDefinition } from "@loop-engine/core";
-import { serializeLoopYaml } from "@loop-engine/dsl";
+import { serializeLoopYaml } from "@loop-engine/loop-definition";
 import { localRegistry } from "../adapters/local";
 import { RegistryConflictError } from "../types";
 

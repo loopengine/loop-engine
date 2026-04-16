@@ -9,7 +9,7 @@
     "paths": {
       "@loop-engine/sdk": ["./packages/sdk/src/index.ts"],
       "@loop-engine/core": ["./packages/core/src/index.ts"],
-      "@loop-engine/dsl": ["./packages/dsl/src/index.ts"],
+      "@loop-engine/loop-definition": ["./packages/loop-definition/src/index.ts"],
       "@loop-engine/runtime": ["./packages/runtime/src/index.ts"],
       "@loop-engine/events": ["./packages/events/src/index.ts"],
       "@loop-engine/guards": ["./packages/guards/src/index.ts"],

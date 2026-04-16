@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { LoopDefinition, LoopId } from "@loop-engine/core";
 import { LoopDefinitionSchema } from "@loop-engine/core";
-import { validateLoopDefinition } from "@loop-engine/dsl";
+import { validateLoopDefinition } from "@loop-engine/loop-definition";
 import type { LoopRegistry, LoopRegistryOptions } from "../types";
 import { RegistryConflictError, RegistryNetworkError } from "../types";
 

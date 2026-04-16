@@ -9,5 +9,6 @@ export default defineConfig({
   dts: true,
   sourcemap: true,
   clean: true,
-  outDir: "dist"
+  outDir: "dist",
+  external: ["@loop-engine/core", "@loop-engine/loop-definition"]
 });

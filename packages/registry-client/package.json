@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@loop-engine/core": "workspace:*",
-    "@loop-engine/dsl": "workspace:*"
+    "@loop-engine/loop-definition": "workspace:*"
   },
   "devDependencies": {
     "@types/express": "^4.17.25",

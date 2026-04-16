@@ -1,0 +1,62 @@
+{
+  "name": "@loop-engine/adapter-perplexity",
+  "version": "0.1.0",
+  "description": "Perplexity Sonar API adapter for Loop Engine multi-LLM steps (grounded search + reasoning).",
+  "keywords": [
+    "loop-engine",
+    "ai-adapter",
+    "perplexity",
+    "sonar",
+    "llm",
+    "ai-governance",
+    "human-in-the-loop"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/loopengine/loop-engine.git",
+    "directory": "packages/adapter-perplexity"
+  },
+  "homepage": "https://loopengine.io/docs/packages/adapter-perplexity",
+  "bugs": {
+    "url": "https://github.com/loopengine/loop-engine/issues"
+  },
+  "author": "Better Data, Inc. (https://betterdata.co)",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "peerDependencies": {
+    "@loop-engine/core": "^0.1.5"
+  },
+  "devDependencies": {
+    "@loop-engine/core": "workspace:*",
+    "msw": "^2.7.3",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^1.6.1"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "BOUNDARY-MANAGEMENT.md",
+    "LICENSE"
+  ],
+  "sideEffects": false
+}

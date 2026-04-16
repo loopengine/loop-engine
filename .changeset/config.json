@@ -1,10 +1,10 @@
 {
-  "changelog": "@changesets/changelog-github",
+  "changelog": ["@changesets/changelog-github", { "repo": "loopengine/loop-engine" }],
   "commit": false,
   "fixed": [],
   "linked": [],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["apps/*"]
+  "ignore": ["@loop-engine/inspector", "@loop-engine/playground"]
 }

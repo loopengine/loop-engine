@@ -14,6 +14,8 @@ import {
   type LoopSystem
 } from "@loop-engine/runtime";
 import { SignalRegistry } from "@loop-engine/signals";
+export { createAIActor } from "./ai";
+export type { AIActor, AIActorConfig, AIProvider } from "./ai";
 export { guardEvidence } from "./lib/guardEvidence";
 export type { EvidenceRecord } from "./lib/guardEvidence";
 
@@ -52,6 +54,16 @@ export type {
   LoopStorageAdapter,
   LoopSystem
 } from "@loop-engine/runtime";
+
+// Consolidated core surface: expose full APIs from internal core-layer packages.
+export * from "@loop-engine/core";
+/** Primary fluent authoring API for {@link LoopDefinition} (also re-exported via `export *`). */
+export { LoopBuilder } from "@loop-engine/dsl";
+export * from "@loop-engine/dsl";
+export * from "@loop-engine/guards";
+export * from "@loop-engine/actors";
+export * from "@loop-engine/events";
+export * from "@loop-engine/signals";
 
 export interface CreateLoopSystemOptions {
   loops: LoopDefinition[];

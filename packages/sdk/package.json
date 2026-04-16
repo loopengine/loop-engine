@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/sdk",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "description": "Entry point for building and running governed loops.",
   "license": "Apache-2.0",
   "repository": {
@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@loop-engine/adapter-memory": "workspace:*",
+    "@loop-engine/actors": "workspace:*",
     "@loop-engine/core": "workspace:*",
     "@loop-engine/dsl": "workspace:*",
     "@loop-engine/events": "workspace:*",
@@ -52,5 +53,8 @@
     "human-in-the-loop",
     "entry-point",
     "builder"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

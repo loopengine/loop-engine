@@ -47,5 +47,8 @@
     "actor",
     "attribution",
     "ai-agent"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

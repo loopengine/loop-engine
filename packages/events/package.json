@@ -47,5 +47,8 @@
     "event-bus",
     "pubsub",
     "signals"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

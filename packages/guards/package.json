@@ -47,5 +47,8 @@
     "approval",
     "confidence",
     "guard"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

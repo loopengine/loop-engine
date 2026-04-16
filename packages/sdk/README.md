@@ -32,6 +32,20 @@ await engine.startLoop({ loopId: "expense.approval" as never, aggregateId: "EXP-
 await engine.transition({ aggregateId: "EXP-1" as never, transitionId: "approve" as never, actor: { type: "human", id: "manager@acme.com" as never } });
 ```
 
+## Unified AI actor factory
+
+```ts
+import { createAIActor } from "@loop-engine/sdk";
+
+const actor = createAIActor({
+  provider: "anthropic",
+  model: "claude-3-5-sonnet-latest",
+  apiKey: process.env.ANTHROPIC_API_KEY ?? ""
+});
+```
+
+For advanced configuration, import adapter packages directly.
+
 ## Documentation link
 
 https://loopengine.io/docs/packages/sdk

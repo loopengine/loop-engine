@@ -46,5 +46,8 @@
     "types",
     "contracts",
     "model"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

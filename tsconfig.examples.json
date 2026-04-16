@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@loop-engine/sdk": ["./packages/sdk/src/index.ts"],
+      "@loop-engine/core": ["./packages/core/src/index.ts"],
+      "@loop-engine/dsl": ["./packages/dsl/src/index.ts"],
+      "@loop-engine/runtime": ["./packages/runtime/src/index.ts"],
+      "@loop-engine/events": ["./packages/events/src/index.ts"],
+      "@loop-engine/guards": ["./packages/guards/src/index.ts"],
+      "@loop-engine/actors": ["./packages/actors/src/index.ts"],
+      "@loop-engine/signals": ["./packages/signals/src/index.ts"],
+      "@loop-engine/observability": ["./packages/observability/src/index.ts"],
+      "@loop-engine/adapter-memory": ["./packages/adapter-memory/src/index.ts"],
+      "@loop-engine/registry-client": ["./packages/registry-client/src/index.ts"]
+    }
+  },
+  "include": ["examples/ai-actors/shared/loop.ts"]
+}

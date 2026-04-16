@@ -21,6 +21,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
+      - name: Validate packed manifests (no workspace:*)
+        run: pnpm validate:publish
+      - run: pnpm typecheck:examples
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test

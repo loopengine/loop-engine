@@ -22,7 +22,9 @@
     "check-boundary": "tsx scripts/check-boundary.ts",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "turbo run build --filter=./packages/* && changeset publish"
+    "validate:publish": "node scripts/check-no-workspace-refs.mjs",
+    "typecheck:examples": "tsc -p tsconfig.examples.json",
+    "release": "pnpm validate:publish && changeset publish"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.2",

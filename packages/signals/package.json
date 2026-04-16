@@ -47,5 +47,8 @@
     "signal",
     "feedback",
     "training"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

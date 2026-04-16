@@ -50,7 +50,7 @@ pnpm check-boundary
 
 Local one-off releases can still use `pnpm release` (`validate:publish` + `changeset publish`) from a trusted machine; prefer the tag workflow for production npm publishes.
 
-**GitHub Actions publish (`EOTP` / “requires a one-time password”):** CI cannot pass `--otp`. The `NPM_TOKEN` secret must be a **classic [Automation token](https://docs.npmjs.com/creating-and-viewing-access-tokens)** (“For automating publishing in CI/CD workflows”) — those publishes **do not** require 2FA/OTP. If you use a **Publish** classic token or a **granular** token, npm may still demand OTP on publish and the job will fail. Fix: create a new **Automation** token, update the repo secret, re-run the workflow. Disabling 2FA on the npm account is not the right fix; the token type is.
+**GitHub Actions publish (`EOTP` / “requires a one-time password”):** CI cannot pass `--otp`. **Preferred:** [Trusted Publishing](https://docs.npmjs.com/trusted-publishers) (OIDC) — configure each `@loop-engine/*` package on npmjs with the same GitHub repo + workflow `rc-tag-release.yml`, and **do not** set `NODE_AUTH_TOKEN` on the publish step (token auth triggers `EOTP`). The release workflow uses Node **22+** and **npm 11.5.1+** so OIDC works. **Legacy:** a granular token with **Bypass 2FA** or (deprecated) classic Automation token only if you are not using Trusted Publishing yet.
 
 ## Pull request conventions
 

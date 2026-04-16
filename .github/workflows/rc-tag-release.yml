@@ -1,23 +1,29 @@
-# Release workflow for @loop-engine/* OSS packages (under packages/* and packages/adapters/*)
+# Release workflow for @loop-engine/* OSS packages
 #
-# Trigger:
-#   - Push a semver tag: git tag v0.2.0 && git push origin v0.2.0
-#   - Or Actions → "RC tag release" → Run workflow (default: publish --dry-run only; uncheck dry_run to test a real publish)
+# Normal publish trigger:
+#   git tag v0.2.0 && git push --tags
+#   → workflow fires automatically, no manual dispatch needed
 #
-# Prerequisites before tagging:
-#   1. Run `pnpm build && pnpm validate:publish` locally — confirm no workspace:* refs in packed manifests
-#   2. Bump versions in package.json files (or use changesets) so the tag matches what npm will publish
-#   3. Update CHANGELOG / draft a GitHub Release as needed
+# Pipeline test (dry run):
+#   GitHub → Actions → RC tag release → Run workflow
+#   → leave dry_run CHECKED → run
+#   → exercises install, build, validate:publish, and pnpm publish --dry-run
 #
-# Auth: setup-node with registry-url configures ~/.npmrc; the env var MUST be NODE_AUTH_TOKEN
-# (map the GitHub Actions repository secret named NPM_TOKEN to NODE_AUTH_TOKEN in the publish steps below).
+# Manual dispatch with dry_run UNCHECKED:
+#   Only allowed from main or a version tag — workflow will hard-fail otherwise.
+#   Use only as an emergency escape hatch, not as a routine publish path.
 #
-# Provenance: id-token: write lets npm attach provenance linking the tarball to this GitHub Actions run.
+# Tag pushes: inputs.dry_run is undefined; guard step uses if: ${{ !inputs.dry_run }} so it still
+# runs, and startsWith(github.ref, 'refs/tags/') passes immediately — do not change that behavior.
 #
 # Token rotation:
-#   NPM_TOKEN secret expires ~April 2027.
-#   Rotate at: npmjs.com → Account Settings → Access Tokens
-#   Update at: GitHub → Settings → Secrets and variables → Actions → NPM_TOKEN
+#   NPM_TOKEN secret expires July 15, 2026.
+#   Rotate at: npmjs.com → Account Settings → Access Tokens → Automation token
+#   Update at: GitHub → loopengine/loop-engine → Settings → Secrets → NPM_TOKEN
+#   Set calendar reminder for July 1, 2026.
+#
+# Auth: setup-node with registry-url configures ~/.npmrc; the env var MUST be NODE_AUTH_TOKEN
+# (map the GitHub Actions repository secret named NPM_TOKEN to NODE_AUTH_TOKEN below).
 
 name: RC tag release
 
@@ -28,9 +34,10 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "If true, run pnpm publish --dry-run only (no registry upload)"
+        description: "Dry run only — does not publish to npm. Uncheck only from main with a version tag pushed."
         type: boolean
         default: true
+        required: true
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -68,15 +75,31 @@ jobs:
       - name: Validate no workspace:* in publish targets
         run: pnpm validate:publish
 
-      - name: Publish to npm
-        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'false')
-        run: pnpm publish -r --access public --no-git-checks --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Enforce main or tag for real publish
+        if: ${{ !inputs.dry_run }}
+        run: |
+          IS_TAG=${{ startsWith(github.ref, 'refs/tags/') }}
+          IS_MAIN=${{ github.ref_name == 'main' }}
 
-      - name: Publish dry run
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true'
-        run: pnpm publish -r --access public --no-git-checks --dry-run
+          if [ "$IS_TAG" != "true" ] && [ "$IS_MAIN" != "true" ]; then
+            echo "❌ Real publish is only allowed from main or a version tag."
+            echo "   Current ref: ${{ github.ref }}"
+            echo "   To test the pipeline safely, re-run with dry_run checked."
+            exit 1
+          fi
+
+          echo "✅ Ref check passed: ${{ github.ref }}"
+
+      - name: Publish to npm
+        run: |
+          FLAGS="--access public --no-git-checks"
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            FLAGS="$FLAGS --dry-run"
+            echo "ℹ️  Dry run mode — no packages will be published"
+          else
+            FLAGS="$FLAGS --provenance"
+          fi
+          pnpm publish -r $FLAGS
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

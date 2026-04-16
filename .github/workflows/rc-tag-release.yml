@@ -1,4 +1,10 @@
-name: Release
+# Maintainer publish flow:
+# 1) Local gate: pnpm build && pnpm validate:publish (packed manifests must not contain workspace:*)
+# 2) Land P0 packaging changes via PR; CI runs the same validate:publish step.
+# 3) Merge the changesets "Version Packages" PR (chore(release)) — this workflow runs validate:publish
+#    again before changeset publish; npm is not touched if validation fails.
+# 4) After publish: smoke test from a clean directory, e.g. npm install @loop-engine/sdk@<version>
+name: RC tag release
 
 on:
   push:

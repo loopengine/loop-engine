@@ -34,11 +34,19 @@ Run these commands from repository root before opening a PR:
 
 ```bash
 pnpm build
+pnpm validate:publish   # packed @loop-engine/* tarballs must not contain workspace:* (same gate as release)
 pnpm lint
 pnpm test
 pnpm validate-loops
 pnpm check-boundary
 ```
+
+## Publishing (maintainers)
+
+1. **Local gate** — `pnpm build && pnpm validate:publish`. This is the tarball check (not `npm publish`). It fails if any packed public package still has `workspace:` in its manifest.
+2. **Ship changes via PR** — packaging fixes (e.g. `package.json`, `.npmrc`, `scripts/check-no-workspace-refs.mjs`, workflow updates) go through CI like any other change.
+3. **Automated npm publish** — [.github/workflows/rc-tag-release.yml](.github/workflows/rc-tag-release.yml) runs on pushes to `main` whose head commit message contains `chore(release)` (the changesets “Version Packages” merge). It runs `validate:publish` again before `pnpm release` / `changeset publish`; if validation fails, nothing is published.
+4. **Post-publish smoke test** — from an empty directory, install the new version, e.g. `npm install @loop-engine/sdk@<version>`, and confirm the install is clean before announcing.
 
 ## Pull request conventions
 

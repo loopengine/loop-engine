@@ -45,8 +45,10 @@ pnpm check-boundary
 
 1. **Local gate** — `pnpm build && pnpm validate:publish`. This is the tarball check (not `npm publish`). It fails if any packed public package still has `workspace:` in its manifest.
 2. **Ship changes via PR** — packaging fixes (e.g. `package.json`, `.npmrc`, `scripts/check-no-workspace-refs.mjs`, workflow updates) go through CI like any other change.
-3. **Automated npm publish** — [.github/workflows/rc-tag-release.yml](.github/workflows/rc-tag-release.yml) runs on pushes to `main` whose head commit message contains `chore(release)` (the changesets “Version Packages” merge). It runs `validate:publish` again before `pnpm release` / `changeset publish`; if validation fails, nothing is published.
-4. **Post-publish smoke test** — from an empty directory, install the new version, e.g. `npm install @loop-engine/sdk@<version>`, and confirm the install is clean before announcing.
+3. **CI publish** — [.github/workflows/rc-tag-release.yml](.github/workflows/rc-tag-release.yml) publishes from GitHub Actions only. It runs on **semver tag push** (`v*.*.*`): install → build → `validate:publish` → `pnpm publish -r` with **`NODE_AUTH_TOKEN`** set from the **`NPM_TOKEN`** repository secret (the env name must be `NODE_AUTH_TOKEN` for `setup-node`’s `.npmrc`). Provenance is enabled (`id-token: write`). To **dry-run** auth and packing without uploading, use **Actions → RC tag release → Run workflow** (default is dry-run; uncheck to publish).
+4. **Post-publish** — the tag workflow runs a clean `npm install @loop-engine/sdk@<version>` smoke test. Repeat manually from a scratch directory before announcing if you want extra assurance.
+
+Local one-off releases can still use `pnpm release` (`validate:publish` + `changeset publish`) from a trusted machine; prefer the tag workflow for production npm publishes.
 
 ## Pull request conventions
 

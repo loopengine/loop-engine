@@ -1,41 +1,90 @@
-# Maintainer publish flow:
-# 1) Local gate: pnpm build && pnpm validate:publish (packed manifests must not contain workspace:*)
-# 2) Land P0 packaging changes via PR; CI runs the same validate:publish step.
-# 3) Merge the changesets "Version Packages" PR (chore(release)) — this workflow runs validate:publish
-#    again before changeset publish; npm is not touched if validation fails.
-# 4) After publish: smoke test from a clean directory, e.g. npm install @loop-engine/sdk@<version>
+# Release workflow for @loop-engine/* OSS packages (under packages/* and packages/adapters/*)
+#
+# Trigger:
+#   - Push a semver tag: git tag v0.2.0 && git push origin v0.2.0
+#   - Or Actions → "RC tag release" → Run workflow (default: publish --dry-run only; uncheck dry_run to test a real publish)
+#
+# Prerequisites before tagging:
+#   1. Run `pnpm build && pnpm validate:publish` locally — confirm no workspace:* refs in packed manifests
+#   2. Bump versions in package.json files (or use changesets) so the tag matches what npm will publish
+#   3. Update CHANGELOG / draft a GitHub Release as needed
+#
+# Auth: setup-node with registry-url configures ~/.npmrc; the env var MUST be NODE_AUTH_TOKEN
+# (map the GitHub Actions repository secret named NPM_TOKEN to NODE_AUTH_TOKEN in the publish steps below).
+#
+# Provenance: id-token: write lets npm attach provenance linking the tarball to this GitHub Actions run.
+#
+# Token rotation:
+#   NPM_TOKEN secret expires ~April 2027.
+#   Rotate at: npmjs.com → Account Settings → Access Tokens
+#   Update at: GitHub → Settings → Secrets and variables → Actions → NPM_TOKEN
+
 name: RC tag release
 
 on:
   push:
-    branches: [main]
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "If true, run pnpm publish --dry-run only (no registry upload)"
+        type: boolean
+        default: true
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  release:
-    if: contains(github.event.head_commit.message, 'chore(release)')
+  publish:
+    name: Publish to npm
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      id-token: write
+      contents: read
+      id-token: write # npm provenance (links tarball to this workflow run)
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          node-version: 20
+          version: 9.0.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
           cache: pnpm
-          registry-url: https://registry.npmjs.org
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - name: Validate packed manifests (no workspace:*)
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm build
+
+      - name: Validate no workspace:* in publish targets
         run: pnpm validate:publish
-      - run: pnpm release
+
+      - name: Publish to npm
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'false')
+        run: pnpm publish -r --access public --no-git-checks --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
-        with:
-          generate_release_notes: true
+
+      - name: Publish dry run
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true'
+        run: pnpm publish -r --access public --no-git-checks --dry-run
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Verify clean install
+        if: github.event_name == 'push'
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          mkdir -p /tmp/install-test && cd /tmp/install-test
+          npm init -y
+          npm install "@loop-engine/sdk@${VERSION}"
+          node -e "const { createLoopSystem } = require('@loop-engine/sdk'); console.log('✅ @loop-engine/sdk installs cleanly')"

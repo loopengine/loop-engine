@@ -104,4 +104,5 @@ void main();
 
 - [Architecture](./architecture.md)
 - [Boundary](./boundary.md)
+- [Perplexity Sonar & Computer](./integrations-perplexity.md) — `@loop-engine/adapter-perplexity` (`LLMAdapter`) vs [Perplexity Computer skills](https://www.perplexity.ai/computer/skills)
 - [SCM procurement loop example](../loops/scm/procurement.yaml)

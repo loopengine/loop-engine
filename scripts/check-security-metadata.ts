@@ -73,7 +73,8 @@ function main(): void {
     "packages/adapter-openai/package.json",
     "packages/adapter-anthropic/package.json",
     "packages/adapter-grok/package.json",
-    "packages/adapter-gemini/package.json"
+    "packages/adapter-gemini/package.json",
+    "packages/adapter-perplexity/package.json"
   ].map((path) => join(repoRoot, path));
 
   for (const manifestPath of packageManifests) {

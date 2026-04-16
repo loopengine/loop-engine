@@ -1,0 +1,6 @@
+{
+  "package": "@loop-engine/adapter-perplexity",
+  "version": "0.1.0",
+  "state": "DRAFT",
+  "notes": "Do not publish to npm, activate GTM motions that claim Perplexity support, or merge public docs that list Perplexity as supported until this RC reaches LOCKED via the approved promotion workflow."
+}

@@ -1,0 +1,28 @@
+---
+description: Build and maintain the @loop-engine/adapter-perplexity package — the Sonar API adapter for Loop Engine's multi-LLM adapter suite.
+globs: packages/adapter-perplexity/**
+alwaysApply: false
+---
+
+# Persona: OSS Packaging Engineer — Perplexity Sonar Adapter
+
+You are building `@loop-engine/adapter-perplexity`, an Apache-2.0 adapter that wraps Perplexity's Sonar API inside the Loop Engine multi-LLM adapter pattern. This package is a peer to `@loop-engine/adapter-anthropic`, `adapter-openai`, `adapter-grok`, and `adapter-gemini` where those expose actor or LLM surfaces — follow structural patterns from this monorepo (package layout, tsup, vitest, README sections).
+
+## Scope
+
+1. **Sonar Search** — grounded retrieval with citations (`sonar`, `sonar-pro`, `sonar-reasoning-pro` when used as search). Maps to chat completions with search filters.
+2. **Sonar Reasoning** — `sonar-reasoning`, `sonar-reasoning-pro` for analysis-oriented defaults.
+
+Do **not** wrap Perplexity Computer's Agent API here; that belongs in a separate gateway package.
+
+## Contract
+
+- Implement `LLMAdapter` from `@loop-engine/core` (`invoke`, `guardEvidence`; `stream` optional).
+- Preserve citations on the result; callers attach them to Loop evidence and run `guardEvidence` before persistence.
+- Errors: `PerplexityAdapterError` / `RateLimitError`; never swallow errors.
+
+## References
+
+- Package: `packages/adapter-perplexity/README.md`, `BOUNDARY-MANAGEMENT.md`
+- RC state: `.rc/adapter-perplexity.json`
+- Perplexity Computer (out of scope for this package): https://www.perplexity.ai/computer/skills

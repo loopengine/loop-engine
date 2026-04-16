@@ -99,13 +99,7 @@ await engine.transition({
 | Package | Description |
 |---|---|
 | [`@loop-engine/sdk`](packages/sdk) | Main SDK - start here |
-| [`@loop-engine/core`](packages/core) | Branded types and Zod schemas |
-| [`@loop-engine/dsl`](packages/dsl) | YAML loop definition parser |
 | [`@loop-engine/runtime`](packages/runtime) | Loop lifecycle and transitions |
-| [`@loop-engine/actors`](packages/actors) | Actor types and authorization |
-| [`@loop-engine/guards`](packages/guards) | Guard evaluation pipeline |
-| [`@loop-engine/events`](packages/events) | Typed event definitions |
-| [`@loop-engine/signals`](packages/signals) | Learning signal schema |
 | [`@loop-engine/observability`](packages/observability) | Timeline and replay |
 | [`@loop-engine/adapter-memory`](packages/adapter-memory) | In-memory storage |
 | [`@loop-engine/adapter-postgres`](packages/adapters/postgres) | PostgreSQL storage |
@@ -114,10 +108,14 @@ await engine.transition({
 | [`@loop-engine/adapter-openai`](packages/adapter-openai) | OpenAI AI actor |
 | [`@loop-engine/adapter-grok`](packages/adapter-grok) | Grok (xAI) AI actor |
 | [`@loop-engine/adapter-gemini`](packages/adapter-gemini) | Gemini AI actor |
+| [`@loop-engine/adapter-perplexity`](packages/adapter-perplexity) | Perplexity Sonar (`LLMAdapter`, citations) |
 | [`@loop-engine/adapter-openclaw`](packages/adapter-openclaw) | OpenClaw integration |
 | [`@loop-engine/adapter-commerce-gateway`](packages/adapter-commerce-gateway) | Commerce Gateway |
 | [`@loop-engine/adapter-pagerduty`](packages/adapter-pagerduty) | PagerDuty incidents |
 | [`@loop-engine/adapter-vercel-ai`](packages/adapter-vercel-ai) | Vercel AI SDK |
+
+Core primitives are bundled in `@loop-engine/sdk`. Internal monorepo-only packages for contributors are:
+`core`, `dsl`, `guards`, `actors`, `events`, and `signals`.
 
 ## Documentation
 
@@ -127,6 +125,7 @@ Full docs at **[loopengine.io](https://loopengine.io)**
 - [Core Concepts](https://loopengine.io/docs/core-concepts)
 - [Examples](https://loopengine.io/docs/examples)
 - [Integrations](https://loopengine.io/docs/integrations)
+- [Perplexity Sonar & Computer (OSS)](docs/integrations-perplexity.md)
 
 ## Examples
 

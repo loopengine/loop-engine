@@ -50,6 +50,8 @@ pnpm check-boundary
 
 Local one-off releases can still use `pnpm release` (`validate:publish` + `changeset publish`) from a trusted machine; prefer the tag workflow for production npm publishes.
 
+**GitHub Actions publish (`EOTP` / “requires a one-time password”):** CI cannot pass `--otp`. The `NPM_TOKEN` secret must be a **classic [Automation token](https://docs.npmjs.com/creating-and-viewing-access-tokens)** (“For automating publishing in CI/CD workflows”) — those publishes **do not** require 2FA/OTP. If you use a **Publish** classic token or a **granular** token, npm may still demand OTP on publish and the job will fail. Fix: create a new **Automation** token, update the repo secret, re-run the workflow. Disabling 2FA on the npm account is not the right fix; the token type is.
+
 ## Pull request conventions
 
 - Keep PR scope focused to one feature/fix area

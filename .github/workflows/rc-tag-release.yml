@@ -46,7 +46,7 @@ jobs:
     name: Publish to npm
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write # required to create GitHub Releases
       id-token: write # npm provenance (links tarball to this workflow run)
 
     steps:
@@ -100,6 +100,33 @@ jobs:
           fi
           # Provenance is automatic with trusted publishing; do not pass NODE_AUTH_TOKEN (token auth → EOTP in CI).
           pnpm publish -r $FLAGS
+
+      # Skip only on workflow_dispatch with dry_run (inputs undefined on tag push — do not use !inputs.dry_run alone).
+      - name: Create GitHub Release
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.dry_run }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body: |
+            ## @loop-engine ${{ github.ref_name }}
+
+            Published packages:
+            - See [npm @loop-engine org](https://www.npmjs.com/org/loop-engine) for full package list and changelogs.
+
+            ### Install
+            ```bash
+            npm install @loop-engine/sdk@${{ github.ref_name }}
+            ```
+
+            ### What changed
+            See [CHANGELOG.md](https://github.com/loopengine/loop-engine/blob/main/CHANGELOG.md)
+            for detailed changes, or view the [npm release history](https://www.npmjs.com/package/@loop-engine/sdk?activeTab=versions).
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify clean install
         if: github.event_name == 'push'

@@ -40,7 +40,7 @@
     "test": "vitest run"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.17"
   },
   "peerDependencies": {
     "@loop-engine/core": "^0.1.5"
@@ -58,5 +58,9 @@
     "BOUNDARY-MANAGEMENT.md",
     "LICENSE"
   ],
-  "sideEffects": false
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
 }

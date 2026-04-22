@@ -34,9 +34,6 @@
     "lint": "tsc -p tsconfig.json --noEmit",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
-  "dependencies": {
-    "@loop-engine/core": "workspace:*"
-  },
   "peerDependencies": {
     "@loop-engine/core": "^0.1.5"
   },
@@ -50,8 +47,12 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.17"
   },
   "homepage": "https://loopengine.io/docs/packages/adapter-pagerduty",
-  "sideEffects": false
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
 }

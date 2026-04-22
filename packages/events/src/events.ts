@@ -103,6 +103,20 @@ export type LoopEvent =
   | LoopGuardFailedEvent
   | LoopSignalReceivedEvent;
 
+export const LOOP_EVENT_TYPES = [
+  "loop.started",
+  "loop.completed",
+  "loop.cancelled",
+  "loop.failed",
+  "loop.transition.requested",
+  "loop.transition.executed",
+  "loop.transition.blocked",
+  "loop.guard.failed",
+  "loop.signal.received"
+] as const satisfies ReadonlyArray<LoopEvent["type"]>;
+
+export type LoopEventType = (typeof LOOP_EVENT_TYPES)[number];
+
 export interface LearningSignal {
   loopId: LoopId;
   aggregateId: AggregateId;

@@ -25,3 +25,13 @@ export class GuardRegistry {
     this.register("cooldown", new CooldownGuard());
   }
 }
+
+export function createGuardRegistry(): GuardRegistry {
+  return new GuardRegistry();
+}
+
+export const defaultRegistry: GuardRegistry = (() => {
+  const registry = new GuardRegistry();
+  registry.registerBuiltIns();
+  return registry;
+})();

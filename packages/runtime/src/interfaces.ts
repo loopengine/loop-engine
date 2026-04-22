@@ -53,6 +53,12 @@ export interface LoopDefinitionRegistry {
 
 export interface EventBus {
   emit(event: LoopEvent): Promise<void>;
+  /**
+   * Optional handler subscription. Implementations that broadcast events
+   * (e.g. `InMemoryEventBus`) implement this; one-way emitters
+   * (e.g. `httpEventBus`, `kafkaEventBus`) may omit it.
+   */
+  subscribe?(handler: (event: LoopEvent) => Promise<void>): () => void;
 }
 
 export interface LoopSystemOptions {

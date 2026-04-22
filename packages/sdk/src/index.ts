@@ -31,7 +31,6 @@ class InMemoryLoopRegistry implements LoopDefinitionRegistry {
   }
 }
 
-export { createLoopSystem as createLoopSystemRuntime } from "@loop-engine/runtime";
 export { InMemoryEventBus } from "@loop-engine/events";
 export { computeMetrics, buildTimeline } from "@loop-engine/observability";
 export { localRegistry, httpRegistry } from "@loop-engine/registry-client";

@@ -28,7 +28,7 @@ export async function evaluateGuards(
       severity: guard.severity,
       passed: evaluated.passed,
       code: evaluated.code,
-      message: evaluated.message,
+      message: evaluated.message ?? "",
       metadata: evaluated.metadata
     });
   }

@@ -52,14 +52,14 @@ describe("LoopBuilder", () => {
     expect(loopB.states.find((s) => s.id === "APPROVED")).toBeUndefined();
   });
 
-  it("normalizes actor strings to ActorType enum", () => {
+  it("passes canonical ActorType values through typed", () => {
     const loop = LoopBuilder.create("actor.test", "test")
       .version("1.0.0")
       .description("actors")
       .state("A")
       .state("B", { isTerminal: true })
       .initialState("A")
-      .transition({ id: "go", from: "A", to: "B", actors: ["ai_agent", "human"] })
+      .transition({ id: "go", from: "A", to: "B", actors: ["ai-agent", "human"] })
       .build();
     const t = loop.transitions[0];
     expect(t?.actors).toContain("ai-agent");
@@ -78,8 +78,8 @@ describe("LoopBuilder", () => {
     expect(loop.tags).toContain("finance");
   });
 
-  it("maps shorthand confidence guard into parameters", () => {
-    const loop = LoopBuilder.create("guard.shorthand", "test")
+  it("passes canonical GuardSpec inputs through with brand-cast id", () => {
+    const loop = LoopBuilder.create("guard.canonical", "test")
       .version("1.0.0")
       .description("g")
       .state("A")
@@ -90,12 +90,22 @@ describe("LoopBuilder", () => {
         from: "A",
         to: "B",
         actors: ["human"],
-        guards: [{ id: "confidence_check", type: "confidence_threshold", minimum: 0.85 }]
+        guards: [
+          {
+            id: "confidence_check",
+            severity: "hard",
+            evaluatedBy: "external",
+            description: "AI confidence threshold gate",
+            parameters: { type: "confidence_threshold", minimum: 0.85 }
+          }
+        ]
       })
       .build();
 
     const g = loop.transitions[0]?.guards?.[0];
     expect(g?.id).toBe("confidence_check");
+    expect(g?.severity).toBe("hard");
+    expect(g?.evaluatedBy).toBe("external");
     expect(g?.parameters?.type).toBe("confidence_threshold");
     expect(g?.parameters?.minimum).toBe(0.85);
   });

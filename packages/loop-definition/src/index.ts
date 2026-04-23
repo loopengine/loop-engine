@@ -4,8 +4,6 @@
 export { LoopBuilder } from "./builder";
 export type {
   LoopBuilderGuardInput,
-  LoopBuilderGuardLegacy,
-  LoopBuilderGuardShorthand,
   LoopBuilderOutcomeInput,
   LoopBuilderTransitionInput
 } from "./builder";

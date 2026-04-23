@@ -2,14 +2,23 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /**
- * LoopBuilder maps an example-friendly fluent API onto {@link LoopDefinitionSchema}.
+ * LoopBuilder — fluent authoring API for {@link LoopDefinition}.
  *
- * Per D-05, schema field names now match consumption-layer conventions
- * (`id`, `isTerminal`, `actors`, etc.), so the LoopBuilder normalize
- * functions construct objects whose shape is structurally identical to
- * the authoring input. The aliasing layer (`ACTOR_ALIASES`,
- * `normalizeGuard` legacy/shorthand split) remains in place pending
- * MECHANICAL 8.12 collapse.
+ * Post-D-05 + MECHANICAL 8.12: the aliasing layer that bridged legacy
+ * authoring inputs to the pre-D-05 schema has been collapsed. Schema
+ * field names now match consumption-layer conventions (`id`,
+ * `isTerminal`, `actors`, etc.), so the builder passes typed inputs
+ * through to {@link LoopDefinitionSchema} without string-form actor
+ * aliases and without a guard-input legacy/shorthand split.
+ *
+ * The `signal := transition.id` defaulting at {@link LoopBuilder.build}
+ * is NOT part of the collapsed aliasing layer. It is the
+ * authoring→runtime boundary-defaulting marker for the PB-EX-05 Option B
+ * layered contract. Post-SR-010 ratification, the canonical enforcement
+ * site is the `.transform()` on `TransitionSpecSchema` itself; this
+ * marker is retained as a defensive idempotent redundancy so readers
+ * tracing the contract through the source tree see the boundary
+ * explicitly at the authoring surface.
  */
 
 import {
@@ -23,26 +32,13 @@ import {
 } from "@loop-engine/core";
 import { validateLoopDefinition } from "./validator";
 
-/** Full guard shape (matches `examples/ai-actors/shared/loop.ts`). */
-export type LoopBuilderGuardLegacy = {
-  id: string;
-  severity: GuardSpec["severity"];
-  evaluatedBy: GuardSpec["evaluatedBy"];
-  description: string;
-  failureMessage?: string;
-};
-
-/** Shorthand guard: `type` / `minimum` map into {@link GuardSpec.parameters}. */
-export type LoopBuilderGuardShorthand = {
-  id: string;
-  type: string;
-  minimum?: number;
-  description?: string;
-  severity?: GuardSpec["severity"];
-  evaluatedBy?: GuardSpec["evaluatedBy"];
-};
-
-export type LoopBuilderGuardInput = LoopBuilderGuardLegacy | LoopBuilderGuardShorthand;
+/**
+ * Canonical guard input shape for {@link LoopBuilder}. Post-MECHANICAL
+ * 8.12 collapse, this is the only accepted guard form — the legacy /
+ * shorthand split is gone. `id` may be provided as a plain string; the
+ * builder brand-casts it to {@link GuardSpec.id} during normalization.
+ */
+export type LoopBuilderGuardInput = Omit<GuardSpec, "id"> & { id: string };
 
 /** Authoring-time transition (maps to {@link TransitionSpec}). */
 export type LoopBuilderTransitionInput = {
@@ -50,10 +46,12 @@ export type LoopBuilderTransitionInput = {
   from: string;
   to: string;
   /**
-   * Accepts `human`, `automation`, `ai-agent`, `ai_agent`, or `system`
-   * (`ai_agent` → `ai-agent`, `system` → `automation`).
+   * Actors authorized to take this transition. Canonical {@link ActorType}
+   * values only (`"human"`, `"automation"`, `"ai-agent"`, `"system"`).
+   * Post-MECHANICAL 8.12 collapse: the `ai_agent` underscore alias is no
+   * longer accepted — use `"ai-agent"`.
    */
-  actors: string[];
+  actors: ActorType[];
   guards?: LoopBuilderGuardInput[];
 };
 
@@ -72,58 +70,11 @@ type StateInput = {
   isError?: boolean;
 };
 
-const ACTOR_ALIASES: Record<string, ActorType> = {
-  human: "human",
-  automation: "automation",
-  "ai-agent": "ai-agent",
-  ai_agent: "ai-agent",
-  system: "system"
-};
-
-function normalizeActorType(raw: string): ActorType {
-  const mapped = ACTOR_ALIASES[raw];
-  if (mapped) {
-    return mapped;
-  }
-  throw new Error(
-    `LoopBuilder: unsupported actor "${raw}" (use human, automation, ai-agent, ai_agent, or system)`
-  );
-}
-
-function isGuardLegacy(g: LoopBuilderGuardInput): g is LoopBuilderGuardLegacy {
-  return (
-    "severity" in g &&
-    "evaluatedBy" in g &&
-    typeof (g as LoopBuilderGuardLegacy).description === "string" &&
-    typeof (g as LoopBuilderGuardLegacy).id === "string"
-  );
-}
-
 function normalizeGuard(g: LoopBuilderGuardInput): GuardSpec {
-  if (isGuardLegacy(g)) {
-    const base: GuardSpec = {
-      id: g.id as GuardSpec["id"],
-      description: g.description,
-      severity: g.severity,
-      evaluatedBy: g.evaluatedBy
-    };
-    if (g.failureMessage !== undefined) {
-      return { ...base, failureMessage: g.failureMessage };
-    }
-    return base;
-  }
-
-  const s = g as LoopBuilderGuardShorthand;
-  const parameters: Record<string, unknown> = { type: s.type };
-  if (s.minimum !== undefined) {
-    parameters.minimum = s.minimum;
-  }
+  const { id, ...rest } = g;
   return {
-    id: s.id as GuardSpec["id"],
-    description: s.description ?? `Guard ${s.type}`,
-    severity: s.severity ?? "hard",
-    evaluatedBy: s.evaluatedBy ?? "external",
-    parameters
+    ...rest,
+    id: id as GuardSpec["id"]
   };
 }
 
@@ -136,16 +87,17 @@ function normalizeGuards(guards: LoopBuilderGuardInput[] | undefined): GuardSpec
 
 function normalizeTransitions(inputs: LoopBuilderTransitionInput[]): TransitionSpec[] {
   return inputs.map((t) => {
-    // PB-EX-05 Option B boundary site (LoopBuilder.build pre-fill):
-    // signal := transition.id when authored signal is absent. Preserved
-    // here so downstream (validator + engine) operate on a stable
-    // SignalId without modification per the layered contract.
+    // PB-EX-05 Option B — defensive boundary marker (post-SR-010 ratification).
+    // Canonical enforcement is the `.transform()` on TransitionSpecSchema at
+    // the schema layer; this pre-fill is idempotent against that transform
+    // and retained so the authoring→runtime boundary remains explicit at the
+    // authoring surface.
     const spec: TransitionSpec = {
       id: t.id as TransitionSpec["id"],
       from: t.from as TransitionSpec["from"],
       to: t.to as TransitionSpec["to"],
       signal: t.id as unknown as NonNullable<TransitionSpec["signal"]>,
-      actors: t.actors.map(normalizeActorType)
+      actors: t.actors
     };
     const guards = normalizeGuards(t.guards);
     if (guards !== undefined) {
@@ -212,13 +164,14 @@ function deepFreeze<T>(obj: T): T {
 }
 
 /**
- * Immutable fluent builder for {@link LoopDefinition}. Each chained method returns a new instance.
+ * Immutable fluent builder for {@link LoopDefinition}. Each chained method
+ * returns a new instance.
  *
- * Field mapping (authoring → schema, post-D-05):
+ * Field mapping (authoring → schema, post-D-05 + MECHANICAL 8.12):
  * - `create(loopId, domain)` → `id`, `domain` (also retained in `tags: [domain]` for back-compat)
- * - transition `id` → `id`; `signal` auto-filled from `id` when omitted (PB-EX-05 Option B)
- * - `actors` → `actors` (aliases: `ai_agent` → `ai-agent`, `system` → `system`)
- * - guard `id` → `id`; shorthand `type`/`minimum` → `parameters`; `failureMessage` → `failureMessage`
+ * - transition `id` → `id`; `signal` auto-filled from `id` via schema transform (PB-EX-05)
+ * - `actors: ActorType[]` passes through typed (no string-form aliasing)
+ * - `guards: LoopBuilderGuardInput[]` — canonical `GuardSpec`-shaped input with `id` as plain string
  */
 export class LoopBuilder {
   private constructor(

@@ -50,8 +50,6 @@ export * from "@loop-engine/core";
 export { LoopBuilder } from "@loop-engine/loop-definition";
 export type {
   LoopBuilderGuardInput,
-  LoopBuilderGuardLegacy,
-  LoopBuilderGuardShorthand,
   LoopBuilderOutcomeInput,
   LoopBuilderTransitionInput
 } from "@loop-engine/loop-definition";

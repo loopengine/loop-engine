@@ -1,7 +1,9 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
-import { isAuthorized } from "@loop-engine/actors";
+import { canActorExecuteTransition } from "@loop-engine/actors";
+import type { AIActorConstraints } from "@loop-engine/actors";
 import type {
+  ActorId,
   ActorRef,
   AggregateId,
   GuardSpec,
@@ -50,14 +52,16 @@ export interface TransitionParams {
   actor: ActorRef;
   evidence?: Record<string, unknown>;
   correlationId?: string;
+  constraints?: AIActorConstraints;
 }
 
 export interface TransitionResult {
-  status: "executed" | "guard_failed" | "rejected";
+  status: "executed" | "guard_failed" | "rejected" | "pending_approval";
   fromState: StateId;
   toState?: StateId;
   guardFailures?: { guardId: GuardSpec["guardId"]; message: string; severity: "hard" | "soft" }[];
   rejectionReason?: string;
+  requiresApprovalFrom?: ActorId;
   event?:
     | LoopTransitionExecutedEvent
     | LoopTransitionBlockedEvent
@@ -171,12 +175,22 @@ export class LoopEngine {
       };
     }
 
-    const authorization = isAuthorized(params.actor, transition);
+    const authorization = canActorExecuteTransition(
+      params.actor,
+      transition,
+      params.constraints
+    );
     if (!authorization.authorized) {
       return {
         status: "rejected",
         fromState: instance.currentState,
         rejectionReason: "unauthorized_actor"
+      };
+    }
+    if (authorization.requiresApproval) {
+      return {
+        status: "pending_approval",
+        fromState: instance.currentState
       };
     }
 

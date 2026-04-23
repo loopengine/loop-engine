@@ -3,38 +3,37 @@
 
 import OpenAI from "openai";
 import { buildAIActorEvidence } from "@loop-engine/actors";
-import type { AIAgentActor, AIAgentSubmission } from "@loop-engine/core";
-import type { ActorId, SignalId } from "@loop-engine/core";
+import {
+  actorId,
+  signalId,
+  type ActorAdapter,
+  type AIAgentActor,
+  type AIAgentSubmission,
+  type LoopActorPromptContext
+} from "@loop-engine/core";
 
 interface ParsedModelOutput {
+  signalId: string;
   reasoning: string;
   confidence: number;
   dataPoints?: Record<string, unknown>;
 }
 
+/**
+ * Construction-time options for `createOpenAIActorAdapter` per PB-EX-02
+ * Option A: provider-specific tuning (`maxTokens`, `temperature`) lives
+ * here — not on per-call submission params — so that
+ * `ActorAdapter.createSubmission(context: LoopActorPromptContext)` stays
+ * narrow and contract-shaped.
+ */
 export interface OpenAIActorAdapterOptions {
   apiKey: string;
   model?: string;
   baseURL?: string;
   organization?: string;
-  client?: OpenAI;
-}
-
-export interface CreateOpenAISubmissionParams {
-  signal: SignalId;
-  actorId: ActorId;
-  prompt: string;
-  displayName?: string;
-  metadata?: Record<string, unknown>;
-  dataPoints?: Record<string, unknown>;
   maxTokens?: number;
   temperature?: number;
-}
-
-export interface OpenAIActorAdapter {
-  provider: "openai";
-  model: string;
-  createSubmission(params: CreateOpenAISubmissionParams): Promise<AIAgentSubmission>;
+  client?: OpenAI;
 }
 
 function requireApiKey(apiKey: string, envVar: string): void {
@@ -52,7 +51,25 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
   return value as Record<string, unknown>;
 }
 
-function parseModelOutput(rawContent: string): ParsedModelOutput {
+function buildSystemPrompt(): string {
+  return [
+    "You are an AI actor operating within a governed workflow loop.",
+    "Respond with a valid JSON object only. No markdown, no preamble, no text outside the JSON.",
+    'Your response must be: { "signalId": string, "reasoning": string, "confidence": number, "dataPoints"?: object }',
+    "`signalId` must be one of the signals listed in the user message's availableSignals array."
+  ].join("\n");
+}
+
+function buildUserPrompt(context: LoopActorPromptContext): string {
+  return [
+    `Current state: ${context.currentState}`,
+    `Available signals: ${JSON.stringify(context.availableSignals, null, 2)}`,
+    `Evidence: ${JSON.stringify(context.evidence ?? {}, null, 2)}`,
+    `Instruction: ${context.instruction}`
+  ].join("\n");
+}
+
+function parseModelOutput(rawContent: string, context: LoopActorPromptContext): ParsedModelOutput {
   let parsed: unknown;
   try {
     parsed = JSON.parse(rawContent);
@@ -63,6 +80,14 @@ function parseModelOutput(rawContent: string): ParsedModelOutput {
   const parsedRecord = asRecord(parsed);
   if (!parsedRecord) {
     throw new Error("[loop-engine/adapter-openai] OpenAI response must be a JSON object");
+  }
+
+  const parsedSignalId = parsedRecord.signalId;
+  const validSignals = context.availableSignals.map((entry) => entry.signalId);
+  if (typeof parsedSignalId !== "string" || !validSignals.includes(parsedSignalId)) {
+    throw new Error(
+      "[loop-engine/adapter-openai] Model returned a signalId outside availableSignals"
+    );
   }
 
   const reasoning = parsedRecord.reasoning;
@@ -82,15 +107,18 @@ function parseModelOutput(rawContent: string): ParsedModelOutput {
   const dataPoints = asRecord(parsedRecord.dataPoints);
 
   return {
+    signalId: parsedSignalId,
     reasoning,
     confidence,
     ...(dataPoints ? { dataPoints } : {})
   };
 }
 
-export function createOpenAIActorAdapter(options: OpenAIActorAdapterOptions): OpenAIActorAdapter {
+export function createOpenAIActorAdapter(options: OpenAIActorAdapterOptions): ActorAdapter {
   requireApiKey(options.apiKey, "OPENAI_API_KEY");
   const model = options.model ?? "gpt-4o";
+  const maxTokens = options.maxTokens ?? 500;
+  const temperature = options.temperature ?? 0;
   const client =
     options.client ??
     new OpenAI({
@@ -102,21 +130,21 @@ export function createOpenAIActorAdapter(options: OpenAIActorAdapterOptions): Op
   return {
     provider: "openai",
     model,
-    async createSubmission(params: CreateOpenAISubmissionParams): Promise<AIAgentSubmission> {
+    async createSubmission(context: LoopActorPromptContext): Promise<AIAgentSubmission> {
+      const systemPrompt = buildSystemPrompt();
+      const userPrompt = buildUserPrompt(context);
+      const fullPrompt = `${systemPrompt}\n${userPrompt}`;
+
       let response: Awaited<ReturnType<OpenAI["chat"]["completions"]["create"]>>;
       try {
         response = await client.chat.completions.create({
           model,
-          temperature: params.temperature ?? 0,
-          max_tokens: params.maxTokens ?? 500,
+          temperature,
+          max_tokens: maxTokens,
           response_format: { type: "json_object" },
           messages: [
-            {
-              role: "system",
-              content:
-                "Return strict JSON with keys: reasoning (string), confidence (0..1), and optional dataPoints (object)."
-            },
-            { role: "user", content: params.prompt }
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
           ]
         });
       } catch (error) {
@@ -129,27 +157,23 @@ export function createOpenAIActorAdapter(options: OpenAIActorAdapterOptions): Op
         throw new Error("[loop-engine/adapter-openai] OpenAI returned no assistant message content");
       }
 
-      const parsed = parseModelOutput(message);
+      const parsed = parseModelOutput(message, context);
       const evidenceWithModel = await buildAIActorEvidence({
         modelId: model,
         provider: "openai",
         reasoning: parsed.reasoning,
         confidence: parsed.confidence,
-        ...(parsed.dataPoints ?? params.dataPoints
-          ? { dataPoints: parsed.dataPoints ?? params.dataPoints }
-          : {}),
+        ...(parsed.dataPoints ? { dataPoints: parsed.dataPoints } : {}),
         rawResponse: response,
-        prompt: params.prompt
+        prompt: fullPrompt
       });
 
       const actor: AIAgentActor = {
-        id: params.actorId,
+        id: actorId(crypto.randomUUID()),
         type: "ai-agent",
         modelId: model,
         provider: "openai",
         confidence: evidenceWithModel.confidence,
-        ...(params.displayName ? { displayName: params.displayName } : {}),
-        ...(params.metadata ? { metadata: params.metadata } : {}),
         ...(evidenceWithModel.promptHash ? { promptHash: evidenceWithModel.promptHash } : {})
       };
 
@@ -164,7 +188,7 @@ export function createOpenAIActorAdapter(options: OpenAIActorAdapterOptions): Op
 
       return {
         actor,
-        signal: params.signal,
+        signal: signalId(parsed.signalId),
         evidence
       };
     }

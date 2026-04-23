@@ -11,6 +11,7 @@
   "dependencies": {
     "@loop-engine/events": "workspace:*",
     "@loop-engine/guards": "workspace:*",
+    "@loop-engine/loop-definition": "workspace:*",
     "@loop-engine/runtime": "workspace:*",
     "@loop-engine/sdk": "workspace:*",
     "@loop-engine/ui-devtools": "workspace:*",

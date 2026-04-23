@@ -17,11 +17,6 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts"
-    },
-    "./dsl": {
-      "import": "./dist/dsl.js",
-      "require": "./dist/dsl.cjs",
-      "types": "./dist/dsl.d.ts"
     }
   },
   "scripts": {
@@ -47,7 +42,7 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=18.17"
+    "node": ">=18.0.0"
   },
   "homepage": "https://loopengine.io/docs/packages/sdk",
   "keywords": [
@@ -60,8 +55,6 @@
     "builder"
   ],
   "publishConfig": {
-    "access": "public",
-    "provenance": true
-  },
-  "sideEffects": false
+    "access": "public"
+  }
 }

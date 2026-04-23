@@ -81,7 +81,10 @@ describe("@loop-engine/adapter-grok", () => {
     const adapter = createGrokActorAdapter("xai-key");
     const result = await adapter.createSubmission(context);
 
-    expect(context.availableSignals.map((s) => s.signalId)).toContain(result.decision.signalId);
+    expect(context.availableSignals.map((s) => s.signalId)).toContain(result.signal as string);
+    expect(result.evidence.reasoning).toBe("Stock is below threshold");
+    expect(result.evidence.confidence).toBe(0.9);
+    expect(result.evidence.modelResponse).toBeDefined();
   });
 
   it("actor.promptHash is a non-empty string", async () => {

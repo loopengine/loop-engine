@@ -16,8 +16,7 @@ import { SignalRegistry } from "@loop-engine/signals";
 import { validateLoopDefinition } from "@loop-engine/loop-definition";
 export { createAIActor } from "./ai";
 export type { AIActor, AIActorConfig, AIProvider } from "./ai";
-export { guardEvidence } from "./lib/guardEvidence";
-export type { EvidenceRecord } from "./lib/guardEvidence";
+export { redactPiiEvidence } from "./lib/redactPiiEvidence";
 
 class InMemoryLoopRegistry implements LoopDefinitionRegistry {
   constructor(private readonly loops: LoopDefinition[]) {}

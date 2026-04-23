@@ -134,7 +134,7 @@ transition. Missing any required field blocks the transition.
 ## Quick start (no API key required)
 
 ```typescript
-import { createLoopSystem, parseLoopYaml, CommonGuards, guardEvidence } from '@loop-engine/sdk'
+import { createLoopSystem, parseLoopYaml, CommonGuards, redactPiiEvidence } from '@loop-engine/sdk'
 import { MemoryAdapter } from '@loop-engine/adapter-memory'
 
 const definition = parseLoopYaml(`
@@ -165,13 +165,13 @@ const system = createLoopSystem({
 const loop = await system.start({ definition, context: {} })
 
 // Only a human actor can approve — AI and automation actors are blocked.
-// guardEvidence strips PII fields and prompt-injection patterns before
+// redactPiiEvidence strips PII fields and prompt-injection patterns before
 // the evidence object is forwarded to any external LLM adapter.
 await system.transition({
   loopId: loop.loopId,
   signalId: 'approve',
   actor: { id: 'alice', type: 'human' },
-  evidence: guardEvidence({ reviewNote: 'Looks good' }),
+  evidence: redactPiiEvidence({ reviewNote: 'Looks good' }),
 })
 ```
 
@@ -190,7 +190,9 @@ without reviewing your provider's data processing agreements.
 ## Evidence sanitization
 
 All evidence objects must be guarded before being forwarded to external LLM adapters.
-`guardEvidence` (exported from `@loop-engine/sdk`) enforces three rules at the skill boundary:
+`redactPiiEvidence` (exported from `@loop-engine/sdk`; renamed from `guardEvidence`
+per PB-EX-03 to disambiguate from the generic `guardEvidence` primitive in
+`@loop-engine/core`) enforces three rules at the skill boundary:
 
 1. **PII field blocking** — fields whose names match known PII patterns (`ssn`, `email`, `phone`,
    `dob`, `password`, `token`, `healthrecord`, `mrn`, and 20+ others) are dropped before forwarding.
@@ -198,7 +200,7 @@ All evidence objects must be guarded before being forwarded to external LLM adap
    `assistant:`) are stripped to prevent instruction injection via evidence payloads.
 3. **Value length cap** — string values are truncated at 512 characters to prevent context stuffing.
 
-Always wrap caller-supplied evidence with `guardEvidence()` before passing it to
+Always wrap caller-supplied evidence with `redactPiiEvidence()` before passing it to
 `system.transition()`. The Quick Start above shows the correct pattern.
 
 ## Security notes

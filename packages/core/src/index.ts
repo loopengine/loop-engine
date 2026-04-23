@@ -6,3 +6,4 @@ export * from "./idFactories";
 export * from "./toolAdapter";
 export * from "./actorAdapter";
 export * from "./loopInstance";
+export * from "./evidence";

@@ -1,6 +1,7 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
 import { createRequire } from "node:module";
+import type { ActorAdapter } from "@loop-engine/core";
 
 export type AIProvider = "anthropic" | "openai" | "gemini" | "grok";
 
@@ -11,9 +12,15 @@ export interface AIActorConfig {
   confidenceThreshold?: number;
 }
 
-export interface AIActor {
-  createSubmission: (...args: unknown[]) => Promise<unknown>;
-}
+/**
+ * SDK alias for the `ActorAdapter` contract defined in `@loop-engine/core`.
+ * All four `@loop-engine/adapter-{anthropic,openai,gemini,grok}` provider
+ * adapters implement `ActorAdapter` (re-homed in SR-013b); this alias is
+ * preserved for consumer ergonomics but tightens the shape from the
+ * pre-SR-015 loose `{ createSubmission: (...args: unknown[]) => Promise<unknown> }`
+ * to the canonical contract.
+ */
+export type AIActor = ActorAdapter;
 
 type RequireLike = NodeRequire;
 type AdapterFactory = (apiKeyOrOptions: string | Record<string, unknown>, config?: Record<string, unknown>) => AIActor;

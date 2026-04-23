@@ -6,19 +6,19 @@ import { ActorRefSchema, TransitionSpecSchema } from "@loop-engine/core";
 import { AIAgentActorSchema, SystemActorSchema, buildAIActorEvidence, canActorExecuteTransition } from "..";
 
 const transition = TransitionSpecSchema.parse({
-  transitionId: "resolve",
+  id: "resolve",
   from: "OPEN",
   to: "RESOLVED",
   signal: "support.ticket.resolve",
-  allowedActors: ["human", "automation", "ai-agent"]
+  actors: ["human", "automation", "ai-agent"]
 });
 
 const humanOnlyTransition = TransitionSpecSchema.parse({
-  transitionId: "resolve",
+  id: "resolve",
   from: "OPEN",
   to: "RESOLVED",
   signal: "support.ticket.resolve",
-  allowedActors: ["human", "automation"]
+  actors: ["human", "automation"]
 });
 
 describe("actors package", () => {
@@ -46,7 +46,7 @@ describe("actors package", () => {
   it("canActorExecuteTransition flags requiresApproval=true for AI actor on constrained transition", () => {
     const actor = ActorRefSchema.parse({ id: "agent-1", type: "ai-agent" });
     const result = canActorExecuteTransition(actor, transition, {
-      requiresHumanApprovalFor: [transition.transitionId]
+      requiresHumanApprovalFor: [transition.id]
     });
     expect(result.authorized).toBe(true);
     expect(result.requiresApproval).toBe(true);
@@ -55,7 +55,7 @@ describe("actors package", () => {
   it("canActorExecuteTransition leaves non-AI actors unaffected by AIActorConstraints", () => {
     const actor = ActorRefSchema.parse({ id: "user-1", type: "human" });
     const result = canActorExecuteTransition(actor, transition, {
-      requiresHumanApprovalFor: [transition.transitionId]
+      requiresHumanApprovalFor: [transition.id]
     });
     expect(result.authorized).toBe(true);
     expect(result.requiresApproval).toBe(false);
@@ -116,11 +116,11 @@ describe("actors package", () => {
 
   it("canActorExecuteTransition accepts system actor when allowed", () => {
     const systemTransition = TransitionSpecSchema.parse({
-      transitionId: "reconcile",
+      id: "reconcile",
       from: "PENDING",
       to: "RECONCILED",
       signal: "ledger.reconcile",
-      allowedActors: ["system"]
+      actors: ["system"]
     });
     const actor = ActorRefSchema.parse({ id: "sys-1", type: "system" });
     const result = canActorExecuteTransition(actor, systemTransition);

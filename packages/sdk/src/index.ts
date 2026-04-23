@@ -22,8 +22,8 @@ export type { EvidenceRecord } from "./lib/guardEvidence";
 class InMemoryLoopRegistry implements LoopDefinitionRegistry {
   constructor(private readonly loops: LoopDefinition[]) {}
 
-  get(id: LoopDefinition["loopId"]): LoopDefinition | undefined {
-    return this.loops.find((loop) => loop.loopId === id);
+  get(id: LoopDefinition["id"]): LoopDefinition | undefined {
+    return this.loops.find((loop) => loop.id === id);
   }
 
   list(): LoopDefinition[] {
@@ -81,10 +81,10 @@ export interface CreateLoopSystemOptions {
 function mergeDefinitions(registryLoops: LoopDefinition[], localLoops: LoopDefinition[]): LoopDefinition[] {
   const merged = new Map<string, LoopDefinition>();
   for (const definition of registryLoops) {
-    merged.set(String(definition.loopId), definition);
+    merged.set(String(definition.id), definition);
   }
   for (const definition of localLoops) {
-    merged.set(String(definition.loopId), definition);
+    merged.set(String(definition.id), definition);
   }
   return [...merged.values()];
 }
@@ -117,7 +117,7 @@ export async function createLoopSystem(options: CreateLoopSystemOptions): Promis
     const validation = validateLoopDefinition(definition);
     if (!validation.valid) {
       const detail = validation.errors.map((error) => `${error.code}: ${error.message}`).join("; ");
-      throw new Error(`Invalid loop definition ${definition.loopId}: ${detail}`);
+      throw new Error(`Invalid loop definition ${definition.id}: ${detail}`);
     }
   }
 

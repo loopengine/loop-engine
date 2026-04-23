@@ -2,7 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { LoopDefinition, LoopId } from "@loop-engine/core";
 import { LoopDefinitionSchema } from "@loop-engine/core";
-import { parseLoopYaml, validateLoopDefinition } from "@loop-engine/loop-definition";
+import {
+  applyAuthoringDefaults,
+  parseLoopYaml,
+  validateLoopDefinition
+} from "@loop-engine/loop-definition";
 import type { LoopRegistry, LoopRegistryOptions, RegistryEntry } from "../types";
 import { RegistryConflictError } from "../types";
 
@@ -80,7 +84,7 @@ export function localRegistry(options?: LoopDefinition[] | LocalRegistryOptions)
     source: RegistryEntry["source"],
     force = false
   ): Promise<void> => {
-    const loopId = definition.loopId;
+    const loopId = definition.id;
     const existing = entries.get(loopId);
     if (existing) {
       if (existing.definition.version === definition.version && !force) {
@@ -111,7 +115,7 @@ export function localRegistry(options?: LoopDefinition[] | LocalRegistryOptions)
     }
     if (fileName.endsWith(".json")) {
       const parsed = JSON.parse(content) as unknown;
-      const definition = LoopDefinitionSchema.parse(parsed);
+      const definition = applyAuthoringDefaults(LoopDefinitionSchema.parse(parsed));
       const validated = validateLoopDefinition(definition);
       if (!validated.valid) {
         throw new Error(validated.errors.map((error) => `${error.code}: ${error.message}`).join("; "));
@@ -123,7 +127,7 @@ export function localRegistry(options?: LoopDefinition[] | LocalRegistryOptions)
 
   const matchesDomain = (definition: LoopDefinition, domain?: string): boolean => {
     if (!domain) return true;
-    const id = String(definition.loopId);
+    const id = String(definition.id);
     if (id.startsWith(`${domain}.`) || id.startsWith(`${domain}:`) || id === domain) {
       return true;
     }
@@ -199,7 +203,7 @@ export function localRegistry(options?: LoopDefinition[] | LocalRegistryOptions)
       return [...entries.values()]
         .map((entry) => entry.definition)
         .filter((definition) => matchesDomain(definition, optionsArg?.domain))
-        .sort((a, b) => String(a.loopId).localeCompare(String(b.loopId)));
+        .sort((a, b) => String(a.id).localeCompare(String(b.id)));
     },
 
     async has(id: LoopId): Promise<boolean> {

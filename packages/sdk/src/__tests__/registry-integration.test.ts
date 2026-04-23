@@ -8,22 +8,22 @@ import { createLoopSystem } from "../index";
 
 function makeLoop(id: string, description: string): LoopDefinition {
   return LoopDefinitionSchema.parse({
-    loopId: id,
+    id,
     version: "1.0.0",
     name: id,
     description,
     states: [
-      { stateId: "OPEN", label: "Open" },
-      { stateId: "DONE", label: "Done", terminal: true }
+      { id: "OPEN", label: "Open" },
+      { id: "DONE", label: "Done", isTerminal: true }
     ],
     initialState: "OPEN",
     transitions: [
       {
-        transitionId: "finish",
+        id: "finish",
         from: "OPEN",
         to: "DONE",
         signal: "demo.finish",
-        allowedActors: ["human"]
+        actors: ["human"]
       }
     ],
     outcome: {
@@ -36,22 +36,22 @@ function makeLoop(id: string, description: string): LoopDefinition {
 
 function makeLoopWithTransition(id: string, transitionName: string): LoopDefinition {
   return LoopDefinitionSchema.parse({
-    loopId: id,
+    id,
     version: "1.0.0",
     name: id,
     description: `${id} with ${transitionName}`,
     states: [
-      { stateId: "OPEN", label: "Open" },
-      { stateId: "DONE", label: "Done", terminal: true }
+      { id: "OPEN", label: "Open" },
+      { id: "DONE", label: "Done", isTerminal: true }
     ],
     initialState: "OPEN",
     transitions: [
       {
-        transitionId: transitionName,
+        id: transitionName,
         from: "OPEN",
         to: "DONE",
         signal: `demo.${transitionName}`,
-        allowedActors: ["human"]
+        actors: ["human"]
       }
     ],
     outcome: {

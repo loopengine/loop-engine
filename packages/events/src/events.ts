@@ -131,4 +131,4 @@ export interface LearningSignal {
   actorSummary: Array<{ actorType: ActorType; transitionCount: number }>;
 }
 
-export type LoopDefinitionLike = Pick<LoopDefinition, "loopId" | "name" | "outcome">;
+export type LoopDefinitionLike = Pick<LoopDefinition, "id" | "name" | "outcome">;

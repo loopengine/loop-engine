@@ -45,7 +45,7 @@ type EventItem = { type: string; occurredAt: string; payload: unknown };
 class InMemoryLoopRegistry {
   constructor(private readonly loops: any[]) {}
   get(id: any): any {
-    return this.loops.find((loop) => loop.loopId === id);
+    return this.loops.find((loop) => loop.id === id);
   }
   list(): any[] {
     return this.loops;
@@ -114,15 +114,15 @@ export default function Page(): React.ReactElement {
       setEvents((prev) => [{ type: (event as { type: string }).type, occurredAt: new Date().toISOString(), payload: event }, ...prev]);
     });
     await system.start({
-      loopId: definition.loopId as never,
+      loopId: definition.id as never,
       aggregateId: aggregateId as never,
       actor: { type: "human", id: "user@example.com" as never }
     });
     const loopState = await system.getState(aggregateId as never);
     setState(String(loopState?.currentState ?? "UNKNOWN"));
-    setCurrentLoopId(String(definition.loopId));
+    setCurrentLoopId(String(definition.id));
     const transitions = definition.transitions.filter((t) => t.from === loopState?.currentState);
-    setCurrentTransitions(transitions.map((t) => String(t.transitionId)));
+    setCurrentTransitions(transitions.map((t) => String(t.id)));
   };
 
   return (

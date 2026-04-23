@@ -47,22 +47,22 @@ describe("observability package", () => {
 
   it("replayLoop validates transition sequence", () => {
     const def: LoopDefinition = LoopDefinitionSchema.parse({
-      loopId: "demo.loop",
+      id: "demo.loop",
       version: "1.0.0",
       name: "demo.loop",
       description: "demo",
       states: [
-        { stateId: "OPEN", label: "Open" },
-        { stateId: "DONE", label: "Done", terminal: true }
+        { id: "OPEN", label: "Open" },
+        { id: "DONE", label: "Done", isTerminal: true }
       ],
       initialState: "OPEN",
       transitions: [
         {
-          transitionId: "finish",
+          id: "finish",
           signal: "demo.finish",
           from: "OPEN",
           to: "DONE",
-          allowedActors: ["human"]
+          actors: ["human"]
         }
       ],
       outcome: {

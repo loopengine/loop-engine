@@ -7,22 +7,22 @@ import { RegistryConflictError, RegistryNetworkError } from "../types";
 const asLoopId = (id: string) => id as never;
 
 const sampleLoop = {
-  loopId: "demo.loop",
+  id: "demo.loop",
   version: "1.0.0",
   name: "demo.loop",
   description: "Demo loop",
   states: [
-    { stateId: "OPEN", label: "Open" },
-    { stateId: "DONE", label: "Done", terminal: true }
+    { id: "OPEN", label: "Open" },
+    { id: "DONE", label: "Done", isTerminal: true }
   ],
   initialState: "OPEN",
   transitions: [
     {
-      transitionId: "finish",
+      id: "finish",
       from: "OPEN",
       to: "DONE",
       signal: "demo.finish",
-      allowedActors: ["human"]
+      actors: ["human"]
     }
   ],
   outcome: {
@@ -45,7 +45,7 @@ describe("httpRegistry", () => {
     const registry = httpRegistry({ baseUrl: "http://localhost:3001" });
     const found = await registry.get(asLoopId("demo.loop"));
 
-    expect(found?.loopId).toBe(asLoopId("demo.loop"));
+    expect(found?.id).toBe(asLoopId("demo.loop"));
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
@@ -67,7 +67,7 @@ describe("httpRegistry", () => {
     const listed = await registry.list();
 
     expect(listed).toHaveLength(1);
-    expect(listed[0]?.loopId).toBe(asLoopId("demo.loop"));
+    expect(listed[0]?.id).toBe(asLoopId("demo.loop"));
   });
 
   it("should send custom headers on every request", async () => {
@@ -101,7 +101,7 @@ describe("httpRegistry", () => {
     await vi.advanceTimersByTimeAsync(250);
     const found = await promise;
 
-    expect(found?.loopId).toBe(asLoopId("demo.loop"));
+    expect(found?.id).toBe(asLoopId("demo.loop"));
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 

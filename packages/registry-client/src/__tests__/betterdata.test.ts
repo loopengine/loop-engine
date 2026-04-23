@@ -4,22 +4,22 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { betterDataRegistry } from "../adapters/betterdata";
 
 const sampleLoop = {
-  loopId: "demo.loop",
+  id: "demo.loop",
   version: "1.0.0",
   name: "demo.loop",
   description: "Demo loop",
   states: [
-    { stateId: "OPEN", label: "Open" },
-    { stateId: "DONE", label: "Done", terminal: true }
+    { id: "OPEN", label: "Open" },
+    { id: "DONE", label: "Done", isTerminal: true }
   ],
   initialState: "OPEN",
   transitions: [
     {
-      transitionId: "finish",
+      id: "finish",
       from: "OPEN",
       to: "DONE",
       signal: "demo.finish",
-      allowedActors: ["human"]
+      actors: ["human"]
     }
   ],
   outcome: {

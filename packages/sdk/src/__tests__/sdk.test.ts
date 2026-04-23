@@ -6,22 +6,22 @@ import { memoryStore, createLoopSystem } from "../index";
 
 function demoLoop(): LoopDefinition {
   return LoopDefinitionSchema.parse({
-    loopId: "demo.loop",
+    id: "demo.loop",
     version: "1.0.0",
     name: "Demo Loop",
     description: "Demo loop",
     states: [
-      { stateId: "OPEN", label: "Open" },
-      { stateId: "DONE", label: "Done", terminal: true }
+      { id: "OPEN", label: "Open" },
+      { id: "DONE", label: "Done", isTerminal: true }
     ],
     initialState: "OPEN",
     transitions: [
       {
-        transitionId: "finish",
+        id: "finish",
         from: "OPEN",
         to: "DONE",
         signal: "demo.finish",
-        allowedActors: ["human"]
+        actors: ["human"]
       }
     ],
     outcome: {

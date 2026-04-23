@@ -16,7 +16,7 @@ export interface ValidationResult {
 
 function findTerminalStates(definition: LoopDefinition): Set<string> {
   return new Set(
-    definition.states.filter((state) => state.terminal).map((state) => String(state.stateId))
+    definition.states.filter((state) => state.isTerminal).map((state) => String(state.id))
   );
 }
 
@@ -82,7 +82,7 @@ function checkSignalCycles(definition: LoopDefinition): ValidationError[] {
 
 export function validateLoopDefinition(definition: LoopDefinition): ValidationResult {
   const errors: ValidationError[] = [];
-  const stateIds = new Set(definition.states.map((state) => String(state.stateId)));
+  const stateIds = new Set(definition.states.map((state) => String(state.id)));
   const initialState = String(definition.initialState);
 
   if (!stateIds.has(initialState)) {
@@ -115,14 +115,14 @@ export function validateLoopDefinition(definition: LoopDefinition): ValidationRe
       const seen = new Set<string>();
       const duplicates = new Set<string>();
       for (const guard of transition.guards) {
-        const guardId = String(guard.guardId);
+        const guardId = String(guard.id);
         if (seen.has(guardId)) duplicates.add(guardId);
         seen.add(guardId);
       }
       if (duplicates.size > 0) {
         errors.push({
           code: "DUPLICATE_GUARD_ID",
-          message: `duplicate guardId(s) in transition "${String(transition.transitionId)}": ${Array.from(duplicates).join(", ")}`,
+          message: `duplicate guardId(s) in transition "${String(transition.id)}": ${Array.from(duplicates).join(", ")}`,
           path: `transitions.${index}.guards`
         });
       }

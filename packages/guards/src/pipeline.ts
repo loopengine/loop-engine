@@ -17,14 +17,14 @@ export async function evaluateGuards(
   const results: GuardEvaluationResult[] = [];
 
   for (const guard of guards) {
-    const evaluator = registry.get(guard.guardId);
+    const evaluator = registry.get(guard.id);
     if (!evaluator) {
-      throw new Error(`Unknown guard: ${guard.guardId}`);
+      throw new Error(`Unknown guard: ${guard.id}`);
     }
 
     const evaluated = await evaluator.evaluate(context, guard.parameters);
     results.push({
-      guardId: guard.guardId,
+      guardId: guard.id,
       severity: guard.severity,
       passed: evaluated.passed,
       code: evaluated.code,

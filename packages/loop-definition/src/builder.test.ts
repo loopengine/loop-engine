@@ -15,7 +15,7 @@ describe("LoopBuilder", () => {
       .transition({ id: "close", from: "OPEN", to: "CLOSED", actors: ["human"] })
       .build();
 
-    expect(loop.loopId).toBe("test.loop");
+    expect(loop.id).toBe("test.loop");
     expect(loop.initialState).toBe("OPEN");
     expect(loop.states).toHaveLength(2);
     expect(loop.transitions).toHaveLength(1);
@@ -48,8 +48,8 @@ describe("LoopBuilder", () => {
       .initialState("OPEN")
       .transition({ id: "reject", from: "OPEN", to: "REJECTED", actors: ["human"] })
       .build();
-    expect(loopA.states.find((s) => s.stateId === "REJECTED")).toBeUndefined();
-    expect(loopB.states.find((s) => s.stateId === "APPROVED")).toBeUndefined();
+    expect(loopA.states.find((s) => s.id === "REJECTED")).toBeUndefined();
+    expect(loopB.states.find((s) => s.id === "APPROVED")).toBeUndefined();
   });
 
   it("normalizes actor strings to ActorType enum", () => {
@@ -62,8 +62,8 @@ describe("LoopBuilder", () => {
       .transition({ id: "go", from: "A", to: "B", actors: ["ai_agent", "human"] })
       .build();
     const t = loop.transitions[0];
-    expect(t?.allowedActors).toContain("ai-agent");
-    expect(t?.allowedActors).toContain("human");
+    expect(t?.actors).toContain("ai-agent");
+    expect(t?.actors).toContain("human");
   });
 
   it("includes domain as a tag", () => {
@@ -95,7 +95,7 @@ describe("LoopBuilder", () => {
       .build();
 
     const g = loop.transitions[0]?.guards?.[0];
-    expect(g?.guardId).toBe("confidence_check");
+    expect(g?.id).toBe("confidence_check");
     expect(g?.parameters?.type).toBe("confidence_threshold");
     expect(g?.parameters?.minimum).toBe(0.85);
   });

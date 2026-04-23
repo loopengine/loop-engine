@@ -4,9 +4,12 @@
 /**
  * LoopBuilder maps an example-friendly fluent API onto {@link LoopDefinitionSchema}.
  *
- * Schema follow-ups (not modeled in {@link StateSpecSchema}):
- * - `isError` on `.state()` is represented via `description: "Error terminal state"` only.
- *   See https://github.com/loopengine/loop-engine/issues (file if you need a first-class flag).
+ * Per D-05, schema field names now match consumption-layer conventions
+ * (`id`, `isTerminal`, `actors`, etc.), so the LoopBuilder normalize
+ * functions construct objects whose shape is structurally identical to
+ * the authoring input. The aliasing layer (`ACTOR_ALIASES`,
+ * `normalizeGuard` legacy/shorthand split) remains in place pending
+ * MECHANICAL 8.12 collapse.
  */
 
 import {
@@ -66,7 +69,6 @@ export type LoopBuilderOutcomeInput = {
 type StateInput = {
   id: string;
   isTerminal?: boolean;
-  /** No `isError` in StateSpec — see module docstring. */
   isError?: boolean;
 };
 
@@ -100,13 +102,13 @@ function isGuardLegacy(g: LoopBuilderGuardInput): g is LoopBuilderGuardLegacy {
 function normalizeGuard(g: LoopBuilderGuardInput): GuardSpec {
   if (isGuardLegacy(g)) {
     const base: GuardSpec = {
-      guardId: g.id as GuardSpec["guardId"],
+      id: g.id as GuardSpec["id"],
       description: g.description,
       severity: g.severity,
       evaluatedBy: g.evaluatedBy
     };
     if (g.failureMessage !== undefined) {
-      return { ...base, parameters: { failureMessage: g.failureMessage } };
+      return { ...base, failureMessage: g.failureMessage };
     }
     return base;
   }
@@ -117,7 +119,7 @@ function normalizeGuard(g: LoopBuilderGuardInput): GuardSpec {
     parameters.minimum = s.minimum;
   }
   return {
-    guardId: s.id as GuardSpec["guardId"],
+    id: s.id as GuardSpec["id"],
     description: s.description ?? `Guard ${s.type}`,
     severity: s.severity ?? "hard",
     evaluatedBy: s.evaluatedBy ?? "external",
@@ -134,12 +136,16 @@ function normalizeGuards(guards: LoopBuilderGuardInput[] | undefined): GuardSpec
 
 function normalizeTransitions(inputs: LoopBuilderTransitionInput[]): TransitionSpec[] {
   return inputs.map((t) => {
+    // PB-EX-05 Option B boundary site (LoopBuilder.build pre-fill):
+    // signal := transition.id when authored signal is absent. Preserved
+    // here so downstream (validator + engine) operate on a stable
+    // SignalId without modification per the layered contract.
     const spec: TransitionSpec = {
-      transitionId: t.id as TransitionSpec["transitionId"],
+      id: t.id as TransitionSpec["id"],
       from: t.from as TransitionSpec["from"],
       to: t.to as TransitionSpec["to"],
-      signal: t.id as TransitionSpec["signal"],
-      allowedActors: t.actors.map(normalizeActorType)
+      signal: t.id as unknown as NonNullable<TransitionSpec["signal"]>,
+      actors: t.actors.map(normalizeActorType)
     };
     const guards = normalizeGuards(t.guards);
     if (guards !== undefined) {
@@ -151,19 +157,15 @@ function normalizeTransitions(inputs: LoopBuilderTransitionInput[]): TransitionS
 
 function normalizeStates(inputs: StateInput[]): StateSpec[] {
   return inputs.map((s) => {
-    let description: string | undefined;
-    if (s.isError) {
-      description = "Error terminal state";
-    }
     const spec: StateSpec = {
-      stateId: s.id as StateSpec["stateId"],
+      id: s.id as StateSpec["id"],
       label: s.id.replace(/_/g, " ")
     };
     if (s.isTerminal !== undefined) {
-      spec.terminal = s.isTerminal;
+      spec.isTerminal = s.isTerminal;
     }
-    if (description !== undefined) {
-      spec.description = description;
+    if (s.isError !== undefined) {
+      spec.isError = s.isError;
     }
     return spec;
   });
@@ -179,18 +181,18 @@ function deriveName(loopId: string): string {
 }
 
 function normalizeOutcome(input: LoopBuilderOutcomeInput): OutcomeSpec {
-  let description = input.description;
-  if (input.id !== undefined && input.id.length > 0) {
-    description = `[${input.id}] ${description}`;
-  }
-  if (input.measurable === true) {
-    description = `${description} (measurable)`;
-  }
-  return {
-    description,
+  const spec: OutcomeSpec = {
+    description: input.description,
     valueUnit: input.valueUnit,
     businessMetrics: input.businessMetrics
   };
+  if (input.id !== undefined && input.id.length > 0) {
+    spec.id = input.id as NonNullable<OutcomeSpec["id"]>;
+  }
+  if (input.measurable !== undefined) {
+    spec.measurable = input.measurable;
+  }
+  return spec;
 }
 
 function deepFreeze<T>(obj: T): T {
@@ -212,11 +214,11 @@ function deepFreeze<T>(obj: T): T {
 /**
  * Immutable fluent builder for {@link LoopDefinition}. Each chained method returns a new instance.
  *
- * Field mapping (authoring → schema):
- * - `create(loopId, domain)` → `loopId`, `tags: [domain]`
- * - transition `id` → `transitionId` **and** `signal` (same string)
- * - `actors` → `allowedActors` (aliases: `ai_agent`, `system`)
- * - guard `id` → `guardId`; shorthand `type`/`minimum` → `parameters`
+ * Field mapping (authoring → schema, post-D-05):
+ * - `create(loopId, domain)` → `id`, `domain` (also retained in `tags: [domain]` for back-compat)
+ * - transition `id` → `id`; `signal` auto-filled from `id` when omitted (PB-EX-05 Option B)
+ * - `actors` → `actors` (aliases: `ai_agent` → `ai-agent`, `system` → `system`)
+ * - guard `id` → `id`; shorthand `type`/`minimum` → `parameters`; `failureMessage` → `failureMessage`
  */
 export class LoopBuilder {
   private constructor(
@@ -371,10 +373,11 @@ export class LoopBuilder {
     let parsed: LoopDefinition;
     try {
       parsed = LoopDefinitionSchema.parse({
-        loopId: this.loopId,
+        id: this.loopId,
         version: this.versionStr,
         name: resolvedName,
         description: this.descriptionStr,
+        domain: this.domain,
         states: normalizeStates([...this.stateInputs]),
         initialState: this.initialStateId,
         transitions: normalizeTransitions([...this.transitionInputs]),

@@ -39,7 +39,7 @@ import {
 import type { LoopEngineOptions } from "./interfaces";
 
 export interface StartLoopParams {
-  loopId: LoopDefinition["loopId"];
+  loopId: LoopId;
   aggregateId: AggregateId;
   actor: ActorRef;
   correlationId?: string;
@@ -59,7 +59,7 @@ export interface TransitionResult {
   status: "executed" | "guard_failed" | "rejected" | "pending_approval";
   fromState: StateId;
   toState?: StateId;
-  guardFailures?: { guardId: GuardSpec["guardId"]; message: string; severity: "hard" | "soft" }[];
+  guardFailures?: { guardId: GuardSpec["id"]; message: string; severity: "hard" | "soft" }[];
   rejectionReason?: string;
   requiresApprovalFrom?: ActorId;
   event?:
@@ -99,7 +99,7 @@ export class LoopEngine {
   }
 
   private isTerminal(definition: LoopDefinition, stateId: StateId): boolean {
-    return definition.states.some((state) => state.stateId === stateId && state.terminal === true);
+    return definition.states.some((state) => state.id === stateId && state.isTerminal === true);
   }
 
   async start(params: StartLoopParams): Promise<LoopInstance> {
@@ -115,7 +115,7 @@ export class LoopEngine {
 
     const now = this.now();
     const instance: LoopInstance = {
-      loopId: definition.loopId,
+      loopId: definition.id,
       aggregateId: params.aggregateId,
       currentState: definition.initialState,
       status: "active",
@@ -127,13 +127,13 @@ export class LoopEngine {
     await this.options.store.saveInstance(instance);
 
     const event: LoopStartedEvent = createLoopStartedEvent({
-      loopId: definition.loopId,
+      loopId: definition.id,
       aggregateId: params.aggregateId,
       correlationId: params.correlationId,
       initialState: definition.initialState,
       actor: params.actor,
       definition: {
-        loopId: definition.loopId,
+        loopId: definition.id,
         version: definition.version,
         name: definition.name
       }
@@ -164,7 +164,7 @@ export class LoopEngine {
 
     const transition = definition.transitions.find(
       (candidate) =>
-        candidate.transitionId === params.transitionId &&
+        candidate.id === params.transitionId &&
         candidate.from === instance.currentState
     );
     if (!transition) {
@@ -199,7 +199,7 @@ export class LoopEngine {
       loopId: instance.loopId,
       aggregateId: instance.aggregateId,
       correlationId: params.correlationId ?? instance.correlationId,
-      transitionId: transition.transitionId,
+      transitionId: transition.id,
       fromState: instance.currentState,
       toState: transition.to,
       signal: transition.signal,
@@ -228,7 +228,7 @@ export class LoopEngine {
         loopId: instance.loopId,
         aggregateId: instance.aggregateId,
         correlationId: params.correlationId ?? instance.correlationId,
-        transitionId: transition.transitionId,
+        transitionId: transition.id,
         fromState: instance.currentState,
         guardId: failure.guardId,
         severity: "soft",
@@ -245,7 +245,7 @@ export class LoopEngine {
           loopId: instance.loopId,
           aggregateId: instance.aggregateId,
           correlationId: params.correlationId ?? instance.correlationId,
-          transitionId: transition.transitionId,
+          transitionId: transition.id,
           fromState: instance.currentState,
           guardId: failure.guardId,
           severity: "hard",
@@ -260,7 +260,7 @@ export class LoopEngine {
         loopId: instance.loopId,
         aggregateId: instance.aggregateId,
         correlationId: params.correlationId ?? instance.correlationId,
-        transitionId: transition.transitionId,
+        transitionId: transition.id,
         fromState: instance.currentState,
         attemptedToState: transition.to,
         actor: params.actor,
@@ -298,7 +298,7 @@ export class LoopEngine {
     const record: TransitionRecord = {
       aggregateId: updated.aggregateId,
       loopId: updated.loopId,
-      transitionId: transition.transitionId,
+      transitionId: transition.id,
       signal: transition.signal,
       fromState: instance.currentState,
       toState: transition.to,
@@ -323,7 +323,7 @@ export class LoopEngine {
       loopId: updated.loopId,
       aggregateId: updated.aggregateId,
       correlationId: params.correlationId ?? updated.correlationId,
-      transitionId: transition.transitionId,
+      transitionId: transition.id,
       fromState: instance.currentState,
       toState: transition.to,
       signal: transition.signal,

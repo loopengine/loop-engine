@@ -28,49 +28,59 @@ function normalizeLoopDefinition(input: unknown): LoopDefinition {
   const transitions = Array.isArray(source.transitions) ? source.transitions : [];
   const rawOutcome = source.outcome as Record<string, unknown> | undefined;
   const normalized = {
-    loopId: String(source.loopId ?? source.id ?? ""),
+    id: String(source.id ?? source.loopId ?? ""),
     version: String(source.version ?? "1.0.0"),
     name: String(source.name ?? source.id ?? source.loopId ?? "loop"),
     description: String(source.description ?? ""),
     states: states.map((state) => {
       const s = (state ?? {}) as Record<string, unknown>;
       return {
-        stateId: String(s.stateId ?? s.id ?? ""),
+        id: String(s.id ?? s.stateId ?? ""),
         label: String(s.label ?? s.id ?? s.stateId ?? ""),
-        ...(typeof s.terminal === "boolean"
-          ? { terminal: s.terminal }
-          : typeof s.isTerminal === "boolean"
-            ? { terminal: s.isTerminal }
+        ...(typeof s.isTerminal === "boolean"
+          ? { isTerminal: s.isTerminal }
+          : typeof s.terminal === "boolean"
+            ? { isTerminal: s.terminal }
             : {})
       };
     }),
     initialState: String(source.initialState ?? ""),
     transitions: transitions.map((transition) => {
       const t = (transition ?? {}) as Record<string, unknown>;
-      const allowedActors = Array.isArray(t.allowedActors) ? t.allowedActors : [];
+      const actors = Array.isArray(t.actors)
+        ? t.actors
+        : Array.isArray(t.allowedActors)
+          ? t.allowedActors
+          : [];
       const guards = Array.isArray(t.guards)
         ? t.guards.map((guard) => {
             const g = (guard ?? {}) as Record<string, unknown>;
             return {
-              guardId: String(g.guardId ?? g.id ?? ""),
-              description: String(g.description ?? g.failureMessage ?? g.guardId ?? g.id ?? "Guard check"),
+              id: String(g.id ?? g.guardId ?? ""),
+              description: String(g.description ?? g.failureMessage ?? g.id ?? g.guardId ?? "Guard check"),
               severity: g.severity === "soft" ? "soft" : "hard",
               evaluatedBy:
                 g.evaluatedBy === "runtime" || g.evaluatedBy === "module" || g.evaluatedBy === "external"
                   ? g.evaluatedBy
                   : "external",
+              ...(typeof g.failureMessage === "string"
+                ? { failureMessage: g.failureMessage }
+                : {}),
               ...(g.parameters && typeof g.parameters === "object"
                 ? { parameters: g.parameters as Record<string, unknown> }
                 : {})
             };
           })
         : undefined;
+      const transitionId = String(t.id ?? t.transitionId ?? "");
       return {
-        transitionId: String(t.transitionId ?? t.id ?? ""),
+        id: transitionId,
         from: String(t.from ?? ""),
         to: String(t.to ?? ""),
-        signal: String(t.signal ?? t.on ?? t.transitionId ?? t.id ?? ""),
-        allowedActors: allowedActors.map(normalizeActorType),
+        // Authoring-layer signal defaulting per PB-EX-05 Option B
+        // (boundary site for the validate-loops CI script).
+        signal: String(t.signal ?? t.on ?? transitionId),
+        actors: actors.map(normalizeActorType),
         ...(guards ? { guards } : {})
       };
     }),
@@ -128,8 +138,8 @@ async function validateFile(filePath: string): Promise<ValidationError[]> {
     const parsed = YAML.parse(content);
     const definition = normalizeLoopDefinition(parsed);
 
-    const stateIds = new Set(definition.states.map((s) => s.stateId));
-    const terminalIds = new Set(definition.states.filter((s) => s.terminal).map((s) => s.stateId));
+    const stateIds = new Set(definition.states.map((s) => s.id));
+    const terminalIds = new Set(definition.states.filter((s) => s.isTerminal).map((s) => s.id));
 
     if (!stateIds.has(definition.initialState)) {
       errors.push({
@@ -157,13 +167,13 @@ async function validateFile(filePath: string): Promise<ValidationError[]> {
       if (!stateIds.has(transition.from)) {
         errors.push({
           file: filePath,
-          message: `transition ${transition.transitionId} from ${transition.from} not found in states`
+          message: `transition ${transition.id} from ${transition.from} not found in states`
         });
       }
       if (!stateIds.has(transition.to)) {
         errors.push({
           file: filePath,
-          message: `transition ${transition.transitionId} to ${transition.to} not found in states`
+          message: `transition ${transition.id} to ${transition.to} not found in states`
         });
       }
     }

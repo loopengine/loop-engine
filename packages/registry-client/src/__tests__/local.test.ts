@@ -11,24 +11,24 @@ import { RegistryConflictError } from "../types";
 
 const asLoopId = (id: string) => id as never;
 
-function makeLoop(id: string): LoopDefinition {
+function makeLoop(loopId: string): LoopDefinition {
   return LoopDefinitionSchema.parse({
-    loopId: id,
+    id: loopId,
     version: "1.0.0",
-    name: id,
-    description: `${id} description`,
+    name: loopId,
+    description: `${loopId} description`,
     states: [
-      { stateId: "OPEN", label: "Open" },
-      { stateId: "DONE", label: "Done", terminal: true }
+      { id: "OPEN", label: "Open" },
+      { id: "DONE", label: "Done", isTerminal: true }
     ],
     initialState: "OPEN",
     transitions: [
       {
-        transitionId: "finish",
+        id: "finish",
         from: "OPEN",
         to: "DONE",
-        signal: `${id}.finish`,
-        allowedActors: ["human"]
+        signal: `${loopId}.finish`,
+        actors: ["human"]
       }
     ],
     outcome: {
@@ -44,7 +44,7 @@ describe("localRegistry — in-memory mode", () => {
     const definition = makeLoop("scm.procurement");
     const registry = localRegistry({ definitions: [definition] });
     const found = await registry.get(asLoopId("scm.procurement"));
-    expect(found?.loopId).toBe(asLoopId("scm.procurement"));
+    expect(found?.id).toBe(asLoopId("scm.procurement"));
   });
 
   it("should return null for unknown loop ids", async () => {
@@ -67,7 +67,7 @@ describe("localRegistry — in-memory mode", () => {
     });
     const listed = await registry.list({ domain: "scm" });
     expect(listed).toHaveLength(1);
-    expect(String(listed[0]?.loopId).startsWith("scm.")).toBe(true);
+    expect(String(listed[0]?.id).startsWith("scm.")).toBe(true);
   });
 
   it("should throw RegistryConflictError on duplicate id+version", async () => {
@@ -101,7 +101,7 @@ describe("localRegistry — directory mode", () => {
 
     const registry = localRegistry({ loopsDir: dir });
     const found = await registry.get(asLoopId("scm.procurement"));
-    expect(found?.loopId).toBe(asLoopId("scm.procurement"));
+    expect(found?.id).toBe(asLoopId("scm.procurement"));
   });
 
   it("should load .json files from a directory", async () => {
@@ -111,7 +111,7 @@ describe("localRegistry — directory mode", () => {
 
     const registry = localRegistry({ loopsDir: dir });
     const found = await registry.get(asLoopId("scm.replenishment"));
-    expect(found?.loopId).toBe(asLoopId("scm.replenishment"));
+    expect(found?.id).toBe(asLoopId("scm.replenishment"));
   });
 
   it("should silently ignore non-yaml/json files", async () => {
@@ -140,6 +140,6 @@ describe("localRegistry — convenience array constructor", () => {
   it("should accept LoopDefinition[] directly as first argument", async () => {
     const registry = localRegistry([makeLoop("scm.procurement")]);
     const found = await registry.get(asLoopId("scm.procurement"));
-    expect(found?.loopId).toBe(asLoopId("scm.procurement"));
+    expect(found?.id).toBe(asLoopId("scm.procurement"));
   });
 });

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { LoopDefinitionSchema, type LoopDefinition } from "@loop-engine/core";
 import { parse } from "yaml";
+import { applyAuthoringDefaults } from "./applyAuthoringDefaults";
 
 function formatPath(path: Array<string | number>): string {
   return path.length > 0 ? path.join(".") : "root";
@@ -23,7 +24,7 @@ export function parseLoopYaml(yamlContent: string): LoopDefinition {
     throw new Error(`Loop definition validation failed: ${issues.join("; ")}`);
   }
 
-  return result.data;
+  return applyAuthoringDefaults(result.data);
 }
 
 export function parseLoopYamlSafe(
@@ -52,5 +53,5 @@ export function parseLoopJson(jsonContent: string): LoopDefinition {
     throw new Error(`Loop definition validation failed: ${issues.join("; ")}`);
   }
 
-  return result.data;
+  return applyAuthoringDefaults(result.data);
 }

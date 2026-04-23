@@ -12,3 +12,4 @@ export type {
 export * from "./parser";
 export * from "./serializer";
 export * from "./validator";
+export { applyAuthoringDefaults } from "./applyAuthoringDefaults";

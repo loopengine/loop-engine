@@ -3,9 +3,9 @@
 import type { LoopDefinition } from "@loop-engine/core";
 import { stringify } from "yaml";
 
-export function serializeLoopYaml(definition: LoopDefinition): string {
+function buildCanonical(definition: LoopDefinition): Record<string, unknown> {
   const canonical: Record<string, unknown> = {
-    loopId: definition.loopId,
+    id: definition.id,
     version: definition.version,
     name: definition.name,
     description: definition.description,
@@ -15,30 +15,23 @@ export function serializeLoopYaml(definition: LoopDefinition): string {
     outcome: definition.outcome
   };
 
+  if (definition.domain) {
+    canonical.domain = definition.domain;
+  }
+
   if (definition.tags) {
     canonical.tags = definition.tags;
   }
 
-  return stringify(canonical, {
+  return canonical;
+}
+
+export function serializeLoopYaml(definition: LoopDefinition): string {
+  return stringify(buildCanonical(definition), {
     lineWidth: 100
   });
 }
 
 export function serializeLoopJson(definition: LoopDefinition, space: number = 2): string {
-  const canonical: Record<string, unknown> = {
-    loopId: definition.loopId,
-    version: definition.version,
-    name: definition.name,
-    description: definition.description,
-    states: definition.states,
-    initialState: definition.initialState,
-    transitions: definition.transitions,
-    outcome: definition.outcome
-  };
-
-  if (definition.tags) {
-    canonical.tags = definition.tags;
-  }
-
-  return JSON.stringify(canonical, null, space);
+  return JSON.stringify(buildCanonical(definition), null, space);
 }

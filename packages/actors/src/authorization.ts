@@ -18,7 +18,7 @@ export function canActorExecuteTransition(
   transition: TransitionSpec,
   constraints?: AIActorConstraints
 ): ActorAuthorizationResult {
-  if (!transition.allowedActors.includes(actor.type)) {
+  if (!transition.actors.includes(actor.type)) {
     return {
       authorized: false,
       requiresApproval: false,
@@ -28,7 +28,7 @@ export function canActorExecuteTransition(
 
   if (
     actor.type === "ai-agent" &&
-    constraints?.requiresHumanApprovalFor?.includes(transition.transitionId)
+    constraints?.requiresHumanApprovalFor?.includes(transition.id)
   ) {
     return { authorized: true, requiresApproval: true };
   }

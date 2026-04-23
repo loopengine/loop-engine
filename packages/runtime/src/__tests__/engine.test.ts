@@ -52,7 +52,7 @@ class MemoryRegistry implements LoopDefinitionRegistry {
   constructor(private readonly defs: LoopDefinition[]) {}
 
   get(id: LoopId): LoopDefinition | undefined {
-    return this.defs.find((d) => d.loopId === id);
+    return this.defs.find((d) => d.id === id);
   }
 
   list(): LoopDefinition[] {
@@ -62,33 +62,33 @@ class MemoryRegistry implements LoopDefinitionRegistry {
 
 function demoLoop(): LoopDefinition {
   return LoopDefinitionSchema.parse({
-    loopId: "demo.loop",
+    id: "demo.loop",
     version: "1.0.0",
     name: "Demo Loop",
     description: "Demo loop",
     states: [
-      { stateId: "OPEN", label: "Open" },
-      { stateId: "IN_REVIEW", label: "In Review" },
-      { stateId: "DONE", label: "Done", terminal: true }
+      { id: "OPEN", label: "Open" },
+      { id: "IN_REVIEW", label: "In Review" },
+      { id: "DONE", label: "Done", isTerminal: true }
     ],
     initialState: "OPEN",
     transitions: [
       {
-        transitionId: "review",
+        id: "review",
         from: "OPEN",
         to: "IN_REVIEW",
         signal: "ticket.review",
-        allowedActors: ["human", "automation", "ai-agent"]
+        actors: ["human", "automation", "ai-agent"]
       },
       {
-        transitionId: "close",
+        id: "close",
         from: "IN_REVIEW",
         to: "DONE",
         signal: "ticket.close",
-        allowedActors: ["human"],
+        actors: ["human"],
         guards: [
           {
-            guardId: "approval-obtained",
+            id: "approval-obtained",
             description: "Approval required",
             severity: "hard",
             evaluatedBy: "runtime"
@@ -251,7 +251,7 @@ describe("LoopEngine", () => {
           ...demoLoop().transitions[1],
           guards: [
             {
-              guardId: "soft-warning",
+              id: "soft-warning",
               description: "warning",
               severity: "soft",
               evaluatedBy: "runtime"

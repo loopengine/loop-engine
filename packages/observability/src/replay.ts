@@ -11,7 +11,7 @@ export function replayLoop(
   for (const record of history) {
     const match = definition.transitions.find(
       (transition) =>
-        transition.transitionId === record.transitionId &&
+        transition.id === record.transitionId &&
         transition.from === state &&
         transition.to === record.toState
     );

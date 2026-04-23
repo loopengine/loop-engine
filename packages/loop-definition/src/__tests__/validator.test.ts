@@ -7,26 +7,26 @@ import { validateLoopDefinition } from "../validator";
 
 function createValidLoop(): LoopDefinition {
   return {
-    loopId: "support.ticket",
+    id: "support.ticket",
     version: "1.0.0",
     name: "Support Ticket",
     description: "Ticket handling loop",
     states: [
-      { stateId: "OPEN", label: "Open" },
-      { stateId: "IN_REVIEW", label: "In Review" },
-      { stateId: "RESOLVED", label: "Resolved", terminal: true }
+      { id: "OPEN", label: "Open" },
+      { id: "IN_REVIEW", label: "In Review" },
+      { id: "RESOLVED", label: "Resolved", isTerminal: true }
     ],
     initialState: "OPEN",
     transitions: [
       {
-        transitionId: "review",
+        id: "review",
         from: "OPEN",
         to: "IN_REVIEW",
         signal: "support.ticket.review",
-        allowedActors: ["human"],
+        actors: ["human"],
         guards: [
           {
-            guardId: "confidence-threshold",
+            id: "confidence-threshold",
             description: "Minimum confidence",
             severity: "soft",
             evaluatedBy: "runtime"
@@ -34,11 +34,11 @@ function createValidLoop(): LoopDefinition {
         ]
       },
       {
-        transitionId: "resolve",
+        id: "resolve",
         from: "IN_REVIEW",
         to: "RESOLVED",
         signal: "support.ticket.resolve",
-        allowedActors: ["human"]
+        actors: ["human"]
       }
     ],
     outcome: {
@@ -53,7 +53,7 @@ function createValidLoop(): LoopDefinition {
         }
       ]
     }
-  };
+  } as LoopDefinition;
 }
 
 describe("validateLoopDefinition", () => {
@@ -64,7 +64,7 @@ describe("validateLoopDefinition", () => {
   });
 
   it('initialState not in states array -> INVALID_INITIAL_STATE', () => {
-    const invalid = { ...createValidLoop(), initialState: "MISSING" };
+    const invalid = { ...createValidLoop(), initialState: "MISSING" } as LoopDefinition;
     const result = validateLoopDefinition(invalid);
     expect(result.valid).toBe(false);
     expect(result.errors.some((error) => error.code === "INVALID_INITIAL_STATE")).toBe(true);
@@ -75,7 +75,7 @@ describe("validateLoopDefinition", () => {
     invalid.transitions[1] = {
       ...invalid.transitions[1],
       to: "MISSING_STATE"
-    };
+    } as LoopDefinition["transitions"][number];
     const result = validateLoopDefinition(invalid);
     expect(result.valid).toBe(false);
     expect(result.errors.some((error) => error.code === "INVALID_TRANSITION_STATE")).toBe(true);
@@ -83,7 +83,7 @@ describe("validateLoopDefinition", () => {
 
   it('no terminal states -> NO_TERMINAL_STATE', () => {
     const invalid = createValidLoop();
-    invalid.states = invalid.states.map((state) => ({ ...state, terminal: false }));
+    invalid.states = invalid.states.map((state) => ({ ...state, isTerminal: false }));
     const result = validateLoopDefinition(invalid);
     expect(result.valid).toBe(false);
     expect(result.errors.some((error) => error.code === "NO_TERMINAL_STATE")).toBe(true);
@@ -93,37 +93,37 @@ describe("validateLoopDefinition", () => {
     const invalid = createValidLoop();
     invalid.transitions = [
       {
-        transitionId: "review",
+        id: "review",
         from: "OPEN",
         to: "IN_REVIEW",
         signal: "support.ticket.review",
-        allowedActors: ["human"]
+        actors: ["human"]
       }
-    ];
+    ] as LoopDefinition["transitions"];
     const result = validateLoopDefinition(invalid);
     expect(result.valid).toBe(false);
     expect(result.errors.some((error) => error.code === "LOOP_NOT_COMPLETABLE")).toBe(true);
   });
 
-  it('duplicate guardId in transition -> DUPLICATE_GUARD_ID', () => {
+  it('duplicate guard id in transition -> DUPLICATE_GUARD_ID', () => {
     const invalid = createValidLoop();
     invalid.transitions[0] = {
       ...invalid.transitions[0],
       guards: [
         {
-          guardId: "confidence-threshold",
+          id: "confidence-threshold",
           description: "Minimum confidence",
           severity: "hard",
           evaluatedBy: "runtime"
         },
         {
-          guardId: "confidence-threshold",
+          id: "confidence-threshold",
           description: "Duplicate",
           severity: "soft",
           evaluatedBy: "runtime"
         }
       ]
-    };
+    } as LoopDefinition["transitions"][number];
     const result = validateLoopDefinition(invalid);
     expect(result.valid).toBe(false);
     expect(result.errors.some((error) => error.code === "DUPLICATE_GUARD_ID")).toBe(true);

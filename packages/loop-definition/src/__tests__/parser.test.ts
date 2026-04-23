@@ -6,23 +6,23 @@ import { parseLoopYaml, parseLoopYamlSafe } from "../parser";
 import { serializeLoopYaml } from "../serializer";
 
 const validYaml = `
-loopId: support.ticket
+id: support.ticket
 version: 1.0.0
 name: Support Ticket
 description: Ticket handling loop
 states:
-  - stateId: OPEN
+  - id: OPEN
     label: Open
-  - stateId: RESOLVED
+  - id: RESOLVED
     label: Resolved
-    terminal: true
+    isTerminal: true
 initialState: OPEN
 transitions:
-  - transitionId: resolve
+  - id: resolve
     from: OPEN
     to: RESOLVED
     signal: support.ticket.resolve
-    allowedActors: [human]
+    actors: [human]
 outcome:
   description: Ticket resolved
   valueUnit: ticket_resolution
@@ -36,11 +36,11 @@ outcome:
 describe("parseLoopYaml", () => {
   it("parses a valid YAML loop definition", () => {
     const parsed = parseLoopYaml(validYaml);
-    expect(parsed.loopId).toBe("support.ticket");
+    expect(parsed.id).toBe("support.ticket");
   });
 
   it("throws on invalid YAML syntax", () => {
-    const invalidYaml = "loopId: [unterminated";
+    const invalidYaml = "id: [unterminated";
     expect(() => parseLoopYaml(invalidYaml)).toThrow(/Invalid YAML syntax/);
   });
 
@@ -50,7 +50,7 @@ describe("parseLoopYaml", () => {
   });
 
   it("parseLoopYamlSafe returns success false on invalid input", () => {
-    const invalidYaml = "loopId: [unterminated";
+    const invalidYaml = "id: [unterminated";
     const result = parseLoopYamlSafe(invalidYaml);
     expect(result.success).toBe(false);
     if (!result.success) {

@@ -1,7 +1,7 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AdapterInput, LLMAdapter } from "@loop-engine/core";
+import type { AdapterInput, ToolAdapter } from "@loop-engine/core";
 import { guardEvidence as redactForAudit } from "@loop-engine/core";
 import { PerplexityAdapterError, RateLimitError } from "./errors";
 import { buildCompletionBody, resolveModel } from "./sonar";
@@ -86,7 +86,7 @@ function shouldRetryStatus(status: number): boolean {
   return status === 429 || status === 500 || status === 503;
 }
 
-export class PerplexityAdapter implements LLMAdapter {
+export class PerplexityAdapter implements ToolAdapter {
   readonly name = "perplexity-sonar";
 
   private readonly config: PerplexityConfig;

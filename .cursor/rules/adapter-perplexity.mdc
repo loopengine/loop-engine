@@ -17,7 +17,7 @@ Do **not** wrap Perplexity Computer's Agent API here; that belongs in a separate
 
 ## Contract
 
-- Implement `LLMAdapter` from `@loop-engine/core` (`invoke`, `guardEvidence`; `stream` optional).
+- Implement `ToolAdapter` from `@loop-engine/core` (`invoke`, `guardEvidence`; `stream` optional).
 - Preserve citations on the result; callers attach them to Loop evidence and run `guardEvidence` before persistence.
 - Errors: `PerplexityAdapterError` / `RateLimitError`; never swallow errors.
 

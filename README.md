@@ -108,7 +108,7 @@ await engine.transition({
 | [`@loop-engine/adapter-openai`](packages/adapter-openai) | OpenAI AI actor |
 | [`@loop-engine/adapter-grok`](packages/adapter-grok) | Grok (xAI) AI actor |
 | [`@loop-engine/adapter-gemini`](packages/adapter-gemini) | Gemini AI actor |
-| [`@loop-engine/adapter-perplexity`](packages/adapter-perplexity) | Perplexity Sonar (`LLMAdapter`, citations) |
+| [`@loop-engine/adapter-perplexity`](packages/adapter-perplexity) | Perplexity Sonar (`ToolAdapter`, citations) |
 | [`@loop-engine/adapter-openclaw`](packages/adapter-openclaw) | OpenClaw integration |
 | [`@loop-engine/adapter-commerce-gateway`](packages/adapter-commerce-gateway) | Commerce Gateway |
 | [`@loop-engine/adapter-pagerduty`](packages/adapter-pagerduty) | PagerDuty incidents |

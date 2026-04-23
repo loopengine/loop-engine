@@ -1,6 +1,6 @@
 # Perplexity Sonar and Computer
 
-Loop Engine integrates with **Perplexity Sonar** through the OSS package [`@loop-engine/adapter-perplexity`](../packages/adapter-perplexity/README.md). That adapter implements `LLMAdapter` from `@loop-engine/core`: grounded completion with **citations** for audit-friendly evidence on Loop steps.
+Loop Engine integrates with **Perplexity Sonar** through the OSS package [`@loop-engine/adapter-perplexity`](../packages/adapter-perplexity/README.md). That adapter implements `ToolAdapter` from `@loop-engine/core`: grounded completion with **citations** for audit-friendly evidence on Loop steps.
 
 ## Sonar adapter (this repo)
 
@@ -19,7 +19,7 @@ Recommended split:
 
 | Surface | Responsibility |
 |---------|----------------|
-| `@loop-engine/adapter-perplexity` | Sonar `chat/completions`, citations, Loop `LLMAdapter` |
+| `@loop-engine/adapter-perplexity` | Sonar `chat/completions`, citations, Loop `ToolAdapter` |
 | Gateway / Computer integration | Agent API, skills, client orchestration |
 
 This keeps OSS boundaries clear and avoids implying Computer features where only Sonar is implemented.

@@ -2,8 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /**
- * Multi-LLM adapter contract for Loop Engine state-machine steps.
- * Provider packages (e.g. `@loop-engine/adapter-perplexity`) implement this interface.
+ * Tool adapter contract for Loop Engine state-machine steps that invoke
+ * an external tool — typically a grounded LLM call (Perplexity Sonar) or
+ * any provider whose role in a loop is "answer a query, return text +
+ * evidence" rather than "act as an autonomous decision-making actor".
+ *
+ * Provider packages (e.g. `@loop-engine/adapter-perplexity`) implement
+ * this interface. Adapters whose role is to act as an autonomous actor
+ * (Anthropic, OpenAI, Gemini, Grok, Vercel-AI) implement `ActorAdapter`
+ * instead — see Phase A.2 / A.3 of the API surface execution plan.
  */
 
 export interface AdapterInput {
@@ -38,7 +45,7 @@ export interface AdapterChunk {
   done?: boolean;
 }
 
-export interface LLMAdapter {
+export interface ToolAdapter {
   name: string;
   invoke(input: AdapterInput): Promise<AdapterOutput>;
   stream?(input: AdapterInput): AsyncIterable<AdapterChunk>;

@@ -4,7 +4,7 @@
 
 ## Overview
 
-`@loop-engine/adapter-perplexity` wraps the [Perplexity Sonar API](https://docs.perplexity.ai/) (OpenAI-compatible chat completions) so Loop Engine state-machine steps can perform **grounded web retrieval with citations** and **Sonar Reasoning** models for multi-step analysis. It implements `LLMAdapter` from `@loop-engine/core` and returns structured `Citation` records for audit trails.
+`@loop-engine/adapter-perplexity` wraps the [Perplexity Sonar API](https://docs.perplexity.ai/) (OpenAI-compatible chat completions) so Loop Engine state-machine steps can perform **grounded web retrieval with citations** and **Sonar Reasoning** models for multi-step analysis. It implements `ToolAdapter` from `@loop-engine/core` and returns structured `Citation` records for audit trails.
 
 ## Installation
 
@@ -85,7 +85,7 @@ Failures surface as `PerplexityAdapterError` (`statusCode`, `retryable`). Repeat
 
 ## Perplexity Computer and skills
 
-[Perplexity Computer](https://www.perplexity.ai/computer/skills) provides hosted skills and agent-style orchestration. **This package does not call the Computer Agent API** — it is Sonar-only. Use a separate gateway integration (e.g. `gateway--perplexity-computer`) for Computer orchestration; use `@loop-engine/adapter-perplexity` when you need cited Sonar completions inside Loop Engine’s `LLMAdapter` contract.
+[Perplexity Computer](https://www.perplexity.ai/computer/skills) provides hosted skills and agent-style orchestration. **This package does not call the Computer Agent API** — it is Sonar-only. Use a separate gateway integration (e.g. `gateway--perplexity-computer`) for Computer orchestration; use `@loop-engine/adapter-perplexity` when you need cited Sonar completions inside Loop Engine’s `ToolAdapter` contract.
 
 ## License
 

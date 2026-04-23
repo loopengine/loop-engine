@@ -52,34 +52,34 @@ describe("@loop-engine/adapter-gemini", () => {
     generateContentMock.mockReset();
   });
 
-  it("createSubmission returns valid AIAgentActor with type ai-agent", async () => {
+  it("createSubmission returns an AIAgentSubmission with ai-agent actor", async () => {
     generateContentMock.mockResolvedValue(validResponse());
 
     const adapter = createGeminiActorAdapter("google-key");
-    const result = await adapter.createSubmission(makeContext());
+    const submission = await adapter.createSubmission(makeContext());
 
-    expect(result.actor.type).toBe("ai-agent");
-    expect(result.actor.provider).toBe("gemini");
+    expect(submission.actor.type).toBe("ai-agent");
+    expect(submission.actor.provider).toBe("gemini");
   });
 
-  it("createSubmission returns decision with valid signalId", async () => {
+  it("createSubmission returns the model-selected signal (validated against context)", async () => {
     generateContentMock.mockResolvedValue(validResponse());
 
     const context = makeContext();
     const adapter = createGeminiActorAdapter("google-key");
-    const result = await adapter.createSubmission(context);
+    const submission = await adapter.createSubmission(context);
 
-    expect(context.availableSignals.map((s) => s.signalId)).toContain(result.decision.signalId);
+    expect(context.availableSignals.map((s) => s.signalId)).toContain(submission.signal as string);
   });
 
   it("actor.promptHash is a non-empty string", async () => {
     generateContentMock.mockResolvedValue(validResponse());
 
     const adapter = createGeminiActorAdapter("google-key");
-    const result = await adapter.createSubmission(makeContext());
+    const submission = await adapter.createSubmission(makeContext());
 
-    expect(typeof result.actor.promptHash).toBe("string");
-    expect((result.actor.promptHash ?? "").length).toBeGreaterThan(0);
+    expect(typeof submission.actor.promptHash).toBe("string");
+    expect((submission.actor.promptHash ?? "").length).toBeGreaterThan(0);
   });
 
   it("handles markdown code fence stripping correctly", async () => {
@@ -91,9 +91,9 @@ describe("@loop-engine/adapter-gemini", () => {
     });
 
     const adapter = createGeminiActorAdapter("google-key");
-    const result = await adapter.createSubmission(makeContext());
+    const submission = await adapter.createSubmission(makeContext());
 
-    expect(result.decision.signalId).toBe("submit_recommendation");
+    expect(submission.signal as string).toBe("submit_recommendation");
   });
 
   it("throws ActorDecisionError with code INVALID_SIGNAL", async () => {
@@ -127,5 +127,17 @@ describe("@loop-engine/adapter-gemini", () => {
     await expect(adapter.createSubmission(makeContext())).rejects.toThrow(
       /\[loop-engine\/adapter-gemini\]/
     );
+  });
+
+  it("evidence carries reasoning, confidence, dataPoints, and modelResponse", async () => {
+    generateContentMock.mockResolvedValue(validResponse());
+
+    const adapter = createGeminiActorAdapter("google-key");
+    const submission = await adapter.createSubmission(makeContext());
+
+    expect(submission.evidence.reasoning).toBe("Demand forecast indicates reorder needed");
+    expect(submission.evidence.confidence).toBe(0.88);
+    expect(submission.evidence.dataPoints).toEqual({ forecastedDemand: 0.88 });
+    expect(submission.evidence.modelResponse).toBeDefined();
   });
 });

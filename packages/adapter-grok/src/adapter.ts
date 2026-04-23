@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Better Data, Inc.
 
-import { ActorDecisionError, type AIAgentActor, type AIActorDecision, type LoopActorPromptContext } from "@loop-engine/actors";
+import { ActorDecisionError, type AIActorDecision } from "@loop-engine/actors";
+import type { AIAgentActor, LoopActorPromptContext } from "@loop-engine/core";
 import OpenAI from "openai";
 import type { GrokActorSubmission, GrokLoopActorConfig } from "./types";
 

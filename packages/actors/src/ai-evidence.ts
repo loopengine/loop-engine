@@ -1,7 +1,7 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AIAgentSubmission } from "./types";
+import type { AIAgentSubmission } from "@loop-engine/core";
 
 async function sha256(text: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));

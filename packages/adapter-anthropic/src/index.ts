@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import Anthropic from "@anthropic-ai/sdk";
-import { buildAIActorEvidence, type AIAgentActor, type AIAgentSubmission } from "@loop-engine/actors";
+import { buildAIActorEvidence } from "@loop-engine/actors";
+import type { AIAgentActor, AIAgentSubmission } from "@loop-engine/core";
 import type { ActorId, SignalId } from "@loop-engine/core";
 
 interface ParsedModelOutput {

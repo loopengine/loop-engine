@@ -1,12 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Better Data, Inc.
 
-import type {
-  AIAgentActor,
-  AIActorDecision,
-  ActorDecisionError,
-  LoopActorPromptContext
-} from "@loop-engine/actors";
+import type { AIActorDecision, ActorDecisionError } from "@loop-engine/actors";
+import type { AIAgentActor, LoopActorPromptContext } from "@loop-engine/core";
 
 export interface GrokLoopActorConfig {
   modelId?: string;

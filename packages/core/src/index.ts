@@ -3,4 +3,5 @@
 
 export * from "./schemas";
 export * from "./toolAdapter";
+export * from "./actorAdapter";
 export * from "./loopInstance";

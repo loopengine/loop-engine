@@ -1,5 +1,5 @@
 import { buildActorEvidence } from "@loop-engine/actors";
-import type { AIAgentActor } from "@loop-engine/actors";
+import type { AIAgentActor } from "@loop-engine/core";
 import type { AIRecommendation } from "./types";
 
 /**

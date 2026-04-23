@@ -1,6 +1,14 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
-import type { ActorRef, SignalId } from "@loop-engine/core";
+//
+// AI archetype types — `AIAgentActor`, `AIAgentSubmission`,
+// `LoopActorPromptContext`, `LoopActorPromptSignal` — relocated to
+// `@loop-engine/core` per D-13 first + second extensions
+// (PB-EX-01 + PB-EX-04). Consumers import them from
+// `@loop-engine/core`. The `Actor` union below references
+// `AIAgentActor` from core directly so the union shape is unchanged
+// for downstream consumers.
+import type { ActorRef, AIAgentActor } from "@loop-engine/core";
 import { z } from "zod";
 
 export interface HumanActor extends ActorRef {
@@ -16,43 +24,7 @@ export interface AutomationActor extends ActorRef {
   version?: string;
 }
 
-export interface AIAgentActor extends ActorRef {
-  type: "ai-agent";
-  modelId: string;
-  provider: string;
-  confidence?: number;
-  promptHash?: string;
-  toolsUsed?: string[];
-}
-
 export type Actor = HumanActor | AutomationActor | AIAgentActor;
-
-export interface AIAgentSubmission {
-  actor: AIAgentActor;
-  signal: SignalId;
-  evidence: {
-    reasoning: string;
-    confidence: number;
-    dataPoints?: Record<string, unknown>;
-    modelResponse?: unknown;
-  };
-}
-
-export interface LoopActorPromptSignal {
-  signalId: string;
-  name: string;
-  description?: string;
-  allowedActors?: string[];
-}
-
-export interface LoopActorPromptContext {
-  loopId: string;
-  loopName: string;
-  currentState: string;
-  availableSignals: LoopActorPromptSignal[];
-  instruction: string;
-  evidence?: Record<string, unknown>;
-}
 
 export interface AIActorDecision {
   signalId: string;

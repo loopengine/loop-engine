@@ -2,7 +2,7 @@
 // Copyright 2026 Better Data, Inc.
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { LoopActorPromptContext } from "@loop-engine/actors";
+import type { LoopActorPromptContext } from "@loop-engine/core";
 
 const generateContentMock = vi.fn();
 

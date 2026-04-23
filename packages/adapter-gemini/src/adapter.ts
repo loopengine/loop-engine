@@ -1,12 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Better Data, Inc.
 
-import {
-  ActorDecisionError,
-  type AIAgentActor,
-  type AIActorDecision,
-  type LoopActorPromptContext
-} from "@loop-engine/actors";
+import { ActorDecisionError, type AIActorDecision } from "@loop-engine/actors";
+import type { AIAgentActor, LoopActorPromptContext } from "@loop-engine/core";
 import { GoogleGenerativeAI, type GenerativeModel } from "@google/generative-ai";
 import type { GeminiActorSubmission, GeminiLoopActorConfig } from "./types";
 

@@ -6,6 +6,7 @@ import type {
   AggregateId,
   GuardSpec,
   LoopDefinition,
+  LoopId,
   LoopInstance,
   StateId,
   TransitionId,
@@ -415,6 +416,10 @@ export class LoopEngine {
 
   async getHistory(aggregateId: AggregateId): Promise<TransitionRecord[]> {
     return this.options.store.getTransitionHistory(aggregateId);
+  }
+
+  async listOpen(loopId: LoopId): Promise<LoopInstance[]> {
+    return this.options.store.listOpenInstances(loopId);
   }
 }
 

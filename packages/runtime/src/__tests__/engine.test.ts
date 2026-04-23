@@ -438,4 +438,48 @@ describe("LoopEngine", () => {
     expect(result.status).toBe("rejected");
     expect(result.rejectionReason).toBe("loop_closed");
   });
+
+  it("12) listOpen returns only active instances for the given loopId (D-09)", async () => {
+    const store = new MemoryAdapter();
+    const guardRegistry = new GuardRegistry();
+    guardRegistry.register("approval-obtained", { async evaluate() { return { passed: true, message: "ok" }; } });
+    const system = createLoopEngine({
+      registry: new MemoryRegistry([demoLoop()]),
+      store,
+      guardRegistry
+    });
+
+    await system.start({
+      loopId: "demo.loop",
+      aggregateId: "A-12-active-1",
+      actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
+    });
+    await system.start({
+      loopId: "demo.loop",
+      aggregateId: "A-12-active-2",
+      actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
+    });
+
+    await system.start({
+      loopId: "demo.loop",
+      aggregateId: "A-12-completed",
+      actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
+    });
+    await system.transition({
+      aggregateId: "A-12-completed",
+      transitionId: "review",
+      actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
+    });
+    await system.transition({
+      aggregateId: "A-12-completed",
+      transitionId: "close",
+      actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
+    });
+
+    const open = await system.listOpen("demo.loop");
+    const ids = open.map((instance) => instance.aggregateId).sort();
+
+    expect(ids).toEqual(["A-12-active-1", "A-12-active-2"]);
+    expect(open.every((instance) => instance.status === "active")).toBe(true);
+  });
 });

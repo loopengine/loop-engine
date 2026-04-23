@@ -24,6 +24,12 @@ export type StateId = z.infer<typeof StateIdSchema>;
 export const TransitionIdSchema = z.string().brand<"TransitionId">();
 export type TransitionId = z.infer<typeof TransitionIdSchema>;
 
+export const OutcomeIdSchema = z.string().brand<"OutcomeId">();
+export type OutcomeId = z.infer<typeof OutcomeIdSchema>;
+
+export const CorrelationIdSchema = z.string().brand<"CorrelationId">();
+export type CorrelationId = z.infer<typeof CorrelationIdSchema>;
+
 export const LoopStatusSchema = z.enum([
   "pending",
   "active",

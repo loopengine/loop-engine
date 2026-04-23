@@ -16,14 +16,14 @@ npm install @loop-engine/adapter-memory @loop-engine/sdk
 
 ```ts
 import { createLoopSystem, GuardRegistry } from "@loop-engine/sdk";
-import { MemoryLoopStorageAdapter } from "@loop-engine/adapter-memory";
+import { MemoryStore } from "@loop-engine/adapter-memory";
 
 const guards = new GuardRegistry();
 guards.registerBuiltIns();
 
 const { engine } = await createLoopSystem({
   loops: [loopDefinition],
-  storage: new MemoryLoopStorageAdapter(),
+  store: new MemoryStore(),
   guards
 });
 ```

@@ -24,7 +24,7 @@ await createSchema(pool);
 
 const { engine } = await createLoopSystem({
   loops: [loopDefinition],
-  storage: postgresStore(pool)
+  store: postgresStore(pool)
 });
 ```
 

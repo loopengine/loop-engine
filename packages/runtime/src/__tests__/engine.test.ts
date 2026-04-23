@@ -13,41 +13,35 @@ import { GuardRegistry } from "@loop-engine/guards";
 import type {
   EventBus,
   LoopDefinitionRegistry,
-  LoopStorageAdapter,
+  LoopStore,
   RuntimeLoopInstance,
   RuntimeTransitionRecord
 } from "../interfaces";
 import { createLoopEngine } from "../engine";
 
-class MemoryAdapter implements LoopStorageAdapter {
+class MemoryAdapter implements LoopStore {
   loops = new Map<AggregateId, RuntimeLoopInstance>();
   transitions = new Map<AggregateId, RuntimeTransitionRecord[]>();
-  lastUpdated?: RuntimeLoopInstance;
 
-  async getLoop(aggregateId: AggregateId): Promise<RuntimeLoopInstance | null> {
+  async getInstance(aggregateId: AggregateId): Promise<RuntimeLoopInstance | null> {
     return this.loops.get(aggregateId) ?? null;
   }
 
-  async createLoop(instance: RuntimeLoopInstance): Promise<void> {
+  async saveInstance(instance: RuntimeLoopInstance): Promise<void> {
     this.loops.set(instance.aggregateId, instance);
   }
 
-  async updateLoop(instance: RuntimeLoopInstance): Promise<void> {
-    this.lastUpdated = instance;
-    this.loops.set(instance.aggregateId, instance);
-  }
-
-  async appendTransition(record: RuntimeTransitionRecord): Promise<void> {
+  async saveTransitionRecord(record: RuntimeTransitionRecord): Promise<void> {
     const current = this.transitions.get(record.aggregateId) ?? [];
     current.push(record);
     this.transitions.set(record.aggregateId, current);
   }
 
-  async getTransitions(aggregateId: AggregateId): Promise<RuntimeTransitionRecord[]> {
+  async getTransitionHistory(aggregateId: AggregateId): Promise<RuntimeTransitionRecord[]> {
     return this.transitions.get(aggregateId) ?? [];
   }
 
-  async listOpenLoops(loopId: LoopId): Promise<RuntimeLoopInstance[]> {
+  async listOpenInstances(loopId: LoopId): Promise<RuntimeLoopInstance[]> {
     return [...this.loops.values()].filter(
       (instance) => instance.loopId === loopId && instance.status === "active"
     );
@@ -112,8 +106,8 @@ function demoLoop(): LoopDefinition {
 
 describe("LoopEngine", () => {
   it("1) start creates instance at initialState", async () => {
-    const storage = new MemoryAdapter();
-    const system = createLoopEngine({ registry: new MemoryRegistry([demoLoop()]), storage });
+    const store = new MemoryAdapter();
+    const system = createLoopEngine({ registry: new MemoryRegistry([demoLoop()]), store });
 
     const started = await system.start({
       loopId: "demo.loop",
@@ -127,7 +121,7 @@ describe("LoopEngine", () => {
   });
 
   it("2) start emits loop.started", async () => {
-    const storage = new MemoryAdapter();
+    const store = new MemoryAdapter();
     const events: LoopEvent[] = [];
     const eventBus: EventBus = {
       async emit(event) {
@@ -136,7 +130,7 @@ describe("LoopEngine", () => {
     };
     const system = createLoopEngine({
       registry: new MemoryRegistry([demoLoop()]),
-      storage,
+      store,
       eventBus
     });
 
@@ -150,8 +144,8 @@ describe("LoopEngine", () => {
   });
 
   it("3) transition executes valid path", async () => {
-    const storage = new MemoryAdapter();
-    const system = createLoopEngine({ registry: new MemoryRegistry([demoLoop()]), storage });
+    const store = new MemoryAdapter();
+    const system = createLoopEngine({ registry: new MemoryRegistry([demoLoop()]), store });
     await system.start({
       loopId: "demo.loop",
       aggregateId: "A-3",
@@ -168,8 +162,8 @@ describe("LoopEngine", () => {
   });
 
   it("4) transition rejects invalid transition", async () => {
-    const storage = new MemoryAdapter();
-    const system = createLoopEngine({ registry: new MemoryRegistry([demoLoop()]), storage });
+    const store = new MemoryAdapter();
+    const system = createLoopEngine({ registry: new MemoryRegistry([demoLoop()]), store });
     await system.start({
       loopId: "demo.loop",
       aggregateId: "A-4",
@@ -187,8 +181,8 @@ describe("LoopEngine", () => {
   });
 
   it("5) transition rejects unauthorized actor before guard evaluation", async () => {
-    const storage = new MemoryAdapter();
-    const system = createLoopEngine({ registry: new MemoryRegistry([demoLoop()]), storage });
+    const store = new MemoryAdapter();
+    const system = createLoopEngine({ registry: new MemoryRegistry([demoLoop()]), store });
     await system.start({
       loopId: "demo.loop",
       aggregateId: "A-5",
@@ -212,7 +206,7 @@ describe("LoopEngine", () => {
   });
 
   it("6) transition blocks on hard guard failure and keeps state unchanged", async () => {
-    const storage = new MemoryAdapter();
+    const store = new MemoryAdapter();
     const guardRegistry = new GuardRegistry();
     guardRegistry.register("approval-obtained", {
       async evaluate() {
@@ -221,7 +215,7 @@ describe("LoopEngine", () => {
     });
     const system = createLoopEngine({
       registry: new MemoryRegistry([demoLoop()]),
-      storage,
+      store,
       guardRegistry
     });
 
@@ -241,14 +235,14 @@ describe("LoopEngine", () => {
       transitionId: "close",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
     });
-    const current = await storage.getLoop("A-6");
+    const current = await store.getInstance("A-6");
 
     expect(result.status).toBe("guard_failed");
     expect(current?.currentState).toBe("IN_REVIEW");
   });
 
   it("7) transition continues on soft guard failures", async () => {
-    const storage = new MemoryAdapter();
+    const store = new MemoryAdapter();
     const loop = LoopDefinitionSchema.parse({
       ...demoLoop(),
       transitions: [
@@ -274,7 +268,7 @@ describe("LoopEngine", () => {
     });
     const system = createLoopEngine({
       registry: new MemoryRegistry([loop]),
-      storage,
+      store,
       guardRegistry
     });
 
@@ -299,7 +293,7 @@ describe("LoopEngine", () => {
   });
 
   it("8) transition emits requested before executed", async () => {
-    const storage = new MemoryAdapter();
+    const store = new MemoryAdapter();
     const events: LoopEvent[] = [];
     const eventBus: EventBus = {
       async emit(event) {
@@ -310,7 +304,7 @@ describe("LoopEngine", () => {
     guardRegistry.register("approval-obtained", { async evaluate() { return { passed: true, message: "ok" }; } });
     const system = createLoopEngine({
       registry: new MemoryRegistry([demoLoop()]),
-      storage,
+      store,
       eventBus,
       guardRegistry
     });
@@ -338,12 +332,12 @@ describe("LoopEngine", () => {
   });
 
   it("9) terminal transition updates storage to completed before loop.completed emission", async () => {
-    const storage = new MemoryAdapter();
+    const store = new MemoryAdapter();
     let completedStatePersistedBeforeEvent = false;
     const eventBus: EventBus = {
       emit: async (event) => {
         if (event.type === "loop.completed") {
-          const persisted = await storage.getLoop("A-9");
+          const persisted = await store.getInstance("A-9");
           completedStatePersistedBeforeEvent = Boolean(
             persisted?.status === "completed" && persisted.completedAt
           );
@@ -354,7 +348,7 @@ describe("LoopEngine", () => {
     guardRegistry.register("approval-obtained", { async evaluate() { return { passed: true, message: "ok" }; } });
     const system = createLoopEngine({
       registry: new MemoryRegistry([demoLoop()]),
-      storage,
+      store,
       eventBus,
       guardRegistry
     });
@@ -379,13 +373,13 @@ describe("LoopEngine", () => {
   });
 
   it("10) terminal transition emits loop.completed event", async () => {
-    const storage = new MemoryAdapter();
+    const store = new MemoryAdapter();
     const events: LoopEvent[] = [];
     const guardRegistry = new GuardRegistry();
     guardRegistry.register("approval-obtained", { async evaluate() { return { passed: true, message: "ok" }; } });
     const system = createLoopEngine({
       registry: new MemoryRegistry([demoLoop()]),
-      storage,
+      store,
       eventBus: { emit: async (event) => events.push(event) },
       guardRegistry
     });
@@ -410,12 +404,12 @@ describe("LoopEngine", () => {
   });
 
   it("11) transition after terminal completion is rejected as loop_closed", async () => {
-    const storage = new MemoryAdapter();
+    const store = new MemoryAdapter();
     const guardRegistry = new GuardRegistry();
     guardRegistry.register("approval-obtained", { async evaluate() { return { passed: true, message: "ok" }; } });
     const system = createLoopEngine({
       registry: new MemoryRegistry([demoLoop()]),
-      storage,
+      store,
       guardRegistry
     });
 

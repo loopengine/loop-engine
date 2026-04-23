@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { describe, expect, it } from "vitest";
 import { ActorRefSchema, LoopDefinitionSchema, type LoopDefinition } from "@loop-engine/core";
-import { createMemoryLoopStorageAdapter, createLoopSystem } from "../index";
+import { memoryStore, createLoopSystem } from "../index";
 
 function demoLoop(): LoopDefinition {
   return LoopDefinitionSchema.parse({
@@ -33,20 +33,20 @@ function demoLoop(): LoopDefinition {
 }
 
 describe("sdk", () => {
-  it("createLoopSystem returns engine, storage, and eventBus", async () => {
+  it("createLoopSystem returns engine, store, and eventBus", async () => {
     const system = await createLoopSystem({
       loops: [demoLoop()],
-      storage: createMemoryLoopStorageAdapter()
+      store: memoryStore()
     });
 
     expect(system.engine).toBeDefined();
-    expect(system.storage).toBeDefined();
+    expect(system.store).toBeDefined();
     expect(system.eventBus).toBeDefined();
   });
 
-  it("smoke round-trip works with published createMemoryLoopStorageAdapter", async () => {
-    const storage = createMemoryLoopStorageAdapter();
-    const system = await createLoopSystem({ loops: [demoLoop()], storage });
+  it("smoke round-trip works with published memoryStore", async () => {
+    const store = memoryStore();
+    const system = await createLoopSystem({ loops: [demoLoop()], store });
     const actor = ActorRefSchema.parse({ id: "user-1", type: "human" });
 
     const started = await system.engine.start({
@@ -64,7 +64,7 @@ describe("sdk", () => {
     expect(transitioned.status).toBe("executed");
     expect(transitioned.toState).toBe("DONE");
 
-    const persisted = await storage.getLoop("A-1");
+    const persisted = await store.getInstance("A-1");
     expect(persisted?.status).toBe("completed");
     expect(persisted?.completedAt).toBeDefined();
   });

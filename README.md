@@ -40,7 +40,7 @@ npm install @loop-engine/sdk
 
 ```typescript
 import { createLoopSystem, parseLoopYaml, GuardRegistry } from '@loop-engine/sdk'
-import { MemoryLoopStorageAdapter } from '@loop-engine/adapter-memory'
+import { MemoryStore } from '@loop-engine/adapter-memory'
 
 const definition = parseLoopYaml(`
   loopId: expense.approval
@@ -75,7 +75,7 @@ guards.registerBuiltIns()
 
 const { engine } = await createLoopSystem({
   loops: [definition],
-  storage: new MemoryLoopStorageAdapter(),
+  store: new MemoryStore(),
   guards
 })
 

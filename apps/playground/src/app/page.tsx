@@ -56,29 +56,25 @@ class InMemoryLoopStore {
   private readonly instances = new Map<string, any>();
   private readonly history = new Map<string, any[]>();
 
-  async getLoop(aggregateId: any): Promise<any | null> {
+  async getInstance(aggregateId: any): Promise<any | null> {
     return this.instances.get(String(aggregateId)) ?? null;
   }
 
-  async createLoop(instance: any): Promise<void> {
+  async saveInstance(instance: any): Promise<void> {
     this.instances.set(String(instance.aggregateId), instance);
   }
 
-  async updateLoop(instance: any): Promise<void> {
-    this.instances.set(String(instance.aggregateId), instance);
-  }
-
-  async getTransitions(aggregateId: any): Promise<any[]> {
+  async getTransitionHistory(aggregateId: any): Promise<any[]> {
     return this.history.get(String(aggregateId)) ?? [];
   }
 
-  async appendTransition(record: any): Promise<void> {
+  async saveTransitionRecord(record: any): Promise<void> {
     const key = String(record.aggregateId);
     const current = this.history.get(key) ?? [];
     this.history.set(key, [...current, record]);
   }
 
-  async listOpenLoops(loopId: any): Promise<any[]> {
+  async listOpenInstances(loopId: any): Promise<any[]> {
     return [...this.instances.values()].filter((instance) => instance.loopId === loopId && instance.status === "active");
   }
 }
@@ -110,7 +106,7 @@ export default function Page(): React.ReactElement {
     guardRegistry.registerBuiltIns();
     const system = createLoopEngine({
       registry: new InMemoryLoopRegistry([definition]),
-      storage: new InMemoryLoopStore(),
+      store: new InMemoryLoopStore(),
       eventBus,
       guardRegistry
     });

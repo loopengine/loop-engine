@@ -1,6 +1,6 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
-import { createMemoryLoopStorageAdapter } from "@loop-engine/adapter-memory";
+import { memoryStore } from "@loop-engine/adapter-memory";
 import type { LoopDefinition } from "@loop-engine/core";
 import { InMemoryEventBus } from "@loop-engine/events";
 import { GuardRegistry } from "@loop-engine/guards";
@@ -9,7 +9,7 @@ import { httpRegistry, localRegistry, type LoopRegistry } from "@loop-engine/reg
 import {
   createLoopEngine,
   type LoopDefinitionRegistry,
-  type LoopStorageAdapter,
+  type LoopStore,
   type LoopEngine
 } from "@loop-engine/runtime";
 import { SignalRegistry } from "@loop-engine/signals";
@@ -35,13 +35,13 @@ export { InMemoryEventBus } from "@loop-engine/events";
 export { computeMetrics, buildTimeline } from "@loop-engine/observability";
 export { localRegistry, httpRegistry } from "@loop-engine/registry-client";
 export type { LoopRegistry, LocalRegistryOptions, HttpRegistryOptions } from "@loop-engine/registry-client";
-export { createMemoryLoopStorageAdapter };
+export { memoryStore };
 export { GuardRegistry };
 export { SignalRegistry };
 export type {
   RuntimeLoopInstance,
   RuntimeTransitionRecord,
-  LoopStorageAdapter,
+  LoopStore,
   LoopEngine
 } from "@loop-engine/runtime";
 
@@ -68,7 +68,7 @@ export * from "@loop-engine/signals";
 
 export interface CreateLoopSystemOptions {
   loops: LoopDefinition[];
-  storage?: LoopStorageAdapter;
+  store?: LoopStore;
   guards?: GuardRegistry;
   signals?: boolean;
   /**
@@ -97,7 +97,7 @@ async function loadFromRegistry(registry: LoopRegistry): Promise<LoopDefinition[
 
 export async function createLoopSystem(options: CreateLoopSystemOptions): Promise<{
   engine: LoopEngine;
-  storage: LoopStorageAdapter;
+  store: LoopStore;
   signals?: SignalRegistry;
   eventBus: InMemoryEventBus;
 }> {
@@ -123,7 +123,7 @@ export async function createLoopSystem(options: CreateLoopSystemOptions): Promis
     }
   }
 
-  const storage = options.storage ?? createMemoryLoopStorageAdapter();
+  const store = options.store ?? memoryStore();
   const eventBus = new InMemoryEventBus();
   const guardRegistry = options.guards ?? new GuardRegistry();
   if (!options.guards) {
@@ -132,14 +132,14 @@ export async function createLoopSystem(options: CreateLoopSystemOptions): Promis
 
   const engine = createLoopEngine({
     registry: new InMemoryLoopRegistry(mergedLoops),
-    storage,
+    store,
     eventBus,
     guardRegistry
   });
 
   return {
     engine,
-    storage,
+    store,
     eventBus,
     ...(options.signals ? { signals: new SignalRegistry() } : {})
   };

@@ -3,44 +3,40 @@
 
 import type { AggregateId, LoopId } from "@loop-engine/core";
 import type {
-  LoopStorageAdapter,
+  LoopStore,
   RuntimeLoopInstance,
   RuntimeTransitionRecord
 } from "@loop-engine/runtime";
 
-export class MemoryLoopStorageAdapter implements LoopStorageAdapter {
+export class MemoryStore implements LoopStore {
   private readonly loops = new Map<AggregateId, RuntimeLoopInstance>();
   private readonly transitions = new Map<AggregateId, RuntimeTransitionRecord[]>();
 
-  async getLoop(aggregateId: AggregateId): Promise<RuntimeLoopInstance | null> {
+  async getInstance(aggregateId: AggregateId): Promise<RuntimeLoopInstance | null> {
     return this.loops.get(aggregateId) ?? null;
   }
 
-  async createLoop(instance: RuntimeLoopInstance): Promise<void> {
+  async saveInstance(instance: RuntimeLoopInstance): Promise<void> {
     this.loops.set(instance.aggregateId, instance);
   }
 
-  async updateLoop(instance: RuntimeLoopInstance): Promise<void> {
-    this.loops.set(instance.aggregateId, instance);
-  }
-
-  async appendTransition(record: RuntimeTransitionRecord): Promise<void> {
+  async saveTransitionRecord(record: RuntimeTransitionRecord): Promise<void> {
     const current = this.transitions.get(record.aggregateId) ?? [];
     current.push(record);
     this.transitions.set(record.aggregateId, current);
   }
 
-  async getTransitions(aggregateId: AggregateId): Promise<RuntimeTransitionRecord[]> {
+  async getTransitionHistory(aggregateId: AggregateId): Promise<RuntimeTransitionRecord[]> {
     return this.transitions.get(aggregateId) ?? [];
   }
 
-  async listOpenLoops(loopId: LoopId): Promise<RuntimeLoopInstance[]> {
+  async listOpenInstances(loopId: LoopId): Promise<RuntimeLoopInstance[]> {
     return [...this.loops.values()].filter(
       (instance) => instance.loopId === loopId && instance.status === "active"
     );
   }
 }
 
-export function createMemoryLoopStorageAdapter(): LoopStorageAdapter {
-  return new MemoryLoopStorageAdapter();
+export function memoryStore(): MemoryStore {
+  return new MemoryStore();
 }

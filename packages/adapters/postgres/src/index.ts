@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { AggregateId, LoopId } from "@loop-engine/core";
 import type {
-  LoopStorageAdapter,
+  LoopStore,
   RuntimeLoopInstance,
   RuntimeTransitionRecord
 } from "@loop-engine/runtime";
@@ -41,7 +41,7 @@ export async function createSchema(pool: PgPoolLike): Promise<void> {
   `);
 }
 
-export function postgresStorageAdapter(_pool: PgPoolLike): LoopStorageAdapter {
+export function postgresStore(pool: PgPoolLike): LoopStore {
   function asRecord(value: unknown): Record<string, unknown> {
     if (value && typeof value === "object") return value as Record<string, unknown>;
     return {};
@@ -86,8 +86,8 @@ export function postgresStorageAdapter(_pool: PgPoolLike): LoopStorageAdapter {
   }
 
   return {
-    async getLoop(aggregateId: AggregateId): Promise<RuntimeLoopInstance | null> {
-      const result = await _pool.query(
+    async getInstance(aggregateId: AggregateId): Promise<RuntimeLoopInstance | null> {
+      const result = await pool.query(
         `
           SELECT aggregate_id, loop_id, current_state, status, started_at, updated_at, completed_at, correlation_id, metadata
           FROM loop_instances
@@ -100,12 +100,22 @@ export function postgresStorageAdapter(_pool: PgPoolLike): LoopStorageAdapter {
       if (!row) return null;
       return asLoopInstance(row);
     },
-    async createLoop(instance: RuntimeLoopInstance): Promise<void> {
-      await _pool.query(
+
+    async saveInstance(instance: RuntimeLoopInstance): Promise<void> {
+      await pool.query(
         `
           INSERT INTO loop_instances (
             aggregate_id, loop_id, current_state, status, started_at, updated_at, completed_at, correlation_id, metadata
           ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+          ON CONFLICT (aggregate_id) DO UPDATE SET
+            loop_id = EXCLUDED.loop_id,
+            current_state = EXCLUDED.current_state,
+            status = EXCLUDED.status,
+            started_at = EXCLUDED.started_at,
+            updated_at = EXCLUDED.updated_at,
+            completed_at = EXCLUDED.completed_at,
+            correlation_id = EXCLUDED.correlation_id,
+            metadata = EXCLUDED.metadata
         `,
         [
           instance.aggregateId,
@@ -121,37 +131,8 @@ export function postgresStorageAdapter(_pool: PgPoolLike): LoopStorageAdapter {
       );
     },
 
-    async updateLoop(instance: RuntimeLoopInstance): Promise<void> {
-      await _pool.query(
-        `
-          UPDATE loop_instances
-          SET
-            loop_id = $2,
-            current_state = $3,
-            status = $4,
-            started_at = $5,
-            updated_at = $6,
-            completed_at = $7,
-            correlation_id = $8,
-            metadata = $9
-          WHERE aggregate_id = $1
-        `,
-        [
-          instance.aggregateId,
-          instance.loopId,
-          instance.currentState,
-          instance.status,
-          instance.startedAt,
-          instance.updatedAt,
-          instance.completedAt ?? null,
-          instance.correlationId ?? null,
-          instance.metadata ?? null
-        ]
-      );
-    },
-
-    async getTransitions(aggregateId: AggregateId): Promise<RuntimeTransitionRecord[]> {
-      const result = await _pool.query(
+    async getTransitionHistory(aggregateId: AggregateId): Promise<RuntimeTransitionRecord[]> {
+      const result = await pool.query(
         `
           SELECT loop_id, aggregate_id, transition_id, signal, from_state, to_state, actor, evidence, occurred_at
           FROM loop_transitions
@@ -163,8 +144,8 @@ export function postgresStorageAdapter(_pool: PgPoolLike): LoopStorageAdapter {
       return result.rows.map(asTransitionRecord);
     },
 
-    async appendTransition(record: RuntimeTransitionRecord): Promise<void> {
-      await _pool.query(
+    async saveTransitionRecord(record: RuntimeTransitionRecord): Promise<void> {
+      await pool.query(
         `
           INSERT INTO loop_transitions (
             loop_id, aggregate_id, transition_id, signal, from_state, to_state, actor, evidence, occurred_at
@@ -184,8 +165,8 @@ export function postgresStorageAdapter(_pool: PgPoolLike): LoopStorageAdapter {
       );
     },
 
-    async listOpenLoops(loopId: LoopId): Promise<RuntimeLoopInstance[]> {
-      const result = await _pool.query(
+    async listOpenInstances(loopId: LoopId): Promise<RuntimeLoopInstance[]> {
+      const result = await pool.query(
         `
           SELECT aggregate_id, loop_id, current_state, status, started_at, updated_at, completed_at, correlation_id, metadata
           FROM loop_instances
@@ -198,8 +179,4 @@ export function postgresStorageAdapter(_pool: PgPoolLike): LoopStorageAdapter {
       return result.rows.map(asLoopInstance);
     }
   };
-}
-
-export function postgresStore(pool: PgPoolLike): LoopStorageAdapter {
-  return postgresStorageAdapter(pool);
 }

@@ -37,13 +37,12 @@ export interface RuntimeTransitionRecord {
   evidence?: Record<string, unknown> | undefined;
 }
 
-export interface LoopStorageAdapter {
-  getLoop(aggregateId: AggregateId): Promise<RuntimeLoopInstance | null>;
-  createLoop(instance: RuntimeLoopInstance): Promise<void>;
-  updateLoop(instance: RuntimeLoopInstance): Promise<void>;
-  appendTransition(record: RuntimeTransitionRecord): Promise<void>;
-  getTransitions(aggregateId: AggregateId): Promise<RuntimeTransitionRecord[]>;
-  listOpenLoops(loopId: LoopId): Promise<RuntimeLoopInstance[]>;
+export interface LoopStore {
+  getInstance(aggregateId: AggregateId): Promise<RuntimeLoopInstance | null>;
+  saveInstance(instance: RuntimeLoopInstance): Promise<void>;
+  getTransitionHistory(aggregateId: AggregateId): Promise<RuntimeTransitionRecord[]>;
+  saveTransitionRecord(record: RuntimeTransitionRecord): Promise<void>;
+  listOpenInstances(loopId: LoopId): Promise<RuntimeLoopInstance[]>;
 }
 
 export interface LoopDefinitionRegistry {
@@ -63,7 +62,7 @@ export interface EventBus {
 
 export interface LoopEngineOptions {
   registry: LoopDefinitionRegistry;
-  storage: LoopStorageAdapter;
+  store: LoopStore;
   eventBus?: EventBus;
   guardRegistry?: GuardRegistry;
   now?: () => string;

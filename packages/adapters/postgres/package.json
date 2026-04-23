@@ -32,7 +32,8 @@
   },
   "scripts": {
     "build": "tsup",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@loop-engine/core": "workspace:*",
@@ -40,6 +41,12 @@
   },
   "peerDependencies": {
     "pg": "^8.0.0"
+  },
+  "devDependencies": {
+    "@testcontainers/postgresql": "^11.14.0",
+    "@types/pg": "^8.20.0",
+    "pg": "^8.20.0",
+    "vitest": "^1.6.1"
   },
   "files": [
     "dist/",

@@ -49,7 +49,7 @@ describe("sdk", () => {
     const system = await createLoopSystem({ loops: [demoLoop()], storage });
     const actor = ActorRefSchema.parse({ id: "user-1", type: "human" });
 
-    const started = await system.engine.startLoop({
+    const started = await system.engine.start({
       loopId: "demo.loop",
       aggregateId: "A-1",
       actor

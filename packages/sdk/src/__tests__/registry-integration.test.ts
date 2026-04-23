@@ -68,7 +68,7 @@ describe("sdk registry integration", () => {
     const system = await createLoopSystem({ loops: [], registry });
     const actor = ActorRefSchema.parse({ id: "user-1", type: "human" });
 
-    const started = await system.engine.startLoop({
+    const started = await system.engine.start({
       loopId: "demo.registry",
       aggregateId: "A-1",
       actor
@@ -84,7 +84,7 @@ describe("sdk registry integration", () => {
 
     const system = await createLoopSystem({ loops: [local], registry });
     const actor = ActorRefSchema.parse({ id: "user-1", type: "human" });
-    await system.engine.startLoop({
+    await system.engine.start({
       loopId: "demo.conflict",
       aggregateId: "A-2",
       actor
@@ -111,7 +111,7 @@ describe("sdk registry integration", () => {
     };
 
     const system = await createLoopSystem({ loops: [fallbackLoop], registry: failingRegistry });
-    const started = await system.engine.startLoop({
+    const started = await system.engine.start({
       loopId: "demo.fallback",
       aggregateId: "A-3",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })

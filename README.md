@@ -79,7 +79,7 @@ const { engine } = await createLoopSystem({
   guards
 })
 
-const loop = await engine.startLoop({
+const loop = await engine.start({
   loopId: definition.loopId,
   aggregateId: 'expense-4200' as never,
   actor: { id: 'alice', type: 'human' as const },

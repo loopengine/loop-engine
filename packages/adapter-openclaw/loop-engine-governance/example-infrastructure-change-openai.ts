@@ -105,7 +105,7 @@ async function main() {
     affectedRegions: ['us-east-1', 'us-west-2'],
   }
 
-  const loop = await system.startLoop({
+  const loop = await system.start({
     definition,
     context: changeRequest,
   })

@@ -61,7 +61,7 @@ export interface EventBus {
   subscribe?(handler: (event: LoopEvent) => Promise<void>): () => void;
 }
 
-export interface LoopSystemOptions {
+export interface LoopEngineOptions {
   registry: LoopDefinitionRegistry;
   storage: LoopStorageAdapter;
   eventBus?: EventBus;

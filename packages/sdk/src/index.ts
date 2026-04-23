@@ -7,10 +7,10 @@ import { GuardRegistry } from "@loop-engine/guards";
 import { computeMetrics, buildTimeline } from "@loop-engine/observability";
 import { httpRegistry, localRegistry, type LoopRegistry } from "@loop-engine/registry-client";
 import {
-  createLoopSystem as createRuntimeLoopSystem,
+  createLoopEngine,
   type LoopDefinitionRegistry,
   type LoopStorageAdapter,
-  type LoopSystem
+  type LoopEngine
 } from "@loop-engine/runtime";
 import { SignalRegistry } from "@loop-engine/signals";
 import { validateLoopDefinition } from "@loop-engine/loop-definition";
@@ -42,7 +42,7 @@ export type {
   RuntimeLoopInstance,
   RuntimeTransitionRecord,
   LoopStorageAdapter,
-  LoopSystem
+  LoopEngine
 } from "@loop-engine/runtime";
 
 // Core types — always re-exported from sdk
@@ -96,7 +96,7 @@ async function loadFromRegistry(registry: LoopRegistry): Promise<LoopDefinition[
 }
 
 export async function createLoopSystem(options: CreateLoopSystemOptions): Promise<{
-  engine: LoopSystem;
+  engine: LoopEngine;
   storage: LoopStorageAdapter;
   signals?: SignalRegistry;
   eventBus: InMemoryEventBus;
@@ -130,7 +130,7 @@ export async function createLoopSystem(options: CreateLoopSystemOptions): Promis
     guardRegistry.registerBuiltIns();
   }
 
-  const engine = createRuntimeLoopSystem({
+  const engine = createLoopEngine({
     registry: new InMemoryLoopRegistry(mergedLoops),
     storage,
     eventBus,

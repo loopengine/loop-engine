@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { parseLoopYaml } from "@loop-engine/sdk/dsl";
 import { InMemoryEventBus } from "@loop-engine/events";
 import { GuardRegistry } from "@loop-engine/guards";
-import { createLoopSystem } from "@loop-engine/runtime";
+import { createLoopEngine } from "@loop-engine/runtime";
 import { DevtoolsPanel } from "@loop-engine/ui-devtools";
 
 const procurementYaml = `loopId: scm.procurement
@@ -108,7 +108,7 @@ export default function Page(): React.ReactElement {
     const eventBus = new InMemoryEventBus();
     const guardRegistry = new GuardRegistry();
     guardRegistry.registerBuiltIns();
-    const system = createLoopSystem({
+    const system = createLoopEngine({
       registry: new InMemoryLoopRegistry([definition]),
       storage: new InMemoryLoopStore(),
       eventBus,
@@ -117,12 +117,12 @@ export default function Page(): React.ReactElement {
     eventBus.subscribe(async (event) => {
       setEvents((prev) => [{ type: (event as { type: string }).type, occurredAt: new Date().toISOString(), payload: event }, ...prev]);
     });
-    await system.startLoop({
+    await system.start({
       loopId: definition.loopId as never,
       aggregateId: aggregateId as never,
       actor: { type: "human", id: "user@example.com" as never }
     });
-    const loopState = await system.getLoop(aggregateId as never);
+    const loopState = await system.getState(aggregateId as never);
     setState(String(loopState?.currentState ?? "UNKNOWN"));
     setCurrentLoopId(String(definition.loopId));
     const transitions = definition.transitions.filter((t) => t.from === loopState?.currentState);

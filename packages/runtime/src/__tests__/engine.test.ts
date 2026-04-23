@@ -17,7 +17,7 @@ import type {
   RuntimeLoopInstance,
   RuntimeTransitionRecord
 } from "../interfaces";
-import { createLoopSystem } from "../engine";
+import { createLoopEngine } from "../engine";
 
 class MemoryAdapter implements LoopStorageAdapter {
   loops = new Map<AggregateId, RuntimeLoopInstance>();
@@ -111,11 +111,11 @@ function demoLoop(): LoopDefinition {
 }
 
 describe("LoopEngine", () => {
-  it("1) startLoop creates instance at initialState", async () => {
+  it("1) start creates instance at initialState", async () => {
     const storage = new MemoryAdapter();
-    const system = createLoopSystem({ registry: new MemoryRegistry([demoLoop()]), storage });
+    const system = createLoopEngine({ registry: new MemoryRegistry([demoLoop()]), storage });
 
-    const started = await system.startLoop({
+    const started = await system.start({
       loopId: "demo.loop",
       aggregateId: "A-1",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" }),
@@ -126,7 +126,7 @@ describe("LoopEngine", () => {
     expect(started.status).toBe("active");
   });
 
-  it("2) startLoop emits loop.started", async () => {
+  it("2) start emits loop.started", async () => {
     const storage = new MemoryAdapter();
     const events: LoopEvent[] = [];
     const eventBus: EventBus = {
@@ -134,13 +134,13 @@ describe("LoopEngine", () => {
         events.push(event);
       }
     };
-    const system = createLoopSystem({
+    const system = createLoopEngine({
       registry: new MemoryRegistry([demoLoop()]),
       storage,
       eventBus
     });
 
-    await system.startLoop({
+    await system.start({
       loopId: "demo.loop",
       aggregateId: "A-2",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
@@ -151,8 +151,8 @@ describe("LoopEngine", () => {
 
   it("3) transition executes valid path", async () => {
     const storage = new MemoryAdapter();
-    const system = createLoopSystem({ registry: new MemoryRegistry([demoLoop()]), storage });
-    await system.startLoop({
+    const system = createLoopEngine({ registry: new MemoryRegistry([demoLoop()]), storage });
+    await system.start({
       loopId: "demo.loop",
       aggregateId: "A-3",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
@@ -169,8 +169,8 @@ describe("LoopEngine", () => {
 
   it("4) transition rejects invalid transition", async () => {
     const storage = new MemoryAdapter();
-    const system = createLoopSystem({ registry: new MemoryRegistry([demoLoop()]), storage });
-    await system.startLoop({
+    const system = createLoopEngine({ registry: new MemoryRegistry([demoLoop()]), storage });
+    await system.start({
       loopId: "demo.loop",
       aggregateId: "A-4",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
@@ -188,8 +188,8 @@ describe("LoopEngine", () => {
 
   it("5) transition rejects unauthorized actor before guard evaluation", async () => {
     const storage = new MemoryAdapter();
-    const system = createLoopSystem({ registry: new MemoryRegistry([demoLoop()]), storage });
-    await system.startLoop({
+    const system = createLoopEngine({ registry: new MemoryRegistry([demoLoop()]), storage });
+    await system.start({
       loopId: "demo.loop",
       aggregateId: "A-5",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
@@ -219,13 +219,13 @@ describe("LoopEngine", () => {
         return { passed: false, message: "Approval missing" };
       }
     });
-    const system = createLoopSystem({
+    const system = createLoopEngine({
       registry: new MemoryRegistry([demoLoop()]),
       storage,
       guardRegistry
     });
 
-    await system.startLoop({
+    await system.start({
       loopId: "demo.loop",
       aggregateId: "A-6",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
@@ -272,13 +272,13 @@ describe("LoopEngine", () => {
         return { passed: false, message: "Soft warning" };
       }
     });
-    const system = createLoopSystem({
+    const system = createLoopEngine({
       registry: new MemoryRegistry([loop]),
       storage,
       guardRegistry
     });
 
-    await system.startLoop({
+    await system.start({
       loopId: "demo.loop",
       aggregateId: "A-7",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
@@ -308,14 +308,14 @@ describe("LoopEngine", () => {
     };
     const guardRegistry = new GuardRegistry();
     guardRegistry.register("approval-obtained", { async evaluate() { return { passed: true, message: "ok" }; } });
-    const system = createLoopSystem({
+    const system = createLoopEngine({
       registry: new MemoryRegistry([demoLoop()]),
       storage,
       eventBus,
       guardRegistry
     });
 
-    await system.startLoop({
+    await system.start({
       loopId: "demo.loop",
       aggregateId: "A-8",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
@@ -352,14 +352,14 @@ describe("LoopEngine", () => {
     };
     const guardRegistry = new GuardRegistry();
     guardRegistry.register("approval-obtained", { async evaluate() { return { passed: true, message: "ok" }; } });
-    const system = createLoopSystem({
+    const system = createLoopEngine({
       registry: new MemoryRegistry([demoLoop()]),
       storage,
       eventBus,
       guardRegistry
     });
 
-    await system.startLoop({
+    await system.start({
       loopId: "demo.loop",
       aggregateId: "A-9",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
@@ -383,14 +383,14 @@ describe("LoopEngine", () => {
     const events: LoopEvent[] = [];
     const guardRegistry = new GuardRegistry();
     guardRegistry.register("approval-obtained", { async evaluate() { return { passed: true, message: "ok" }; } });
-    const system = createLoopSystem({
+    const system = createLoopEngine({
       registry: new MemoryRegistry([demoLoop()]),
       storage,
       eventBus: { emit: async (event) => events.push(event) },
       guardRegistry
     });
 
-    await system.startLoop({
+    await system.start({
       loopId: "demo.loop",
       aggregateId: "A-10",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
@@ -413,13 +413,13 @@ describe("LoopEngine", () => {
     const storage = new MemoryAdapter();
     const guardRegistry = new GuardRegistry();
     guardRegistry.register("approval-obtained", { async evaluate() { return { passed: true, message: "ok" }; } });
-    const system = createLoopSystem({
+    const system = createLoopEngine({
       registry: new MemoryRegistry([demoLoop()]),
       storage,
       guardRegistry
     });
 
-    await system.startLoop({
+    await system.start({
       loopId: "demo.loop",
       aggregateId: "A-11",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })

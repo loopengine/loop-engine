@@ -162,7 +162,7 @@ const system = createLoopSystem({
   guards: CommonGuards,
 })
 
-const loop = await system.startLoop({ definition, context: {} })
+const loop = await system.start({ definition, context: {} })
 
 // Only a human actor can approve — AI and automation actors are blocked.
 // guardEvidence strips PII fields and prompt-injection patterns before

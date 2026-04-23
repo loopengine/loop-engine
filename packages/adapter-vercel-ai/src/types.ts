@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Better Data, Inc.
 import type { ActorRef, AggregateId, LoopDefinition, TransitionId } from "@loop-engine/core";
-import type { LoopSystem, TransitionParams, TransitionResult } from "@loop-engine/runtime";
+import type { LoopEngine, TransitionParams, TransitionResult } from "@loop-engine/runtime";
 
 export interface CoreTool<TInput, TOutput> {
   execute: (input: TInput) => Promise<TOutput> | TOutput;
@@ -10,7 +10,7 @@ export interface CoreTool<TInput, TOutput> {
 
 export interface GovernedToolConfig<TInput = unknown> {
   loopDefinition: LoopDefinition;
-  engine: LoopSystem;
+  engine: LoopEngine;
   requiresApproval?: (input: TInput) => boolean;
   onApprovalRequired?: (loopId: string, input: TInput) => Promise<void>;
   actor: ActorRef;
@@ -18,7 +18,7 @@ export interface GovernedToolConfig<TInput = unknown> {
 
 export interface LoopToolConfig<TInput = unknown> {
   definition: LoopDefinition;
-  engine: LoopSystem;
+  engine: LoopEngine;
   actor: ActorRef;
   input: TInput;
 }

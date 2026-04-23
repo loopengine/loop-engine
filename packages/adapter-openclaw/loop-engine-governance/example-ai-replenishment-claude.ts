@@ -86,7 +86,7 @@ async function main() {
   })
 
   // Start the loop
-  const loop = await system.startLoop({
+  const loop = await system.start({
     definition,
     context: { sku: 'SKU-4892', productName: 'Widget Pro 500ml' },
   })

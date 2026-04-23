@@ -32,7 +32,7 @@ import {
   createLoopTransitionRequestedEvent
 } from "@loop-engine/events";
 import type {
-  LoopSystemOptions,
+  LoopEngineOptions,
   RuntimeLoopInstance,
   RuntimeTransitionRecord
 } from "./interfaces";
@@ -76,11 +76,11 @@ function createDefaultGuardRegistry(): GuardRegistry {
   return registry;
 }
 
-export class LoopSystem {
-  private readonly options: LoopSystemOptions;
+export class LoopEngine {
+  private readonly options: LoopEngineOptions;
   private readonly guards: GuardRegistry;
 
-  constructor(options: LoopSystemOptions) {
+  constructor(options: LoopEngineOptions) {
     this.options = options;
     this.guards = options.guardRegistry ?? createDefaultGuardRegistry();
   }
@@ -99,7 +99,7 @@ export class LoopSystem {
     return definition.states.some((state) => state.stateId === stateId && state.terminal === true);
   }
 
-  async startLoop(params: StartLoopParams): Promise<RuntimeLoopInstance> {
+  async start(params: StartLoopParams): Promise<RuntimeLoopInstance> {
     const definition = this.options.registry.get(params.loopId);
     if (!definition) {
       throw new Error(`Loop definition not found for ${params.loopId}`);
@@ -411,7 +411,7 @@ export class LoopSystem {
     return event;
   }
 
-  async getLoop(aggregateId: AggregateId): Promise<RuntimeLoopInstance | null> {
+  async getState(aggregateId: AggregateId): Promise<RuntimeLoopInstance | null> {
     return this.options.storage.getLoop(aggregateId);
   }
 
@@ -420,6 +420,6 @@ export class LoopSystem {
   }
 }
 
-export function createLoopSystem(options: LoopSystemOptions): LoopSystem {
-  return new LoopSystem(options);
+export function createLoopEngine(options: LoopEngineOptions): LoopEngine {
+  return new LoopEngine(options);
 }

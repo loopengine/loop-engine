@@ -115,7 +115,7 @@ async function main() {
     timestamp: new Date().toISOString(),
   }
 
-  const loop = await system.startLoop({
+  const loop = await system.start({
     definition,
     context: transaction,
   })

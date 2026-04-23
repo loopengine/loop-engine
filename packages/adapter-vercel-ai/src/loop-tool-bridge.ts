@@ -12,7 +12,7 @@ export async function startGovernedLoop(
 ): Promise<AggregateId> {
   const instanceId = `loop_${Date.now()}_${Math.random().toString(36).slice(2, 8)}` as AggregateId;
   await engine.start({
-    loopId: definition.id,
+    loopId: definition.loopId,
     aggregateId: instanceId,
     actor
   });
@@ -39,25 +39,25 @@ export async function transitionToState(
   );
   if (!transition) {
     throw new Error(
-      `[loop-engine/adapter-vercel-ai] missing transition ${current} -> ${toState} in ${definition.id}`
+      `[loop-engine/adapter-vercel-ai] missing transition ${current} -> ${toState} in ${definition.loopId}`
     );
   }
 
   const result = await engine.transition({
     aggregateId: instanceId,
-    transitionId: transition.id,
+    transitionId: transition.transitionId,
     actor,
     ...(evidence ? { evidence } : {})
   });
   if (result.status === "executed") return;
   if (result.status === "guard_failed") {
     throw new Error(
-      `[loop-engine/adapter-vercel-ai] guard failed on ${String(transition.id)}: ${
+      `[loop-engine/adapter-vercel-ai] guard failed on ${String(transition.transitionId)}: ${
         result.guardFailures?.[0]?.guardId ?? "unknown_guard"
       }`
     );
   }
   throw new Error(
-    `[loop-engine/adapter-vercel-ai] transition ${String(transition.id)} returned status ${result.status}`
+    `[loop-engine/adapter-vercel-ai] transition ${String(transition.transitionId)} returned status ${result.status}`
   );
 }

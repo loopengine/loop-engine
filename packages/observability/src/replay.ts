@@ -1,11 +1,10 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
-import type { LoopDefinition } from "@loop-engine/core";
-import type { RuntimeTransitionRecord } from "@loop-engine/runtime";
+import type { LoopDefinition, TransitionRecord } from "@loop-engine/core";
 
 export function replayLoop(
   definition: LoopDefinition,
-  history: RuntimeTransitionRecord[]
+  history: TransitionRecord[]
 ): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
   let state = definition.initialState;

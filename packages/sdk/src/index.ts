@@ -38,14 +38,12 @@ export type { LoopRegistry, LocalRegistryOptions, HttpRegistryOptions } from "@l
 export { memoryStore };
 export { GuardRegistry };
 export { SignalRegistry };
-export type {
-  RuntimeLoopInstance,
-  RuntimeTransitionRecord,
-  LoopStore,
-  LoopEngine
-} from "@loop-engine/runtime";
+export type { LoopStore, LoopEngine } from "@loop-engine/runtime";
 
-// Core types — always re-exported from sdk
+// Core types — always re-exported from sdk.
+// `LoopInstance` and `TransitionRecord` (formerly `RuntimeLoopInstance`
+// and `RuntimeTransitionRecord`, now at `@loop-engine/core` per
+// MECHANICAL 8.5 / D-07) propagate through this barrel.
 export * from "@loop-engine/core";
 
 // LoopBuilder, parser, serializer, validator — implementation lives in @loop-engine/loop-definition (shared with registry-client)

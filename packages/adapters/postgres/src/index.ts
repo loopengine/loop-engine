@@ -1,11 +1,12 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
-import type { AggregateId, LoopId } from "@loop-engine/core";
 import type {
-  LoopStore,
-  RuntimeLoopInstance,
-  RuntimeTransitionRecord
-} from "@loop-engine/runtime";
+  AggregateId,
+  LoopId,
+  LoopInstance,
+  TransitionRecord
+} from "@loop-engine/core";
+import type { LoopStore } from "@loop-engine/runtime";
 
 export type PgPoolLike = {
   query(sql: string, values?: unknown[]): Promise<{ rows: unknown[] }>;
@@ -51,14 +52,14 @@ export function postgresStore(pool: PgPoolLike): LoopStore {
     return typeof value === "string" ? value : fallback;
   }
 
-  function asLoopInstance(row: unknown): RuntimeLoopInstance {
+  function asLoopInstance(row: unknown): LoopInstance {
     const item = asRecord(row);
     const metadata = item.metadata;
     return {
       loopId: asString(item.loop_id) as LoopId,
       aggregateId: asString(item.aggregate_id) as AggregateId,
-      currentState: asString(item.current_state) as RuntimeLoopInstance["currentState"],
-      status: asString(item.status) as RuntimeLoopInstance["status"],
+      currentState: asString(item.current_state) as LoopInstance["currentState"],
+      status: asString(item.status) as LoopInstance["status"],
       startedAt: new Date(asString(item.started_at)).toISOString(),
       updatedAt: new Date(asString(item.updated_at)).toISOString(),
       ...(item.completed_at ? { completedAt: new Date(asString(item.completed_at)).toISOString() } : {}),
@@ -67,16 +68,16 @@ export function postgresStore(pool: PgPoolLike): LoopStore {
     };
   }
 
-  function asTransitionRecord(row: unknown): RuntimeTransitionRecord {
+  function asTransitionRecord(row: unknown): TransitionRecord {
     const item = asRecord(row);
-    const actor = asRecord(item.actor) as RuntimeTransitionRecord["actor"];
+    const actor = asRecord(item.actor) as TransitionRecord["actor"];
     return {
-      loopId: asString(item.loop_id) as RuntimeTransitionRecord["loopId"],
-      aggregateId: asString(item.aggregate_id) as RuntimeTransitionRecord["aggregateId"],
-      transitionId: asString(item.transition_id) as RuntimeTransitionRecord["transitionId"],
-      signal: asString(item.signal) as RuntimeTransitionRecord["signal"],
-      fromState: asString(item.from_state) as RuntimeTransitionRecord["fromState"],
-      toState: asString(item.to_state) as RuntimeTransitionRecord["toState"],
+      loopId: asString(item.loop_id) as TransitionRecord["loopId"],
+      aggregateId: asString(item.aggregate_id) as TransitionRecord["aggregateId"],
+      transitionId: asString(item.transition_id) as TransitionRecord["transitionId"],
+      signal: asString(item.signal) as TransitionRecord["signal"],
+      fromState: asString(item.from_state) as TransitionRecord["fromState"],
+      toState: asString(item.to_state) as TransitionRecord["toState"],
       actor,
       occurredAt: new Date(asString(item.occurred_at)).toISOString(),
       ...(item.evidence && typeof item.evidence === "object"
@@ -86,7 +87,7 @@ export function postgresStore(pool: PgPoolLike): LoopStore {
   }
 
   return {
-    async getInstance(aggregateId: AggregateId): Promise<RuntimeLoopInstance | null> {
+    async getInstance(aggregateId: AggregateId): Promise<LoopInstance | null> {
       const result = await pool.query(
         `
           SELECT aggregate_id, loop_id, current_state, status, started_at, updated_at, completed_at, correlation_id, metadata
@@ -101,7 +102,7 @@ export function postgresStore(pool: PgPoolLike): LoopStore {
       return asLoopInstance(row);
     },
 
-    async saveInstance(instance: RuntimeLoopInstance): Promise<void> {
+    async saveInstance(instance: LoopInstance): Promise<void> {
       await pool.query(
         `
           INSERT INTO loop_instances (
@@ -131,7 +132,7 @@ export function postgresStore(pool: PgPoolLike): LoopStore {
       );
     },
 
-    async getTransitionHistory(aggregateId: AggregateId): Promise<RuntimeTransitionRecord[]> {
+    async getTransitionHistory(aggregateId: AggregateId): Promise<TransitionRecord[]> {
       const result = await pool.query(
         `
           SELECT loop_id, aggregate_id, transition_id, signal, from_state, to_state, actor, evidence, occurred_at
@@ -144,7 +145,7 @@ export function postgresStore(pool: PgPoolLike): LoopStore {
       return result.rows.map(asTransitionRecord);
     },
 
-    async saveTransitionRecord(record: RuntimeTransitionRecord): Promise<void> {
+    async saveTransitionRecord(record: TransitionRecord): Promise<void> {
       await pool.query(
         `
           INSERT INTO loop_transitions (
@@ -165,7 +166,7 @@ export function postgresStore(pool: PgPoolLike): LoopStore {
       );
     },
 
-    async listOpenInstances(loopId: LoopId): Promise<RuntimeLoopInstance[]> {
+    async listOpenInstances(loopId: LoopId): Promise<LoopInstance[]> {
       const result = await pool.query(
         `
           SELECT aggregate_id, loop_id, current_state, status, started_at, updated_at, completed_at, correlation_id, metadata

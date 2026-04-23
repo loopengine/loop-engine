@@ -1,48 +1,21 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
 import type {
-  ActorRef,
   AggregateId,
   LoopDefinition,
   LoopId,
-  LoopStatus,
-  SignalId,
-  StateId,
-  TransitionId
+  LoopInstance,
+  TransitionRecord
 } from "@loop-engine/core";
 import type { LoopEvent } from "@loop-engine/events";
 import type { GuardRegistry } from "@loop-engine/guards";
 
-export interface RuntimeLoopInstance {
-  loopId: LoopId;
-  aggregateId: AggregateId;
-  currentState: StateId;
-  status: LoopStatus;
-  startedAt: string;
-  updatedAt: string;
-  correlationId?: string | undefined;
-  completedAt?: string | undefined;
-  metadata?: Record<string, unknown> | undefined;
-}
-
-export interface RuntimeTransitionRecord {
-  aggregateId: AggregateId;
-  loopId: LoopId;
-  transitionId: TransitionId;
-  signal: SignalId;
-  fromState: StateId;
-  toState: StateId;
-  actor: ActorRef;
-  occurredAt: string;
-  evidence?: Record<string, unknown> | undefined;
-}
-
 export interface LoopStore {
-  getInstance(aggregateId: AggregateId): Promise<RuntimeLoopInstance | null>;
-  saveInstance(instance: RuntimeLoopInstance): Promise<void>;
-  getTransitionHistory(aggregateId: AggregateId): Promise<RuntimeTransitionRecord[]>;
-  saveTransitionRecord(record: RuntimeTransitionRecord): Promise<void>;
-  listOpenInstances(loopId: LoopId): Promise<RuntimeLoopInstance[]>;
+  getInstance(aggregateId: AggregateId): Promise<LoopInstance | null>;
+  saveInstance(instance: LoopInstance): Promise<void>;
+  getTransitionHistory(aggregateId: AggregateId): Promise<TransitionRecord[]>;
+  saveTransitionRecord(record: TransitionRecord): Promise<void>;
+  listOpenInstances(loopId: LoopId): Promise<LoopInstance[]>;
 }
 
 export interface LoopDefinitionRegistry {

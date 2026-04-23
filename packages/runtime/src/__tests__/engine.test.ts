@@ -6,42 +6,42 @@ import {
   LoopDefinitionSchema,
   type AggregateId,
   type LoopDefinition,
-  type LoopId
+  type LoopId,
+  type LoopInstance,
+  type TransitionRecord
 } from "@loop-engine/core";
 import type { LoopEvent } from "@loop-engine/events";
 import { GuardRegistry } from "@loop-engine/guards";
 import type {
   EventBus,
   LoopDefinitionRegistry,
-  LoopStore,
-  RuntimeLoopInstance,
-  RuntimeTransitionRecord
+  LoopStore
 } from "../interfaces";
 import { createLoopEngine } from "../engine";
 
 class MemoryAdapter implements LoopStore {
-  loops = new Map<AggregateId, RuntimeLoopInstance>();
-  transitions = new Map<AggregateId, RuntimeTransitionRecord[]>();
+  loops = new Map<AggregateId, LoopInstance>();
+  transitions = new Map<AggregateId, TransitionRecord[]>();
 
-  async getInstance(aggregateId: AggregateId): Promise<RuntimeLoopInstance | null> {
+  async getInstance(aggregateId: AggregateId): Promise<LoopInstance | null> {
     return this.loops.get(aggregateId) ?? null;
   }
 
-  async saveInstance(instance: RuntimeLoopInstance): Promise<void> {
+  async saveInstance(instance: LoopInstance): Promise<void> {
     this.loops.set(instance.aggregateId, instance);
   }
 
-  async saveTransitionRecord(record: RuntimeTransitionRecord): Promise<void> {
+  async saveTransitionRecord(record: TransitionRecord): Promise<void> {
     const current = this.transitions.get(record.aggregateId) ?? [];
     current.push(record);
     this.transitions.set(record.aggregateId, current);
   }
 
-  async getTransitionHistory(aggregateId: AggregateId): Promise<RuntimeTransitionRecord[]> {
+  async getTransitionHistory(aggregateId: AggregateId): Promise<TransitionRecord[]> {
     return this.transitions.get(aggregateId) ?? [];
   }
 
-  async listOpenInstances(loopId: LoopId): Promise<RuntimeLoopInstance[]> {
+  async listOpenInstances(loopId: LoopId): Promise<LoopInstance[]> {
     return [...this.loops.values()].filter(
       (instance) => instance.loopId === loopId && instance.status === "active"
     );

@@ -6,8 +6,10 @@ import type {
   AggregateId,
   GuardSpec,
   LoopDefinition,
+  LoopInstance,
   StateId,
-  TransitionId
+  TransitionId,
+  TransitionRecord
 } from "@loop-engine/core";
 import { GuardRegistry, evaluateGuards } from "@loop-engine/guards";
 import type {
@@ -31,11 +33,7 @@ import {
   createLoopTransitionExecutedEvent,
   createLoopTransitionRequestedEvent
 } from "@loop-engine/events";
-import type {
-  LoopEngineOptions,
-  RuntimeLoopInstance,
-  RuntimeTransitionRecord
-} from "./interfaces";
+import type { LoopEngineOptions } from "./interfaces";
 
 export interface StartLoopParams {
   loopId: LoopDefinition["loopId"];
@@ -99,7 +97,7 @@ export class LoopEngine {
     return definition.states.some((state) => state.stateId === stateId && state.terminal === true);
   }
 
-  async start(params: StartLoopParams): Promise<RuntimeLoopInstance> {
+  async start(params: StartLoopParams): Promise<LoopInstance> {
     const definition = this.options.registry.get(params.loopId);
     if (!definition) {
       throw new Error(`Loop definition not found for ${params.loopId}`);
@@ -111,7 +109,7 @@ export class LoopEngine {
     }
 
     const now = this.now();
-    const instance: RuntimeLoopInstance = {
+    const instance: LoopInstance = {
       loopId: definition.loopId,
       aggregateId: params.aggregateId,
       currentState: definition.initialState,
@@ -271,7 +269,7 @@ export class LoopEngine {
     }
 
     const now = this.now();
-    const updated: RuntimeLoopInstance = {
+    const updated: LoopInstance = {
       ...instance,
       currentState: transition.to,
       updatedAt: now
@@ -282,7 +280,7 @@ export class LoopEngine {
     }
     await this.options.store.saveInstance(updated);
 
-    const record: RuntimeTransitionRecord = {
+    const record: TransitionRecord = {
       aggregateId: updated.aggregateId,
       loopId: updated.loopId,
       transitionId: transition.transitionId,
@@ -364,7 +362,7 @@ export class LoopEngine {
       throw new Error(`Loop instance not found for aggregateId ${aggregateId}`);
     }
     const now = this.now();
-    const updated: RuntimeLoopInstance = {
+    const updated: LoopInstance = {
       ...instance,
       status: "cancelled",
       completedAt: now,
@@ -393,7 +391,7 @@ export class LoopEngine {
       throw new Error(`Loop instance not found for aggregateId ${aggregateId}`);
     }
     const now = this.now();
-    const updated: RuntimeLoopInstance = {
+    const updated: LoopInstance = {
       ...instance,
       status: "failed",
       completedAt: now,
@@ -411,11 +409,11 @@ export class LoopEngine {
     return event;
   }
 
-  async getState(aggregateId: AggregateId): Promise<RuntimeLoopInstance | null> {
+  async getState(aggregateId: AggregateId): Promise<LoopInstance | null> {
     return this.options.store.getInstance(aggregateId);
   }
 
-  async getHistory(aggregateId: AggregateId): Promise<RuntimeTransitionRecord[]> {
+  async getHistory(aggregateId: AggregateId): Promise<TransitionRecord[]> {
     return this.options.store.getTransitionHistory(aggregateId);
   }
 }

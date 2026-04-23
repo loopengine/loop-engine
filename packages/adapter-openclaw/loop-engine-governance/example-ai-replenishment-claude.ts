@@ -80,9 +80,9 @@ async function main() {
     guards: CommonGuards,
   })
 
-  const adapter = createAnthropicActorAdapter(process.env.ANTHROPIC_API_KEY, {
-    modelId: 'claude-opus-4-6',
-    confidenceThreshold: 0.75,
+  const adapter = createAnthropicActorAdapter({
+    apiKey: process.env.ANTHROPIC_API_KEY ?? '',
+    model: 'claude-opus-4-6',
   })
 
   // Start the loop
@@ -127,21 +127,21 @@ async function main() {
     },
   }
 
-  const { actor, decision } = await adapter.createSubmission(inventoryContext)
+  const { actor, signal, evidence } = await adapter.createSubmission(inventoryContext)
 
-  console.log(`Claude decision: ${decision.signalId}`)
-  console.log(`Confidence: ${decision.confidence}`)
-  console.log(`Reasoning: ${decision.reasoning}`)
+  console.log(`Claude decision: ${signal}`)
+  console.log(`Confidence: ${evidence.confidence}`)
+  console.log(`Reasoning: ${evidence.reasoning}`)
 
   // Submit Claude's recommendation — confidence guard evaluates
   const analysisResult = await system.transition({
     loopId: loop.loopId,
-    signalId: decision.signalId,
+    signalId: signal,
     actor,
     evidence: {
-      reasoning: decision.reasoning,
-      confidence: decision.confidence,
-      ...decision.dataPoints,
+      reasoning: evidence.reasoning,
+      confidence: evidence.confidence,
+      ...evidence.dataPoints,
     },
   })
 

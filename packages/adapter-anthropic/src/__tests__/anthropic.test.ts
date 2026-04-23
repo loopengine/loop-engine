@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { LoopActorPromptContext } from "@loop-engine/core";
 
 const createMessageMock = vi.fn();
 
@@ -16,6 +17,23 @@ vi.mock("@anthropic-ai/sdk", () => {
 
 import { createAnthropicActorAdapter } from "../index";
 
+function makeContext(): LoopActorPromptContext {
+  return {
+    loopId: "scm.procurement",
+    loopName: "SCM Procurement",
+    currentState: "analyzing",
+    availableSignals: [
+      {
+        signalId: "scm.procurement.recommendation",
+        name: "Submit Recommendation",
+        allowedActors: ["ai-agent"]
+      }
+    ],
+    instruction: "Recommend procurement action given supplier lead time and stock levels.",
+    evidence: { supplier: "s-1", leadTimeDays: 14 }
+  };
+}
+
 describe("@loop-engine/adapter-anthropic", () => {
   beforeEach(() => {
     createMessageMock.mockReset();
@@ -27,6 +45,7 @@ describe("@loop-engine/adapter-anthropic", () => {
         {
           type: "text",
           text: JSON.stringify({
+            signalId: "scm.procurement.recommendation",
             reasoning: "Supplier lead time increased",
             confidence: 0.82,
             dataPoints: { supplier: "s-1" }
@@ -36,16 +55,14 @@ describe("@loop-engine/adapter-anthropic", () => {
     });
 
     const adapter = createAnthropicActorAdapter({ apiKey: "test-key" });
-    const submission = await adapter.createSubmission({
-      signal: "scm.procurement.recommendation" as never,
-      actorId: "agent-claude" as never,
-      prompt: "Recommend procurement action"
-    });
+    const submission = await adapter.createSubmission(makeContext());
 
     expect(submission.actor.type).toBe("ai-agent");
     expect(submission.actor.provider).toBe("anthropic");
+    expect(submission.signal as string).toBe("scm.procurement.recommendation");
     expect(submission.evidence.reasoning).toContain("lead time");
     expect(submission.evidence.confidence).toBe(0.82);
+    expect(submission.evidence.dataPoints).toEqual({ supplier: "s-1" });
   });
 
   it("computes promptHash asynchronously via crypto.subtle", async () => {
@@ -54,6 +71,7 @@ describe("@loop-engine/adapter-anthropic", () => {
         {
           type: "text",
           text: JSON.stringify({
+            signalId: "scm.procurement.recommendation",
             reasoning: "Monitor for one day",
             confidence: 0.55
           })
@@ -62,11 +80,7 @@ describe("@loop-engine/adapter-anthropic", () => {
     });
 
     const adapter = createAnthropicActorAdapter({ apiKey: "test-key" });
-    const submission = await adapter.createSubmission({
-      signal: "scm.procurement.recommendation" as never,
-      actorId: "agent-claude" as never,
-      prompt: "Hash this anthropic prompt"
-    });
+    const submission = await adapter.createSubmission(makeContext());
 
     expect(submission.actor.promptHash).toMatch(/^[a-f0-9]{64}$/);
   });
@@ -77,13 +91,7 @@ describe("@loop-engine/adapter-anthropic", () => {
     });
 
     const adapter = createAnthropicActorAdapter({ apiKey: "test-key" });
-    await expect(
-      adapter.createSubmission({
-        signal: "scm.procurement.recommendation" as never,
-        actorId: "agent-claude" as never,
-        prompt: "Test missing text"
-      })
-    ).rejects.toThrow(/returned no text block/);
+    await expect(adapter.createSubmission(makeContext())).rejects.toThrow(/returned no text block/);
   });
 
   it("throws when Anthropic text is not valid JSON", async () => {
@@ -92,13 +100,27 @@ describe("@loop-engine/adapter-anthropic", () => {
     });
 
     const adapter = createAnthropicActorAdapter({ apiKey: "test-key" });
-    await expect(
-      adapter.createSubmission({
-        signal: "scm.procurement.recommendation" as never,
-        actorId: "agent-claude" as never,
-        prompt: "Test invalid json"
-      })
-    ).rejects.toThrow(/Invalid JSON response/);
+    await expect(adapter.createSubmission(makeContext())).rejects.toThrow(/Invalid JSON response/);
+  });
+
+  it("throws when parsed signalId is outside availableSignals", async () => {
+    createMessageMock.mockResolvedValue({
+      content: [
+        {
+          type: "text",
+          text: JSON.stringify({
+            signalId: "not.a.real.signal",
+            reasoning: "wrong signal",
+            confidence: 0.8
+          })
+        }
+      ]
+    });
+
+    const adapter = createAnthropicActorAdapter({ apiKey: "test-key" });
+    await expect(adapter.createSubmission(makeContext())).rejects.toThrow(
+      /signalId outside availableSignals/
+    );
   });
 
   it("throws when parsed confidence is outside 0..1", async () => {
@@ -107,6 +129,7 @@ describe("@loop-engine/adapter-anthropic", () => {
         {
           type: "text",
           text: JSON.stringify({
+            signalId: "scm.procurement.recommendation",
             reasoning: "test",
             confidence: -0.2
           })
@@ -115,25 +138,46 @@ describe("@loop-engine/adapter-anthropic", () => {
     });
 
     const adapter = createAnthropicActorAdapter({ apiKey: "test-key" });
-    await expect(
-      adapter.createSubmission({
-        signal: "scm.procurement.recommendation" as never,
-        actorId: "agent-claude" as never,
-        prompt: "Test confidence"
-      })
-    ).rejects.toThrow(/confidence must be between 0 and 1/);
+    await expect(adapter.createSubmission(makeContext())).rejects.toThrow(
+      /confidence must be between 0 and 1/
+    );
   });
 
   it("wraps Anthropic SDK errors with adapter context", async () => {
     createMessageMock.mockRejectedValue(new Error("upstream unavailable"));
 
     const adapter = createAnthropicActorAdapter({ apiKey: "test-key" });
-    await expect(
-      adapter.createSubmission({
-        signal: "scm.procurement.recommendation" as never,
-        actorId: "agent-claude" as never,
-        prompt: "Test API error"
+    await expect(adapter.createSubmission(makeContext())).rejects.toThrow(
+      /\[loop-engine\/adapter-anthropic\] Anthropic API error: upstream unavailable/
+    );
+  });
+
+  it("uses construction-time maxTokens and temperature when provided", async () => {
+    createMessageMock.mockResolvedValue({
+      content: [
+        {
+          type: "text",
+          text: JSON.stringify({
+            signalId: "scm.procurement.recommendation",
+            reasoning: "reasoned",
+            confidence: 0.7
+          })
+        }
+      ]
+    });
+
+    const adapter = createAnthropicActorAdapter({
+      apiKey: "test-key",
+      maxTokens: 1000,
+      temperature: 0.3
+    });
+    await adapter.createSubmission(makeContext());
+
+    expect(createMessageMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        max_tokens: 1000,
+        temperature: 0.3
       })
-    ).rejects.toThrow(/\[loop-engine\/adapter-anthropic\] Anthropic API error: upstream unavailable/);
+    );
   });
 });

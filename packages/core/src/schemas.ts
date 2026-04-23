@@ -34,7 +34,7 @@ export const LoopStatusSchema = z.enum([
 ]);
 export type LoopStatus = z.infer<typeof LoopStatusSchema>;
 
-export const ActorTypeSchema = z.enum(["human", "automation", "ai-agent"]);
+export const ActorTypeSchema = z.enum(["human", "automation", "ai-agent", "system"]);
 export type ActorType = z.infer<typeof ActorTypeSchema>;
 
 export const ActorRefSchema = z.object({

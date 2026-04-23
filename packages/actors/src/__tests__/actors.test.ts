@@ -3,7 +3,7 @@
 
 import { describe, expect, it } from "vitest";
 import { ActorRefSchema, TransitionSpecSchema } from "@loop-engine/core";
-import { AIAgentActorSchema, buildAIActorEvidence, canActorExecuteTransition } from "..";
+import { AIAgentActorSchema, SystemActorSchema, buildAIActorEvidence, canActorExecuteTransition } from "..";
 
 const transition = TransitionSpecSchema.parse({
   transitionId: "resolve",
@@ -97,5 +97,34 @@ describe("actors package", () => {
       type: "ai-agent"
     });
     expect(invalid.success).toBe(false);
+  });
+
+  it("SystemActor schema validates componentId as required string", () => {
+    const valid = SystemActorSchema.safeParse({
+      id: "system-1",
+      type: "system",
+      componentId: "reconciler"
+    });
+    expect(valid.success).toBe(true);
+
+    const missingComponentId = SystemActorSchema.safeParse({
+      id: "system-1",
+      type: "system"
+    });
+    expect(missingComponentId.success).toBe(false);
+  });
+
+  it("canActorExecuteTransition accepts system actor when allowed", () => {
+    const systemTransition = TransitionSpecSchema.parse({
+      transitionId: "reconcile",
+      from: "PENDING",
+      to: "RECONCILED",
+      signal: "ledger.reconcile",
+      allowedActors: ["system"]
+    });
+    const actor = ActorRefSchema.parse({ id: "sys-1", type: "system" });
+    const result = canActorExecuteTransition(actor, systemTransition);
+    expect(result.authorized).toBe(true);
+    expect(result.requiresApproval).toBe(false);
   });
 });

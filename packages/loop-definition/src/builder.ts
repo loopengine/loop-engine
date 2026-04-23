@@ -75,7 +75,7 @@ const ACTOR_ALIASES: Record<string, ActorType> = {
   automation: "automation",
   "ai-agent": "ai-agent",
   ai_agent: "ai-agent",
-  system: "automation"
+  system: "system"
 };
 
 function normalizeActorType(raw: string): ActorType {

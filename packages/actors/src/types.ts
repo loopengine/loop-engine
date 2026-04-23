@@ -24,7 +24,13 @@ export interface AutomationActor extends ActorRef {
   version?: string;
 }
 
-export type Actor = HumanActor | AutomationActor | AIAgentActor;
+export interface SystemActor extends ActorRef {
+  type: "system";
+  componentId: string;
+  version?: string;
+}
+
+export type Actor = HumanActor | AutomationActor | AIAgentActor | SystemActor;
 
 export interface AIActorDecision {
   signalId: string;
@@ -52,6 +58,15 @@ export const AutomationActorSchema = z.object({
   id: z.string().min(1),
   type: z.literal("automation"),
   serviceId: z.string().min(1),
+  version: z.string().optional(),
+  displayName: z.string().optional(),
+  metadata: z.record(z.unknown()).optional()
+});
+
+export const SystemActorSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("system"),
+  componentId: z.string().min(1),
   version: z.string().optional(),
   displayName: z.string().optional(),
   metadata: z.record(z.unknown()).optional()

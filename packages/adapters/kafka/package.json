@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-kafka",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Kafka-backed loop persistence and event streaming adapter.",
   "homepage": "https://loopengine.io/docs/packages/adapter-kafka",
   "keywords": [

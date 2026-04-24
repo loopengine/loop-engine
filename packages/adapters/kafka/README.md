@@ -25,6 +25,18 @@ const eventBus = kafkaEventBus({
 });
 ```
 
+## Surface status at `1.0.0-rc.0`
+
+| Method | Status | Notes |
+|--------|--------|-------|
+| `emit(event)` | **Stable** | Serializes the event and produces it to the configured topic via the supplied `kafkajs` producer. |
+| `subscribe(handler)` | **`@experimental` stub** | Present on the returned bus for `EventBus`-interface completeness; throws at call time. Do not call in production code. Return type is `never` so TypeScript flags misuse at compile time. A real subscription implementation (spawning a `kafkajs` consumer, wiring per-message handlers, returning a teardown callback) is tracked against the `1.1.0` milestone. |
+
+Consumers that only need to publish Loop events are fully served by
+this adapter at RC. Consumers that need subscription should continue
+using `@loop-engine/adapter-memory`'s in-memory bus or wait for the
+`subscribe` implementation.
+
 ## Documentation link
 
 https://loopengine.io/docs/integrations/kafka

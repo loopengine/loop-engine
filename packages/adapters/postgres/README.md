@@ -71,13 +71,19 @@ Key properties:
   a later numeric prefix.
 
 Migrations are read from `dist/migrations/sql/` at runtime. The adapter
-currently ships three:
+currently ships four:
 
 - `001_schema_migrations.sql` — the `schema_migrations` tracking table
   used by the runner itself.
 - `002_loop_instances.sql` — one row per loop aggregate; upserted by
   `LoopStore.saveInstance`.
 - `003_loop_transitions.sql` — append-only transition history.
+- `004_idx_loop_instances_loop_id_status.sql` — composite B-tree index
+  on `loop_instances (loop_id, status)` supporting the
+  `listOpenInstances(loopId)` query path. Without this index the
+  planner falls back to a sequential scan; the adapter's integration
+  tests assert the plan selects this index and does not seq-scan
+  `loop_instances` on realistically-sized tables.
 
 Supported Postgres versions: the adapter is tested against 15 and 16
 and is documented to support 13+.

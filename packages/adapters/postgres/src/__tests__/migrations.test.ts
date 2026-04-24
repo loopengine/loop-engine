@@ -67,7 +67,8 @@ describe("@loop-engine/adapter-postgres migration runner", () => {
     expect(result.applied).toEqual([
       "001_schema_migrations",
       "002_loop_instances",
-      "003_loop_transitions"
+      "003_loop_transitions",
+      "004_idx_loop_instances_loop_id_status"
     ]);
     expect(result.skipped).toEqual([]);
 
@@ -87,10 +88,12 @@ describe("@loop-engine/adapter-postgres migration runner", () => {
     expect(secondRun.skipped).toEqual([
       "001_schema_migrations",
       "002_loop_instances",
-      "003_loop_transitions"
+      "003_loop_transitions",
+      "004_idx_loop_instances_loop_id_status"
     ]);
 
     // Tables still match the canonical set — no duplication, no drift.
+    // (Indexes don't appear in the public-tables list.)
     const tables = await listPublicTables(ctx);
     expect(tables).toEqual([
       "loop_instances",
@@ -136,7 +139,8 @@ describe("@loop-engine/adapter-postgres migration runner", () => {
     expect(result.applied).toEqual([
       "001_schema_migrations",
       "002_loop_instances",
-      "003_loop_transitions"
+      "003_loop_transitions",
+      "004_idx_loop_instances_loop_id_status"
     ]);
 
     // All three tables exist; no error was thrown during 002's
@@ -157,8 +161,8 @@ describe("@loop-engine/adapter-postgres migration runner", () => {
     // Fire three concurrent calls against the same pool. Without the
     // advisory lock, two callers could both try to INSERT the same
     // migration ID and one would fail with a PRIMARY KEY violation.
-    // With the lock, exactly one sees applied: [...3 migrations...] and
-    // the other two see skipped: [...3 migrations...].
+    // With the lock, exactly one sees applied: [...all migrations...]
+    // and the other two see skipped: [...all migrations...].
     const results = await Promise.all([
       runMigrations(ctx.pool),
       runMigrations(ctx.pool),
@@ -168,16 +172,20 @@ describe("@loop-engine/adapter-postgres migration runner", () => {
     const appliedCounts = results.map((r) => r.applied.length);
     const skippedCounts = results.map((r) => r.skipped.length);
 
-    // Exactly one caller applied all three migrations; the others saw
-    // everything already applied.
-    expect(appliedCounts.sort()).toEqual([0, 0, 3]);
-    expect(skippedCounts.sort()).toEqual([0, 3, 3]);
+    // Exactly one caller applied all migrations; the others saw
+    // everything already applied. Count tracks the shipped-migration
+    // count dynamically so adding a migration doesn't require updating
+    // this test's magic numbers (only the `applied`-list tests above).
+    const { length: totalMigrations } = await loadMigrations();
+    const expectedApplied = [0, 0, totalMigrations].sort();
+    const expectedSkipped = [0, totalMigrations, totalMigrations].sort();
+    expect(appliedCounts.sort()).toEqual(expectedApplied);
+    expect(skippedCounts.sort()).toEqual(expectedSkipped);
 
-    // Migration table has exactly three rows.
     const countResult = await ctx.pool.query(
       `SELECT COUNT(*)::int AS c FROM schema_migrations`
     );
-    expect((countResult.rows[0] as { c: number }).c).toBe(3);
+    expect((countResult.rows[0] as { c: number }).c).toBe(totalMigrations);
   });
 
   it("detects checksum drift on an already-applied migration", async () => {
@@ -206,7 +214,8 @@ describe("@loop-engine/adapter-postgres migration runner", () => {
     expect(migrations.map((m) => m.id)).toEqual([
       "001_schema_migrations",
       "002_loop_instances",
-      "003_loop_transitions"
+      "003_loop_transitions",
+      "004_idx_loop_instances_loop_id_status"
     ]);
     // Every migration has a non-empty SQL body and a 64-char hex
     // checksum (SHA-256).

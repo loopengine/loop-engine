@@ -15,18 +15,26 @@ npm install @loop-engine/adapter-postgres @loop-engine/sdk pg
 ## Quick Start
 
 ```ts
-import { Pool } from "pg";
 import { createLoopSystem } from "@loop-engine/sdk";
-import { createSchema, postgresStore } from "@loop-engine/adapter-postgres";
+import {
+  createPool,
+  postgresStore,
+  runMigrations
+} from "@loop-engine/adapter-postgres";
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-await createSchema(pool);
+const pool = createPool({ connectionString: process.env.DATABASE_URL });
+await runMigrations(pool);
 
 const { engine } = await createLoopSystem({
   loops: [loopDefinition],
   store: postgresStore(pool)
 });
 ```
+
+`createPool(...)` applies loop-engine-opinionated defaults; see the
+"Pool configuration" section below. Consumers who want full control can
+still `new Pool(...)` themselves and pass the result to
+`postgresStore(pool)`.
 
 ## Schema migrations
 
@@ -73,6 +81,57 @@ currently ships three:
 
 Supported Postgres versions: the adapter is tested against 15 and 16
 and is documented to support 13+.
+
+## Pool configuration
+
+`createPool(options?)` is a thin wrapper around `pg.Pool` that applies
+four opinionated defaults. All `pg.PoolConfig` fields pass through
+unchanged, plus a first-class `statement_timeout` knob.
+
+```ts
+import { createPool, DEFAULT_POOL_OPTIONS } from "@loop-engine/adapter-postgres";
+
+// Defaults:
+// {
+//   max: 10,
+//   idleTimeoutMillis: 30_000,
+//   connectionTimeoutMillis: 5_000,
+//   statement_timeout: 30_000
+// }
+console.log(DEFAULT_POOL_OPTIONS);
+
+// Typical usage:
+const pool = createPool({
+  connectionString: process.env.DATABASE_URL
+});
+
+// Override defaults:
+const biggerPool = createPool({
+  connectionString: process.env.DATABASE_URL,
+  max: 25,
+  statement_timeout: 5_000,
+  options: "-c search_path=app_schema"
+});
+```
+
+Rationale per default:
+
+- **`max: 10`** — suitable for a single app instance against a standard
+  Postgres deployment. Raise this in coordination with the server's
+  `max_connections` when scaling horizontally.
+- **`idleTimeoutMillis: 30_000`** — 30 seconds balances connection
+  reuse under burst traffic against reclaiming slots during lulls.
+- **`connectionTimeoutMillis: 5_000`** — 5 seconds is where pool
+  exhaustion should fail loudly instead of silently accumulating
+  request latency.
+- **`statement_timeout: 30_000`** — caps worst-case query latency;
+  runaway queries are canceled server-side rather than holding a
+  connection hostage. Wired via the libpq `options` connection
+  parameter (`-c statement_timeout=N`), so it applies at connection
+  init — no per-query `SET` round-trip.
+
+A consumer-supplied `options` string (e.g., `-c search_path=...`) is
+preserved and the `statement_timeout` clause is appended alongside it.
 
 ## Transactions
 

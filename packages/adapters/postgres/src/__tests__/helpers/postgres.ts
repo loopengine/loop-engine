@@ -143,6 +143,12 @@ export function propagateDockerHost(): void {
 export interface PostgresTestContext {
   container: StartedPostgreSqlContainer;
   pool: Pool;
+  /**
+   * Connection URI for the running container, for tests that need to
+   * construct their own `pg.Pool` (e.g., SR-016.4's `createPool` tests,
+   * which assert on pool-level config the shared `pool` can't express).
+   */
+  connectionString: string;
   teardown: () => Promise<void>;
 }
 
@@ -183,5 +189,10 @@ export async function startPostgres(
     await container.stop();
   };
 
-  return { container, pool, teardown };
+  return {
+    container,
+    pool,
+    connectionString: container.getConnectionUri(),
+    teardown
+  };
 }

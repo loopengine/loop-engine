@@ -54,6 +54,9 @@ export type {
 
 export { loadMigrations, runMigrations } from "./migrations/runner";
 
+export type { PoolOptions } from "./pool";
+export { createPool, DEFAULT_POOL_OPTIONS } from "./pool";
+
 /**
  * LoopStore-shaped view into a running transaction. Every method routes
  * its query through the transactional `pg.PoolClient` acquired by

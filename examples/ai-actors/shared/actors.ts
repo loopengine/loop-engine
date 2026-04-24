@@ -1,21 +1,24 @@
-import { buildActorEvidence } from "@loop-engine/actors";
-import type { AIAgentActor } from "@loop-engine/core";
+import { buildAIActorEvidence } from "@loop-engine/actors";
+import { actorId, type AIAgentActor } from "@loop-engine/core";
 import type { AIRecommendation } from "./types";
 
 /**
  * Build an AIAgentActor for the forecasting agent.
- * agentId is provider-specific — caller provides it.
- * gatewaySessionId represents the AI inference session.
+ *
+ * Per D-13 the `AIAgentActor` shape centers on `provider` + `modelId`
+ * (the canonical AI provenance pair). Callers pass the provider handle
+ * (e.g. `"anthropic"`, `"openai"`) and the model identifier (e.g.
+ * `"claude-3-5-sonnet-20241022"`) specific to the inference call.
  */
 export function buildForecastingActor(
-  agentId: string,
-  gatewaySessionId: string
+  provider: string,
+  modelId: string
 ): AIAgentActor {
   return {
     type: "ai-agent",
-    id: "agent:demand-forecaster",
-    agentId,
-    gatewaySessionId
+    id: actorId("agent:demand-forecaster"),
+    provider,
+    modelId
   };
 }
 
@@ -29,13 +32,17 @@ export function buildRecommendationEvidence(
   recommendation: AIRecommendation,
   signalId: string
 ) {
-  return buildActorEvidence(actor, {
-    ai_confidence: recommendation.confidence,
-    ai_reasoning: recommendation.reasoning,
-    recommended_action: recommendation.action,
-    recommended_qty: recommendation.recommendedQty,
-    estimated_cost: recommendation.estimatedCost,
-    urgency: recommendation.urgency,
-    source_signal_id: signalId
+  return buildAIActorEvidence({
+    provider: actor.provider,
+    modelId: actor.modelId,
+    reasoning: recommendation.reasoning,
+    confidence: recommendation.confidence,
+    dataPoints: {
+      recommended_action: recommendation.action,
+      recommended_qty: recommendation.recommendedQty,
+      estimated_cost: recommendation.estimatedCost,
+      urgency: recommendation.urgency,
+      source_signal_id: signalId
+    }
   });
 }

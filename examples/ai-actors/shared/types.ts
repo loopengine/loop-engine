@@ -1,3 +1,5 @@
+import type { AggregateId } from "@loop-engine/core";
+
 export interface DemandSpikeSignal {
   signalId: string;
   type: "DEMAND_SPIKE";
@@ -17,8 +19,7 @@ export interface DemandSpikeSignal {
 
 export interface ReplenishmentContext {
   signal: DemandSpikeSignal;
-  loopAggregateId: string;
-  orgId: string;
+  loopAggregateId: AggregateId;
   buyerEmail: string;
 }
 

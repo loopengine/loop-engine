@@ -7,39 +7,60 @@ import type {
   TransitionRecord
 } from "@loop-engine/core";
 import type { LoopStore } from "@loop-engine/runtime";
+import { runMigrations } from "./migrations/runner";
 
-export type PgPoolLike = {
+/**
+ * Narrow duck-typed view of a `pg.PoolClient`. The migration runner and
+ * (forthcoming in SR-016.3) transaction helper acquire a client from the
+ * pool, issue a series of queries against it, and then `release()` it.
+ *
+ * The real `pg.PoolClient` satisfies this shape structurally; declaring a
+ * duck type rather than importing from `pg` keeps the adapter decoupled
+ * from the `pg` runtime for consumers who use alternative pool
+ * implementations (e.g., a test double that wraps `pg.Client`).
+ */
+export type PgClientLike = {
   query(sql: string, values?: unknown[]): Promise<{ rows: unknown[] }>;
+  release(err?: Error | boolean): void;
 };
 
+/**
+ * Narrow duck-typed view of a `pg.Pool`. Widened in SR-016.2 from the
+ * original `{ query }`-only shape to include `connect()`, which the
+ * migration runner requires for per-migration transactional scope and
+ * advisory-lock serialization. The real `pg.Pool` satisfies this shape
+ * structurally — no consumer action required.
+ */
+export type PgPoolLike = {
+  query(sql: string, values?: unknown[]): Promise<{ rows: unknown[] }>;
+  connect(): Promise<PgClientLike>;
+};
+
+export type {
+  Migration,
+  MigrationRunResult,
+  RunMigrationsOptions
+} from "./migrations/runner";
+
+export { loadMigrations, runMigrations } from "./migrations/runner";
+
+/**
+ * Apply the adapter's baseline schema (`loop_instances` +
+ * `loop_transitions` + the `schema_migrations` tracking table).
+ *
+ * Pre-SR-016.2, this function issued two `CREATE TABLE IF NOT EXISTS`
+ * statements directly. From SR-016.2 on, it delegates to `runMigrations`
+ * so the same behavior is available whether callers use the high-level
+ * `createSchema` convenience or the lower-level runner API — and so the
+ * `schema_migrations` tracking table is provisioned consistently across
+ * both entry points.
+ *
+ * Retained as a backward-compatible alias; new consumers should prefer
+ * `runMigrations(pool)` directly, which returns structured information
+ * about which migrations were applied vs. skipped.
+ */
 export async function createSchema(pool: PgPoolLike): Promise<void> {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS loop_instances (
-      aggregate_id TEXT PRIMARY KEY,
-      loop_id TEXT NOT NULL,
-      current_state TEXT NOT NULL,
-      status TEXT NOT NULL,
-      started_at TIMESTAMPTZ NOT NULL,
-      updated_at TIMESTAMPTZ NOT NULL,
-      completed_at TIMESTAMPTZ NULL,
-      correlation_id TEXT NULL,
-      metadata JSONB NULL
-    );
-  `);
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS loop_transitions (
-      id BIGSERIAL PRIMARY KEY,
-      loop_id TEXT NOT NULL,
-      aggregate_id TEXT NOT NULL,
-      transition_id TEXT NOT NULL,
-      signal TEXT NOT NULL,
-      from_state TEXT NOT NULL,
-      to_state TEXT NOT NULL,
-      actor JSONB NOT NULL,
-      evidence JSONB NULL,
-      occurred_at TIMESTAMPTZ NOT NULL
-    );
-  `);
+  await runMigrations(pool);
 }
 
 export function postgresStore(pool: PgPoolLike): LoopStore {

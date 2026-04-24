@@ -67,7 +67,14 @@ describe.each(POSTGRES_IMAGE_MATRIX)(
       expect(result.rows).toEqual([{ one: 1 }]);
     });
 
-    it("createSchema provisions loop_instances and loop_transitions tables", async () => {
+    it("createSchema provisions the full baseline schema", async () => {
+      // Post-SR-016.2 canonical surface: three tables. `schema_migrations`
+      // is the runner's bookkeeping table, created by migration 001;
+      // `loop_instances` and `loop_transitions` are the adapter's domain
+      // tables, created by migrations 002 and 003 respectively. Callers
+      // who want runner-internal detail bypassed can query the runner
+      // directly via `runMigrations`; `createSchema` is the
+      // batteries-included convenience.
       await createSchema(ctx.pool);
 
       const result = await ctx.pool.query<{ table_name: string }>(
@@ -79,15 +86,17 @@ describe.each(POSTGRES_IMAGE_MATRIX)(
         `
       );
       const tables = result.rows.map((r) => r.table_name);
-      expect(tables).toEqual(["loop_instances", "loop_transitions"]);
+      expect(tables).toEqual([
+        "loop_instances",
+        "loop_transitions",
+        "schema_migrations"
+      ]);
     });
 
     it("createSchema is idempotent (second call is a no-op)", async () => {
-      // createSchema uses CREATE TABLE IF NOT EXISTS; running it twice on an
-      // already-provisioned instance must succeed without error and without
-      // duplicating tables. This invariant backs SR-016.2's future migration
-      // versioning, where migration 001 (the equivalent of `createSchema`)
-      // must re-apply cleanly on a partially-migrated instance.
+      // The runner records each applied migration in schema_migrations
+      // and skips on re-run. Running createSchema twice on the same DB
+      // must leave the table set unchanged.
       await createSchema(ctx.pool);
       await createSchema(ctx.pool);
 
@@ -101,7 +110,8 @@ describe.each(POSTGRES_IMAGE_MATRIX)(
       );
       expect(result.rows.map((r) => r.table_name)).toEqual([
         "loop_instances",
-        "loop_transitions"
+        "loop_transitions",
+        "schema_migrations"
       ]);
     });
   }

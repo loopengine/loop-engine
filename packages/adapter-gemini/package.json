@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-gemini",
-  "version": "0.1.7",
+  "version": "1.0.0-rc.0",
   "description": "Google Gemini adapter for governed AI loop actors.",
   "keywords": [
     "loop-engine",

@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/ui-devtools",
-  "version": "0.1.6",
+  "version": "1.0.0-rc.0",
   "description": "Devtools and replay UI for debugging governed loops.",
   "license": "Apache-2.0",
   "repository": {

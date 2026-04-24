@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-http",
-  "version": "0.1.6",
+  "version": "1.0.0-rc.0",
   "description": "HTTP routing adapter for approval and event delivery endpoints.",
   "homepage": "https://loopengine.io/docs/packages/adapter-http",
   "keywords": [

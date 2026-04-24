@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-anthropic",
-  "version": "0.1.6",
+  "version": "1.0.0-rc.0",
   "description": "Anthropic Claude adapter for governed AI loop actors.",
   "keywords": [
     "loop-engine",

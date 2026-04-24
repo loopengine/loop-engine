@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-openai",
-  "version": "0.1.6",
+  "version": "1.0.0-rc.0",
   "description": "OpenAI adapter for governed GPT loop actors.",
   "keywords": [
     "loop-engine",

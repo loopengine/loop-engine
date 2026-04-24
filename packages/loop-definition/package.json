@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/loop-definition",
-  "version": "0.1.0",
+  "version": "1.0.0-rc.0",
   "description": "YAML parse/serialize, validation, and LoopBuilder for loop definitions (shared by @loop-engine/sdk and @loop-engine/registry-client).",
   "license": "Apache-2.0",
   "repository": {

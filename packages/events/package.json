@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/events",
-  "version": "0.1.5",
+  "version": "1.0.0-rc.0",
   "description": "Event bus contracts for loop execution signals.",
   "license": "Apache-2.0",
   "repository": {

@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-memory",
-  "version": "0.1.6",
+  "version": "1.0.0-rc.0",
   "description": "In-memory loop state store for local development.",
   "license": "Apache-2.0",
   "repository": {

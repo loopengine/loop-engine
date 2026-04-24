@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/observability",
-  "version": "0.1.6",
+  "version": "1.0.0-rc.0",
   "description": "Metrics, timelines, and audit telemetry for loop execution.",
   "license": "Apache-2.0",
   "repository": {

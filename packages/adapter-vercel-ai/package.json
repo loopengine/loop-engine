@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-vercel-ai",
-  "version": "0.1.6",
+  "version": "1.0.0-rc.0",
   "description": "Vercel AI SDK adapter for governed tool-call approval flows.",
   "keywords": [
     "loop-engine",
@@ -38,7 +38,7 @@
     "@loop-engine/runtime": "workspace:*"
   },
   "peerDependencies": {
-    "@loop-engine/core": "^0.1.5",
+    "@loop-engine/core": "^1.0.0-rc.0",
     "ai": ">=3.0.0"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-pagerduty",
-  "version": "0.1.5",
+  "version": "1.0.0-rc.0",
   "description": "PagerDuty routing adapter for human approval delivery.",
   "keywords": [
     "loop-engine",
@@ -35,7 +35,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "peerDependencies": {
-    "@loop-engine/core": "^0.1.5"
+    "@loop-engine/core": "^1.0.0-rc.0"
   },
   "devDependencies": {
     "tsup": "^8.5.1",

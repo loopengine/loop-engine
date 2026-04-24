@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/guards",
-  "version": "0.1.5",
+  "version": "1.0.0-rc.0",
   "description": "Approval, confidence, and policy guard framework.",
   "license": "Apache-2.0",
   "repository": {

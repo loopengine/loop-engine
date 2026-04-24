@@ -74,6 +74,45 @@ currently ships three:
 Supported Postgres versions: the adapter is tested against 15 and 16
 and is documented to support 13+.
 
+## Transactions
+
+`postgresStore(pool)` returns a `PostgresStore` — a `LoopStore` plus a
+`withTransaction(fn)` method for atomically sequencing multiple
+LoopStore operations against a single pg-acquired client.
+
+```ts
+import { postgresStore } from "@loop-engine/adapter-postgres";
+
+const store = postgresStore(pool);
+
+await store.withTransaction(async (tx) => {
+  await tx.saveInstance(updatedInstance);
+  await tx.saveTransitionRecord(transitionRecord);
+});
+```
+
+The callback receives a `TransactionClient` with the same five
+`LoopStore` methods, each routed through the transactional client.
+Semantics:
+
+- **Commit on success**: `fn` resolves → `COMMIT` → changes persist.
+- **Rollback on error**: `fn` rejects → `ROLLBACK` → changes discarded
+  → original error propagates unchanged.
+- **Isolation**: Postgres's default `READ COMMITTED` applies — writes
+  inside `fn` are invisible to reads on the outer pool until `COMMIT`.
+- **Return-value propagation**: `fn`'s return value is the
+  `withTransaction` return value.
+- **Nesting via the outer store is independent**: calling
+  `store.withTransaction(...)` inside another `store.withTransaction`
+  acquires a second client and runs in its own transaction. To extend
+  atomicity across nested scopes, pass the outer `tx` to the inner
+  operation and call its LoopStore methods instead.
+
+`TransactionClient` is intentionally narrow — it exposes LoopStore
+methods only, with no raw `pg.PoolClient` escape hatch. Consumers
+needing LISTEN/NOTIFY or other non-LoopStore Postgres operations should
+manage their own `pg.Pool` alongside the adapter's.
+
 ## Documentation link
 
 https://loopengine.io/docs/integrations/postgres

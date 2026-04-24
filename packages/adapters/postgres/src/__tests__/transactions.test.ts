@@ -42,7 +42,13 @@ import {
   it
 } from "vitest";
 
-import { postgresStore, runMigrations, type PostgresStore } from "../index";
+import {
+  postgresStore,
+  runMigrations,
+  TransactionIntegrityError,
+  classifyError,
+  type PostgresStore
+} from "../index";
 import type {
   AggregateId,
   LoopId,
@@ -216,6 +222,179 @@ describe("@loop-engine/adapter-postgres withTransaction", () => {
     // Outer rolled back; inner's write persists.
     expect(await store.getInstance(outerAgg.aggregateId)).toBeNull();
     expect(await store.getInstance(innerAgg.aggregateId)).not.toBeNull();
+  });
+
+  // ──────────────────────────────────────────────────────────────────
+  // SR-016.5: error classification + connection-loss handling.
+  //
+  // The integration-test half of the classification surface. Unit-
+  // level behavior (SQLSTATE mapping, connection-code mapping, kind
+  // discriminant, etc.) is covered in `errors.test.ts`; these tests
+  // verify the real-pg interactions: constraint violations pass
+  // through with their SQLSTATE intact (no adapter-level wrapping),
+  // and mid-tx connection loss surfaces as `TransactionIntegrityError`.
+  // ──────────────────────────────────────────────────────────────────
+
+  it("passes through pg constraint violations unchanged (no adapter wrapping)", async () => {
+    // Triggers a primary-key violation on `loop_instances.aggregate_id`
+    // by bypassing saveInstance's ON CONFLICT UPSERT and issuing a
+    // raw INSERT through the outer pool. SQLSTATE 23505 must reach
+    // the consumer unchanged — not wrapped into an
+    // adapter-internal DuplicateKeyError. Consumers who want typed
+    // handling pattern-match against .code themselves.
+    const aggregateId = "A-constraint-passthrough";
+    const instance = makeInstance(aggregateId);
+
+    // Seed the row.
+    await store.withTransaction(async (tx) => {
+      await tx.saveInstance(instance);
+    });
+
+    // Attempt a raw INSERT with the same aggregate_id inside a new
+    // transaction → 23505.
+    const attempt = store.withTransaction(async (_tx) => {
+      await ctx.pool.query(
+        `
+          INSERT INTO loop_instances (
+            aggregate_id, loop_id, current_state, status, started_at, updated_at
+          ) VALUES ($1, $2, $3, $4, NOW(), NOW())
+        `,
+        [aggregateId, "tx.test.loop", "OPEN", "active"]
+      );
+    });
+
+    await expect(attempt).rejects.toMatchObject({ code: "23505" });
+    await expect(attempt).rejects.not.toBeInstanceOf(TransactionIntegrityError);
+
+    // The failed tx rolled back cleanly; subsequent transactions work.
+    const followup = makeInstance("A-constraint-recover");
+    await store.withTransaction(async (tx) => {
+      await tx.saveInstance(followup);
+    });
+    expect(await store.getInstance(followup.aggregateId)).not.toBeNull();
+  });
+
+  it("classifies pass-through pg errors via classifyError", async () => {
+    // Consumers use `classifyError` to drive retry logic. Confirm a
+    // constraint-violation error is classified `"permanent"` so a
+    // retry loop does the right thing (doesn't retry).
+    const aggregateId = "A-classify";
+    const instance = makeInstance(aggregateId);
+
+    await store.withTransaction(async (tx) => {
+      await tx.saveInstance(instance);
+    });
+
+    let pgErr: unknown;
+    try {
+      await store.withTransaction(async (_tx) => {
+        await ctx.pool.query(
+          `
+            INSERT INTO loop_instances (
+              aggregate_id, loop_id, current_state, status, started_at, updated_at
+            ) VALUES ($1, $2, $3, $4, NOW(), NOW())
+          `,
+          [aggregateId, "tx.test.loop", "OPEN", "active"]
+        );
+      });
+    } catch (err) {
+      pgErr = err;
+    }
+
+    expect(pgErr).toBeDefined();
+    expect(classifyError(pgErr)).toBe("permanent");
+  });
+
+  it("wraps mid-tx connection loss as TransactionIntegrityError (kind=transient)", async () => {
+    // The subtlest surface in SR-016.5: the connection dies mid-fn.
+    // The adapter-level rule (operator-adjudicated) is that when the
+    // adapter cannot confirm a definite terminal state for the
+    // transaction, it wraps as `TransactionIntegrityError` rather
+    // than letting an opaque pg connection-error propagate as if
+    // nothing special had happened.
+    //
+    // Deterministic trigger: after the tx has issued its first
+    // query (putting the backend into `idle in transaction` state),
+    // use an out-of-band connection to find that backend and
+    // `pg_terminate_backend` it. The next query on the tx's client
+    // must fail with a connection-class error; withTransaction's
+    // subsequent ROLLBACK attempt also fails; the rule fires.
+    //
+    // Robustness concern mitigated by this sub-commit: pg clients
+    // emit async `'error'` events on `FATAL` messages even when no
+    // query is active. If `withTransaction` did not install an
+    // error handler for the lifetime of its checked-out client,
+    // the socket-level FATAL (`57P01`) delivered between
+    // `pg_terminate_backend` and the next query would become an
+    // uncaught exception and crash the consumer's process. The
+    // adapter now installs a no-op handler; this test exercises
+    // the real surface.
+
+    const instance = makeInstance("A-mid-tx-loss");
+
+    let caught: unknown;
+    try {
+      await store.withTransaction(async (tx) => {
+        await tx.saveInstance(instance);
+
+        // Identify the backend now sitting in `idle in transaction`
+        // (that's us — we just INSERTed and returned from the
+        // INSERT's round-trip) and terminate it via an out-of-band
+        // connection.
+        const killResult = await ctx.pool.query(
+          `
+            SELECT pg_terminate_backend(pid) AS killed
+            FROM pg_stat_activity
+            WHERE state = 'idle in transaction'
+              AND datname = current_database()
+              AND pid <> pg_backend_pid()
+            LIMIT 1
+          `
+        );
+        expect(killResult.rows.length).toBeGreaterThan(0);
+
+        // The TCP close needs a moment to propagate to the pg-node
+        // socket; the async FATAL arrives during this window. The
+        // adapter's client-level `'error'` handler absorbs the
+        // orphan event so this doesn't become an uncaught exception.
+        await new Promise((resolve) => setTimeout(resolve, 200));
+
+        // Next tx operation: pg routes it to the now-broken
+        // client. The query rejects with a connection-class error.
+        // withTransaction catches, attempts ROLLBACK (which also
+        // rejects because the socket is closed), and surfaces
+        // `TransactionIntegrityError`.
+        await tx.saveInstance(makeInstance("A-mid-tx-loss-followup"));
+      });
+    } catch (err) {
+      caught = err;
+    }
+
+    expect(caught).toBeInstanceOf(TransactionIntegrityError);
+    if (caught instanceof TransactionIntegrityError) {
+      expect(caught.kind).toBe("transient");
+      expect(caught.cause).toBeDefined();
+      expect(caught.message).toMatch(/indeterminate/i);
+      // `classifyError` on the wrapper returns `"transient"` via the
+      // PostgresStoreError's own kind — the retry decision is
+      // consistent between the wrapper and the underlying cause
+      // classification.
+      expect(classifyError(caught)).toBe("transient");
+    }
+
+    // Pool recovers: the broken client is evicted by pg on release
+    // (connection is dead → pg.Pool discards it rather than
+    // returning it to the idle set), and a fresh connection serves
+    // the next transaction cleanly.
+    const followup = makeInstance("A-mid-tx-loss-recovered");
+    await store.withTransaction(async (tx) => {
+      await tx.saveInstance(followup);
+    });
+    expect(await store.getInstance(followup.aggregateId)).not.toBeNull();
+
+    // The instance the failing tx tried to save was not committed —
+    // Postgres rolled the tx back server-side when the backend died.
+    expect(await store.getInstance(instance.aggregateId)).toBeNull();
   });
 
   it("extends atomicity across call sites when the inner uses the outer tx", async () => {

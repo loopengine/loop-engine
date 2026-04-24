@@ -8,6 +8,7 @@ import type {
 } from "@loop-engine/core";
 import type { LoopStore } from "@loop-engine/runtime";
 import { runMigrations } from "./migrations/runner";
+import { TransactionIntegrityError, isConnectionError } from "./errors";
 
 /**
  * Narrow duck-typed view of a `pg.PoolClient`. The migration runner and
@@ -22,6 +23,18 @@ import { runMigrations } from "./migrations/runner";
 export type PgClientLike = {
   query(sql: string, values?: unknown[]): Promise<{ rows: unknown[] }>;
   release(err?: Error | boolean): void;
+  /**
+   * Optional `EventEmitter`-style error subscription. pg clients
+   * emit `'error'` events for async server-side messages (e.g.,
+   * `FATAL` backend termination) delivered when no query is active;
+   * the event must be handled or it becomes an uncaught exception
+   * that can crash the consumer's process. Declared optional so
+   * narrow test doubles remain compatible with the type; the
+   * `withTransaction` helper detects presence at runtime and only
+   * wires a handler when these methods exist.
+   */
+  on?(event: "error", handler: (err: Error) => void): void;
+  off?(event: "error", handler: (err: Error) => void): void;
 };
 
 /**
@@ -56,6 +69,14 @@ export { loadMigrations, runMigrations } from "./migrations/runner";
 
 export type { PoolOptions } from "./pool";
 export { createPool, DEFAULT_POOL_OPTIONS } from "./pool";
+
+export type { PostgresStoreErrorKind } from "./errors";
+export {
+  PostgresStoreError,
+  TransactionIntegrityError,
+  classifyError,
+  isTransientError
+} from "./errors";
 
 /**
  * LoopStore-shaped view into a running transaction. Every method routes
@@ -329,25 +350,81 @@ export function postgresStore(pool: PgPoolLike): PostgresStore {
   async function withTransaction<T>(
     fn: (tx: TransactionClient) => Promise<T>
   ): Promise<T> {
+    // SR-016.5: the wrapping rule is indeterminacy-driven — we only
+    // throw `TransactionIntegrityError` when the adapter genuinely
+    // cannot confirm a definite terminal state (committed or rolled
+    // back). fn errors with a clean ROLLBACK pass through unchanged;
+    // COMMIT failures with definite rollback semantics (deferred
+    // constraint violation, etc.) pass through unchanged; only
+    // genuinely-indeterminate cases are wrapped.
     const client = await pool.connect();
+
+    // SR-016.5 (substantive finding surfaced during integration
+    // testing): pg clients emit `'error'` events for async
+    // server-side messages (e.g., `FATAL` 57P01 backend termination
+    // when `pg_terminate_backend` is invoked from another session)
+    // that arrive while no query is pending. Unhandled, these
+    // become uncaught exceptions that can crash the consumer's
+    // process. Attach a no-op handler for the lifetime of the
+    // checked-out client; the error will also surface via the
+    // next query's rejection path, which withTransaction already
+    // handles correctly. Optional-method guard preserves
+    // compatibility with narrow test doubles.
+    const asyncErrorNoop = (): void => {
+      /* intentional no-op; errors flow through the query rejection path */
+    };
+    if (typeof client.on === "function") {
+      client.on("error", asyncErrorNoop);
+    }
+
     try {
       await client.query("BEGIN");
+
+      let result: T;
       try {
         const tx = buildLoopStoreAgainst(client);
-        const result = await fn(tx);
-        await client.query("COMMIT");
-        return result;
-      } catch (err) {
+        result = await fn(tx);
+      } catch (fnErr) {
+        // fn threw. Try to ROLLBACK. If ROLLBACK succeeds, the
+        // transaction reached a definite terminal state and we
+        // propagate fn's original error unchanged. If ROLLBACK fails,
+        // the state is indeterminate and we wrap as
+        // `TransactionIntegrityError`.
         try {
           await client.query("ROLLBACK");
         } catch {
-          // Preserve the original fn error; ROLLBACK failure commonly
-          // indicates a broken connection, which `pg.Pool` will detect
-          // and evict on the next use of the released client.
+          throw new TransactionIntegrityError(
+            "withTransaction: ROLLBACK failed after fn error; transaction state is indeterminate",
+            { cause: fnErr }
+          );
         }
-        throw err;
+        throw fnErr;
       }
+
+      try {
+        await client.query("COMMIT");
+      } catch (commitErr) {
+        // COMMIT failures bifurcate by cause:
+        //   - connection-level failure → we never received the ACK;
+        //     the tx may have been committed server-side before the
+        //     connection dropped. State indeterminate; wrap.
+        //   - non-connection failure (e.g., deferred constraint
+        //     violation) → Postgres definitively rolled back. Pass
+        //     through so consumers can inspect the SQLSTATE.
+        if (isConnectionError(commitErr)) {
+          throw new TransactionIntegrityError(
+            "withTransaction: COMMIT failed due to connection issue; transaction state is indeterminate",
+            { cause: commitErr }
+          );
+        }
+        throw commitErr;
+      }
+
+      return result;
     } finally {
+      if (typeof client.off === "function") {
+        client.off("error", asyncErrorNoop);
+      }
       client.release();
     }
   }

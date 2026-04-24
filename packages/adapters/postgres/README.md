@@ -172,6 +172,69 @@ methods only, with no raw `pg.PoolClient` escape hatch. Consumers
 needing LISTEN/NOTIFY or other non-LoopStore Postgres operations should
 manage their own `pg.Pool` alongside the adapter's.
 
+## Error classification
+
+The adapter exports a minimal classification surface for retry logic.
+Routine pg errors pass through unchanged (including constraint
+violations, data errors, access violations, etc.) — consumers who
+want typed handling of specific SQLSTATE codes inspect `.code`
+themselves.
+
+```ts
+import { classifyError, isTransientError } from "@loop-engine/adapter-postgres";
+
+try {
+  await store.saveTransitionRecord(record);
+} catch (err) {
+  if (isTransientError(err)) {
+    // Connection drop, server lifecycle event, or deadlock —
+    // retry with a fresh attempt is likely to succeed.
+    return retryWithBackoff(() => store.saveTransitionRecord(record));
+  }
+  throw err;
+}
+```
+
+**Transient classification** (retry likely to help):
+
+- Node connection-level errors: `ECONNRESET`, `ECONNREFUSED`,
+  `ETIMEDOUT`, `ENOTFOUND`, `EHOSTUNREACH`, `ENETUNREACH`.
+- Postgres server-lifecycle SQLSTATEs: `57P01` (admin_shutdown),
+  `57P02` (crash_shutdown), `57P03` (cannot_connect_now).
+- Deadlocks: `40P01` (deadlock_detected) — Postgres aborted one
+  transaction to break a deadlock; the retry resolves.
+- pg's `Connection terminated unexpectedly` string-matched errors.
+
+Everything else that looks like a SQLSTATE is classified `"permanent"`
+(including constraint violations, invalid-input errors, etc.). Shapes
+the classifier doesn't recognize are `"unknown"`; treat these as
+permanent for retry-loop safety unless context argues otherwise.
+
+### `TransactionIntegrityError`
+
+`withTransaction` throws `TransactionIntegrityError` (a subclass of
+`PostgresStoreError`) when the adapter cannot confirm a definite
+terminal state for the transaction:
+
+- `fn` threw, and the subsequent `ROLLBACK` also failed. The
+  transaction's server-side state is indeterminate.
+- `fn` succeeded, but `COMMIT` failed with a connection-level error.
+  The transaction may have been committed server-side before the
+  connection dropped (we never received the ACK).
+
+`kind` is `"transient"`, and the original cause is preserved at
+`.cause`. Consumers are responsible for the retry's idempotency story
+— append-only writes like `saveTransitionRecord` should either ride
+on upstream idempotency guards or use unique-constraint surfaces to
+reject duplicates.
+
+Non-indeterminate failures pass through unchanged:
+
+- `fn` threw + ROLLBACK succeeded → original `fn` error (no wrap).
+- `COMMIT` failed with a non-connection error (e.g., deferred
+  constraint violation) → Postgres definitively rolled back; the
+  commit error propagates with its SQLSTATE intact.
+
 ## Documentation link
 
 https://loopengine.io/docs/integrations/postgres

@@ -28,7 +28,7 @@ transitions: [{ transitionId: approve, from: submitted, to: approved, signal: ap
 `);
 
 const { engine } = await createLoopSystem({ loops: [loop] });
-await engine.startLoop({ loopId: "expense.approval" as never, aggregateId: "EXP-1" as never, actor: { type: "human", id: "manager@acme.com" as never } });
+await engine.start({ loopId: "expense.approval" as never, aggregateId: "EXP-1" as never, actor: { type: "human", id: "manager@acme.com" as never } });
 await engine.transition({ aggregateId: "EXP-1" as never, transitionId: "approve" as never, actor: { type: "human", id: "manager@acme.com" as never } });
 ```
 

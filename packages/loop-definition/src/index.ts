@@ -4,11 +4,10 @@
 export { LoopBuilder } from "./builder";
 export type {
   LoopBuilderGuardInput,
-  LoopBuilderGuardLegacy,
-  LoopBuilderGuardShorthand,
   LoopBuilderOutcomeInput,
   LoopBuilderTransitionInput
 } from "./builder";
 export * from "./parser";
 export * from "./serializer";
 export * from "./validator";
+export { applyAuthoringDefaults } from "./applyAuthoringDefaults";

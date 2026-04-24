@@ -25,7 +25,7 @@ export interface GuardContext {
 export interface GuardResult {
   passed: boolean;
   code?: string | undefined;
-  message: string;
+  message?: string | undefined;
   metadata?: Record<string, unknown> | undefined;
 }
 

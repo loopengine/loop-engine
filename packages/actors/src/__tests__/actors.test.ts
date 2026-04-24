@@ -3,34 +3,62 @@
 
 import { describe, expect, it } from "vitest";
 import { ActorRefSchema, TransitionSpecSchema } from "@loop-engine/core";
-import { AIAgentActorSchema, buildAIActorEvidence, isAuthorized } from "..";
+import { AIAgentActorSchema, SystemActorSchema, buildAIActorEvidence, canActorExecuteTransition } from "..";
 
 const transition = TransitionSpecSchema.parse({
-  transitionId: "resolve",
+  id: "resolve",
   from: "OPEN",
   to: "RESOLVED",
   signal: "support.ticket.resolve",
-  allowedActors: ["human", "automation"]
+  actors: ["human", "automation", "ai-agent"]
+});
+
+const humanOnlyTransition = TransitionSpecSchema.parse({
+  id: "resolve",
+  from: "OPEN",
+  to: "RESOLVED",
+  signal: "support.ticket.resolve",
+  actors: ["human", "automation"]
 });
 
 describe("actors package", () => {
-  it("isAuthorized returns true when actor.type in allowedActors", () => {
+  it("canActorExecuteTransition returns authorized=true when actor.type in allowedActors", () => {
     const actor = ActorRefSchema.parse({ id: "user-1", type: "human" });
-    const result = isAuthorized(actor, transition);
+    const result = canActorExecuteTransition(actor, transition);
     expect(result.authorized).toBe(true);
+    expect(result.requiresApproval).toBe(false);
   });
 
-  it("isAuthorized returns false when actor.type not in allowedActors", () => {
+  it("canActorExecuteTransition returns authorized=false when actor.type not in allowedActors", () => {
     const actor = ActorRefSchema.parse({ id: "agent-1", type: "ai-agent" });
-    const result = isAuthorized(actor, transition);
+    const result = canActorExecuteTransition(actor, humanOnlyTransition);
     expect(result.authorized).toBe(false);
+    expect(result.requiresApproval).toBe(false);
   });
 
-  it("isAuthorized returns false with descriptive reason string", () => {
+  it("canActorExecuteTransition returns descriptive reason when unauthorized", () => {
     const actor = ActorRefSchema.parse({ id: "agent-1", type: "ai-agent" });
-    const result = isAuthorized(actor, transition);
+    const result = canActorExecuteTransition(actor, humanOnlyTransition);
     expect(result.authorized).toBe(false);
     expect(result.reason).toBe("Actor type not allowed for this transition");
+  });
+
+  it("canActorExecuteTransition flags requiresApproval=true for AI actor on constrained transition", () => {
+    const actor = ActorRefSchema.parse({ id: "agent-1", type: "ai-agent" });
+    const result = canActorExecuteTransition(actor, transition, {
+      requiresHumanApprovalFor: [transition.id]
+    });
+    expect(result.authorized).toBe(true);
+    expect(result.requiresApproval).toBe(true);
+  });
+
+  it("canActorExecuteTransition leaves non-AI actors unaffected by AIActorConstraints", () => {
+    const actor = ActorRefSchema.parse({ id: "user-1", type: "human" });
+    const result = canActorExecuteTransition(actor, transition, {
+      requiresHumanApprovalFor: [transition.id]
+    });
+    expect(result.authorized).toBe(true);
+    expect(result.requiresApproval).toBe(false);
   });
 
   it("buildAIActorEvidence throws if confidence > 1", async () => {
@@ -69,5 +97,34 @@ describe("actors package", () => {
       type: "ai-agent"
     });
     expect(invalid.success).toBe(false);
+  });
+
+  it("SystemActor schema validates componentId as required string", () => {
+    const valid = SystemActorSchema.safeParse({
+      id: "system-1",
+      type: "system",
+      componentId: "reconciler"
+    });
+    expect(valid.success).toBe(true);
+
+    const missingComponentId = SystemActorSchema.safeParse({
+      id: "system-1",
+      type: "system"
+    });
+    expect(missingComponentId.success).toBe(false);
+  });
+
+  it("canActorExecuteTransition accepts system actor when allowed", () => {
+    const systemTransition = TransitionSpecSchema.parse({
+      id: "reconcile",
+      from: "PENDING",
+      to: "RECONCILED",
+      signal: "ledger.reconcile",
+      actors: ["system"]
+    });
+    const actor = ActorRefSchema.parse({ id: "sys-1", type: "system" });
+    const result = canActorExecuteTransition(actor, systemTransition);
+    expect(result.authorized).toBe(true);
+    expect(result.requiresApproval).toBe(false);
   });
 });

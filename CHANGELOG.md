@@ -8,8 +8,8 @@ Versioning: [Semantic Versioning](https://semver.org/)
 ## Unreleased
 
 ### Added
-- `@loop-engine/adapter-perplexity` — Perplexity Sonar `LLMAdapter` with citations, retries, and `guardEvidence` integration
-- `@loop-engine/core` — `LLMAdapter`, `AdapterInput` / `AdapterOutput`, and deep `guardEvidence()` for adapter audit redaction
+- `@loop-engine/adapter-perplexity` — Perplexity Sonar `ToolAdapter` with citations, retries, and `guardEvidence` integration
+- `@loop-engine/core` — `ToolAdapter`, `AdapterInput` / `AdapterOutput`, and deep `guardEvidence()` for adapter audit redaction
 - Docs: `docs/integrations-perplexity.md` (Sonar vs [Perplexity Computer skills](https://www.perplexity.ai/computer/skills))
 - Release contract stub: `.rc/adapter-perplexity.json` (RC **DRAFT** until promoted **LOCKED**)
 

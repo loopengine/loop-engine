@@ -1,7 +1,6 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
-import type { LoopId } from "@loop-engine/core";
-import type { RuntimeLoopInstance, RuntimeTransitionRecord } from "@loop-engine/runtime";
+import type { LoopId, LoopInstance, TransitionRecord } from "@loop-engine/core";
 
 export interface LoopMetrics {
   loopId: LoopId;
@@ -28,8 +27,8 @@ function percentile(values: number[], p: number): number {
 }
 
 export function computeMetrics(
-  instances: RuntimeLoopInstance[],
-  history: RuntimeTransitionRecord[],
+  instances: LoopInstance[],
+  history: TransitionRecord[],
   period: { from: string; to: string }
 ): LoopMetrics {
   const first = instances[0];

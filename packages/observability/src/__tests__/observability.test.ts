@@ -1,14 +1,19 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
 import { describe, expect, it } from "vitest";
-import { ActorRefSchema, LoopDefinitionSchema, type LoopDefinition } from "@loop-engine/core";
-import type { RuntimeLoopInstance, RuntimeTransitionRecord } from "@loop-engine/runtime";
+import {
+  ActorRefSchema,
+  LoopDefinitionSchema,
+  type LoopDefinition,
+  type LoopInstance,
+  type TransitionRecord
+} from "@loop-engine/core";
 import { computeMetrics } from "../metrics";
 import { replayLoop } from "../replay";
 
 describe("observability package", () => {
   it("computeMetrics returns aggregate metrics", () => {
-    const instances: RuntimeLoopInstance[] = [
+    const instances: LoopInstance[] = [
       {
         loopId: "demo.loop",
         aggregateId: "A-1",
@@ -20,7 +25,7 @@ describe("observability package", () => {
         correlationId: "corr-1"
       }
     ];
-    const history: RuntimeTransitionRecord[] = [
+    const history: TransitionRecord[] = [
       {
         loopId: "demo.loop",
         aggregateId: "A-1",
@@ -42,22 +47,22 @@ describe("observability package", () => {
 
   it("replayLoop validates transition sequence", () => {
     const def: LoopDefinition = LoopDefinitionSchema.parse({
-      loopId: "demo.loop",
+      id: "demo.loop",
       version: "1.0.0",
       name: "demo.loop",
       description: "demo",
       states: [
-        { stateId: "OPEN", label: "Open" },
-        { stateId: "DONE", label: "Done", terminal: true }
+        { id: "OPEN", label: "Open" },
+        { id: "DONE", label: "Done", isTerminal: true }
       ],
       initialState: "OPEN",
       transitions: [
         {
-          transitionId: "finish",
+          id: "finish",
           signal: "demo.finish",
           from: "OPEN",
           to: "DONE",
-          allowedActors: ["human"]
+          actors: ["human"]
         }
       ],
       outcome: {
@@ -66,7 +71,7 @@ describe("observability package", () => {
         businessMetrics: [{ id: "cycle_time_days", label: "Cycle Time", unit: "days" }]
       }
     });
-    const history: RuntimeTransitionRecord[] = [
+    const history: TransitionRecord[] = [
       {
         loopId: "demo.loop",
         aggregateId: "A-1",

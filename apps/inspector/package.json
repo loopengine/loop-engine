@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/inspector",
-  "version": "0.1.0",
+  "version": "0.1.1-rc.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3011",

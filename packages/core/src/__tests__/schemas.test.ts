@@ -11,22 +11,22 @@ import {
 describe("LoopDefinitionSchema", () => {
   it("accepts valid loop definition", () => {
     const result = LoopDefinitionSchema.safeParse({
-      loopId: "support.ticket",
+      id: "support.ticket",
       version: "1.0.0",
       name: "Support Ticket",
       description: "Simple support ticket flow",
       states: [
-        { stateId: "OPEN", label: "Open" },
-        { stateId: "RESOLVED", label: "Resolved", terminal: true }
+        { id: "OPEN", label: "Open" },
+        { id: "RESOLVED", label: "Resolved", isTerminal: true }
       ],
       initialState: "OPEN",
       transitions: [
         {
-          transitionId: "resolve",
+          id: "resolve",
           from: "OPEN",
           to: "RESOLVED",
           signal: "support.ticket.resolve",
-          allowedActors: ["human"]
+          actors: ["human"]
         }
       ]
     });
@@ -36,21 +36,21 @@ describe("LoopDefinitionSchema", () => {
 
   it("rejects missing initialState", () => {
     const result = LoopDefinitionSchema.safeParse({
-      loopId: "support.ticket",
+      id: "support.ticket",
       version: "1.0.0",
       name: "Support Ticket",
       description: "Simple support ticket flow",
       states: [
-        { stateId: "OPEN", label: "Open" },
-        { stateId: "RESOLVED", label: "Resolved", terminal: true }
+        { id: "OPEN", label: "Open" },
+        { id: "RESOLVED", label: "Resolved", isTerminal: true }
       ],
       transitions: [
         {
-          transitionId: "resolve",
+          id: "resolve",
           from: "OPEN",
           to: "RESOLVED",
           signal: "support.ticket.resolve",
-          allowedActors: ["human"]
+          actors: ["human"]
         }
       ]
     });
@@ -58,46 +58,60 @@ describe("LoopDefinitionSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("TransitionSpec requires allowedActors to be non-empty array", () => {
+  it("TransitionSpec requires actors to be non-empty array", () => {
     const result = TransitionSpecSchema.safeParse({
-      transitionId: "resolve",
+      id: "resolve",
       from: "OPEN",
       to: "RESOLVED",
       signal: "support.ticket.resolve",
-      allowedActors: []
+      actors: []
     });
 
     expect(result.success).toBe(false);
+  });
+
+  it("TransitionSpec defaults signal to id when authored signal is absent (PB-EX-05 Option B)", () => {
+    const result = TransitionSpecSchema.safeParse({
+      id: "resolve",
+      from: "OPEN",
+      to: "RESOLVED",
+      actors: ["human"]
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.signal).toBe("resolve");
+    }
   });
 
   it("branded ID types are plain strings at runtime", () => {
     const result = LoopDefinitionSchema.parse({
-      loopId: "support.ticket",
+      id: "support.ticket",
       version: "1.0.0",
       name: "Support Ticket",
       description: "Simple support ticket flow",
       states: [
-        { stateId: "OPEN", label: "Open" },
-        { stateId: "RESOLVED", label: "Resolved", terminal: true }
+        { id: "OPEN", label: "Open" },
+        { id: "RESOLVED", label: "Resolved", isTerminal: true }
       ],
       initialState: "OPEN",
       transitions: [
         {
-          transitionId: "resolve",
+          id: "resolve",
           from: "OPEN",
           to: "RESOLVED",
           signal: "support.ticket.resolve",
-          allowedActors: ["human"]
+          actors: ["human"]
         }
       ]
     });
 
-    expect(typeof result.loopId).toBe("string");
+    expect(typeof result.id).toBe("string");
   });
 
   it('GuardSpec with severity "hard" parses correctly', () => {
     const result = GuardSpecSchema.safeParse({
-      guardId: "confidence-threshold",
+      id: "confidence-threshold",
       description: "Require confidence threshold",
       severity: "hard",
       evaluatedBy: "runtime"
@@ -108,7 +122,7 @@ describe("LoopDefinitionSchema", () => {
 
   it('GuardSpec with severity "medium" fails', () => {
     const result = GuardSpecSchema.safeParse({
-      guardId: "confidence-threshold",
+      id: "confidence-threshold",
       description: "Require confidence threshold",
       severity: "medium",
       evaluatedBy: "runtime"

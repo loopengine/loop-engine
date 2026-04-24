@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/actors",
-  "version": "0.1.5",
+  "version": "1.0.0-rc.0",
   "description": "Actor attribution model for human and AI actions.",
   "license": "Apache-2.0",
   "repository": {
@@ -34,7 +34,7 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.17"
   },
   "homepage": "https://loopengine.io/docs/packages/actors",
   "sideEffects": false,
@@ -49,6 +49,7 @@
     "ai-agent"
   ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   }
 }

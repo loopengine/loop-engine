@@ -66,13 +66,13 @@ describe("evaluateGuards pipeline", () => {
     registry.registerBuiltIns();
     const guards: GuardSpec[] = [
       {
-        guardId: "human-only",
+        id: "human-only",
         description: "Human required",
         severity: "hard",
         evaluatedBy: "runtime"
       },
       {
-        guardId: "confidence-threshold",
+        id: "confidence-threshold",
         description: "Confidence warning",
         severity: "soft",
         evaluatedBy: "runtime",
@@ -90,7 +90,7 @@ describe("evaluateGuards pipeline", () => {
     registry.registerBuiltIns();
     const guards: GuardSpec[] = [
       {
-        guardId: "human-only",
+        id: "human-only",
         description: "Human required",
         severity: "hard",
         evaluatedBy: "runtime"
@@ -106,7 +106,7 @@ describe("evaluateGuards pipeline", () => {
     registry.registerBuiltIns();
     const guards: GuardSpec[] = [
       {
-        guardId: "confidence-threshold",
+        id: "confidence-threshold",
         description: "Confidence warning",
         severity: "soft",
         evaluatedBy: "runtime",
@@ -124,7 +124,7 @@ describe("evaluateGuards pipeline", () => {
     const registry = new GuardRegistry();
     const guards: GuardSpec[] = [
       {
-        guardId: "missing-guard",
+        id: "missing-guard",
         description: "Missing",
         severity: "hard",
         evaluatedBy: "runtime"

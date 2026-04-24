@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/sdk",
-  "version": "0.2.0",
+  "version": "1.0.0-rc.0",
   "description": "Entry point for building and running governed loops.",
   "license": "Apache-2.0",
   "repository": {
@@ -17,11 +17,6 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts"
-    },
-    "./dsl": {
-      "import": "./dist/dsl.js",
-      "require": "./dist/dsl.cjs",
-      "types": "./dist/dsl.d.ts"
     }
   },
   "scripts": {

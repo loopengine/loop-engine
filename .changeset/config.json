@@ -6,5 +6,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@loop-engine/inspector", "@loop-engine/playground", "@loop-engine/dsl"]
+  "ignore": ["@loop-engine/adapter-postgres", "@loop-engine/adapter-kafka"]
 }

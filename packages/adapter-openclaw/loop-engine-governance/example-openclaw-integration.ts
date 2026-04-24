@@ -21,7 +21,7 @@ async function main() {
   const { engine, eventBus } = await createLoopSystem({ loops: [loop] });
   const openclawBus = new OpenClawEventBus({ channel: "ops-approvals", target: "openclaw://channel/sre", approvalStates: ["pending_approval"], events: ["loop.transition.executed", "loop.completed"] });
   const unsubscribe = eventBus.subscribe(async (event) => openclawBus.emit(event));
-  await engine.startLoop({ loopId: "openclaw.change.approval" as never, aggregateId: "CHG-1001" as never, actor: { type: "automation", id: "deploy-bot" as never } });
+  await engine.start({ loopId: "openclaw.change.approval" as never, aggregateId: "CHG-1001" as never, actor: { type: "automation", id: "deploy-bot" as never } });
   await engine.transition({ aggregateId: "CHG-1001" as never, transitionId: "submit_change" as never, actor: { type: "automation", id: "deploy-bot" as never } });
   await engine.transition({ aggregateId: "CHG-1001" as never, transitionId: "approve" as never, actor: { type: "human", id: "sre-oncall" as never } });
   unsubscribe();

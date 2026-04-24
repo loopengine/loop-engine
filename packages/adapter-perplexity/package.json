@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-perplexity",
-  "version": "0.1.0",
+  "version": "1.0.0-rc.0",
   "description": "Perplexity Sonar API adapter for Loop Engine multi-LLM steps (grounded search + reasoning).",
   "keywords": [
     "loop-engine",
@@ -40,10 +40,10 @@
     "test": "vitest run"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.17"
   },
   "peerDependencies": {
-    "@loop-engine/core": "^0.1.5"
+    "@loop-engine/core": "workspace:^"
   },
   "devDependencies": {
     "@loop-engine/core": "workspace:*",
@@ -58,5 +58,9 @@
     "BOUNDARY-MANAGEMENT.md",
     "LICENSE"
   ],
-  "sideEffects": false
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
 }

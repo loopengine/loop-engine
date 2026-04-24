@@ -5,18 +5,18 @@
 - Calls Perplexity **Sonar** chat completions (`POST /chat/completions` on `https://api.perplexity.ai` by default).
 - Maps Loop `AdapterInput` fields to Sonar parameters (`messages`, `model`, `search_domain_filter`, `search_recency_filter`, `return_citations`, `return_images`, etc.).
 - Returns `SonarResult` with `text`, `citations`, `usage`, and `raw` API payload.
-- Implements `LLMAdapter.guardEvidence` using `@loop-engine/core`’s deep `guardEvidence` helper (API key stripping and `pplx-*` masking).
+- Implements `ToolAdapter.guardEvidence` using `@loop-engine/core`’s deep `guardEvidence` helper (API key stripping and `pplx-*` masking).
 
 ## What this package does NOT do
 
 - **Perplexity Computer Agent API** — not implemented here; use a dedicated gateway package.
-- **Streaming** — `stream()` is not provided on `PerplexityAdapter` (optional on `LLMAdapter`).
+- **Streaming** — `stream()` is not provided on `PerplexityAdapter` (optional on `ToolAdapter`).
 - **Streaming-only image delivery** — `return_images` is passed through; this adapter does not interpret or persist image streams beyond the JSON response.
 - **Perplexity Pages** or non-Sonar product surfaces.
 
 ## Dependency boundary
 
-- **Peer:** `@loop-engine/core` only (for `LLMAdapter`, `AdapterInput`, `guardEvidence`, and related types).
+- **Peer:** `@loop-engine/core` only (for `ToolAdapter`, `AdapterInput`, `guardEvidence`, and related types).
 - **No** `@betterdata/*` or other proprietary packages.
 - Uses runtime `fetch` (Node 18+); no bundled HTTP client dependency.
 

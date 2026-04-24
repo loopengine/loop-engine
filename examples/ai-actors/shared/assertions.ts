@@ -1,3 +1,4 @@
+import type { AggregateId } from "@loop-engine/core";
 import type { LoopEngine, TransitionResult } from "@loop-engine/runtime";
 import type { ReplenishmentContext } from "./types";
 
@@ -33,10 +34,10 @@ export function logResult(result: TransitionResult) {
 
 export async function assertLoopReachedState(
   engine: LoopEngine,
-  aggregateId: string,
+  aggregateId: AggregateId,
   expectedState: string
 ) {
-  const instance = await engine.getState(aggregateId as never);
+  const instance = await engine.getState(aggregateId);
   if (!instance) throw new Error(`No loop instance found for ${aggregateId}`);
   if (instance.currentState !== expectedState) {
     throw new Error(`Expected state ${expectedState} but got ${instance.currentState}`);
@@ -46,10 +47,10 @@ export async function assertLoopReachedState(
 
 export async function assertLoopStatus(
   engine: LoopEngine,
-  aggregateId: string,
+  aggregateId: AggregateId,
   expectedStatus: string
 ) {
-  const instance = await engine.getState(aggregateId as never);
+  const instance = await engine.getState(aggregateId);
   if (!instance) throw new Error(`No loop instance found for ${aggregateId}`);
   if (instance.status !== expectedStatus) {
     throw new Error(`Expected status ${expectedStatus} but got ${instance.status}`);
@@ -59,11 +60,11 @@ export async function assertLoopStatus(
 
 export async function printLoopSummary(
   engine: LoopEngine,
-  aggregateId: string,
+  aggregateId: AggregateId,
   ctx: ReplenishmentContext
 ) {
-  const instance = await engine.getState(aggregateId as never);
-  const history = await engine.getHistory(aggregateId as never);
+  const instance = await engine.getState(aggregateId);
+  const history = await engine.getHistory(aggregateId);
   if (!instance || !history) return;
 
   console.log(`\n${"─".repeat(60)}`);
@@ -78,9 +79,13 @@ export async function printLoopSummary(
 
   const aiTransition = history.find((t) => t.actor.type === "ai-agent");
   if (aiTransition) {
-    console.log(`  AI actor:     ${aiTransition.actor.agentId ?? aiTransition.actor.id}`);
-    console.log(`  AI confidence: ${aiTransition.evidence?.ai_confidence}`);
-    console.log(`  AI reasoning: ${aiTransition.evidence?.ai_reasoning}`);
+    const ev = aiTransition.evidence ?? {};
+    const modelId = typeof ev.modelId === "string" ? ev.modelId : undefined;
+    const provider = typeof ev.provider === "string" ? ev.provider : undefined;
+    const badge = modelId && provider ? `${modelId} (${provider}) ` : "";
+    console.log(`  AI actor:     ${badge}id=${aiTransition.actor.id}`);
+    console.log(`  AI confidence: ${ev.confidence}`);
+    console.log(`  AI reasoning: ${ev.reasoning}`);
   }
 
   const humanTransition = history.find((t) => t.actor.type === "human");

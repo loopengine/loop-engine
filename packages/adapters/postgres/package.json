@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-postgres",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "description": "PostgreSQL loop state store for durable production workloads.",
   "homepage": "https://loopengine.io/docs/packages/adapter-postgres",
   "keywords": [
@@ -32,7 +32,8 @@
   },
   "scripts": {
     "build": "tsup",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@loop-engine/core": "workspace:*",
@@ -41,16 +42,23 @@
   "peerDependencies": {
     "pg": "^8.0.0"
   },
+  "devDependencies": {
+    "@testcontainers/postgresql": "^11.14.0",
+    "@types/pg": "^8.20.0",
+    "pg": "^8.20.0",
+    "vitest": "^1.6.1"
+  },
   "files": [
     "dist/",
     "README.md",
     "LICENSE"
   ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.17"
   },
   "sideEffects": false,
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   }
 }

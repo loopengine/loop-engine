@@ -115,7 +115,7 @@ async function main() {
     timestamp: new Date().toISOString(),
   }
 
-  const loop = await system.startLoop({
+  const loop = await system.start({
     definition,
     context: transaction,
   })
@@ -144,7 +144,7 @@ async function main() {
 
   console.log('Scoring with Grok 3...')
 
-  const { actor, decision } = await adapter.createSubmission({
+  const submission = await adapter.createSubmission({
     loopId: loop.loopId,
     loopName: 'Fraud Review Loop',
     currentState: 'scoring',
@@ -183,20 +183,21 @@ async function main() {
     },
   })
 
-  console.log(`Grok decision: ${decision.signalId}`)
-  console.log(`Fraud score confidence: ${decision.confidence}`)
-  console.log(`Analysis: ${decision.reasoning}`)
+  const { actor, signal, evidence } = submission
+  console.log(`Grok decision: ${signal}`)
+  console.log(`Fraud score confidence: ${evidence.confidence}`)
+  console.log(`Analysis: ${evidence.reasoning}`)
 
   // Submit Grok's scoring decision
   const scoringResult = await system.transition({
     loopId: loop.loopId,
-    signalId: decision.signalId,
+    signalId: signal,
     actor,
     evidence: {
-      fraud_score: decision.dataPoints?.fraud_score ?? decision.confidence,
-      flagged_patterns: decision.dataPoints?.flagged_patterns ?? ['amount_velocity'],
-      reasoning: decision.reasoning,
-      confidence: decision.confidence,
+      fraud_score: evidence.dataPoints?.fraud_score ?? evidence.confidence,
+      flagged_patterns: evidence.dataPoints?.flagged_patterns ?? ['amount_velocity'],
+      reasoning: evidence.reasoning,
+      confidence: evidence.confidence,
       model: actor.modelId,
       provider: actor.provider,
       promptHash: actor.promptHash,

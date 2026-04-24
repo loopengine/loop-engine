@@ -1,18 +1,28 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Better Data, Inc.
 
+import { ActorDecisionError } from "@loop-engine/actors";
 import {
-  ActorDecisionError,
+  actorId,
+  signalId,
+  type ActorAdapter,
   type AIAgentActor,
-  type AIActorDecision,
+  type AIAgentSubmission,
   type LoopActorPromptContext
-} from "@loop-engine/actors";
+} from "@loop-engine/core";
 import { GoogleGenerativeAI, type GenerativeModel } from "@google/generative-ai";
-import type { GeminiActorSubmission, GeminiLoopActorConfig } from "./types";
+import type { GeminiLoopActorConfig } from "./types";
 
 const DEFAULT_MODEL_ID = "gemini-1.5-pro";
 const DEFAULT_MAX_OUTPUT_TOKENS = 1024;
 const DEFAULT_CONFIDENCE_THRESHOLD = 0.7;
+
+interface ParsedDecision {
+  signalId: string;
+  reasoning: string;
+  confidence: number;
+  dataPoints?: Record<string, unknown>;
+}
 
 function requireApiKey(apiKey: string, envVar: string): void {
   if (typeof apiKey !== "string" || apiKey.trim().length === 0) {
@@ -55,7 +65,7 @@ function cleanGeminiJsonResponse(text: string): string {
     .trim();
 }
 
-function parseDecision(raw: string, context: LoopActorPromptContext): AIActorDecision {
+function parseDecision(raw: string, context: LoopActorPromptContext): ParsedDecision {
   let parsed: unknown;
   try {
     parsed = JSON.parse(cleanGeminiJsonResponse(raw));
@@ -76,13 +86,13 @@ function parseDecision(raw: string, context: LoopActorPromptContext): AIActorDec
   }
 
   const record = parsed as Record<string, unknown>;
-  const signalId = record.signalId;
+  const parsedSignalId = record.signalId;
   const reasoning = record.reasoning;
   const confidence = record.confidence;
   const dataPoints = record.dataPoints;
 
   const validSignals = context.availableSignals.map((signal) => signal.signalId);
-  if (typeof signalId !== "string" || !validSignals.includes(signalId)) {
+  if (typeof parsedSignalId !== "string" || !validSignals.includes(parsedSignalId)) {
     throw new ActorDecisionError({
       code: "INVALID_SIGNAL",
       raw: record,
@@ -107,7 +117,7 @@ function parseDecision(raw: string, context: LoopActorPromptContext): AIActorDec
   }
 
   return {
-    signalId,
+    signalId: parsedSignalId,
     reasoning,
     confidence,
     ...(dataPoints && typeof dataPoints === "object" && !Array.isArray(dataPoints)
@@ -123,7 +133,10 @@ async function sha256(value: string): Promise<string> {
     .join("");
 }
 
-export class GeminiLoopActor {
+export class GeminiLoopActor implements ActorAdapter {
+  readonly provider = "gemini";
+  readonly model: string;
+
   private readonly genAI: GoogleGenerativeAI;
   private readonly config: Required<Omit<GeminiLoopActorConfig, "systemPrompt">> &
     Pick<GeminiLoopActorConfig, "systemPrompt">;
@@ -137,6 +150,7 @@ export class GeminiLoopActor {
       confidenceThreshold: config.confidenceThreshold ?? DEFAULT_CONFIDENCE_THRESHOLD,
       ...(config.systemPrompt ? { systemPrompt: config.systemPrompt } : {})
     };
+    this.model = this.config.modelId;
   }
 
   private getModel(systemInstruction: string): GenerativeModel {
@@ -145,12 +159,11 @@ export class GeminiLoopActor {
       systemInstruction,
       generationConfig: {
         maxOutputTokens: this.config.maxOutputTokens
-        // TODO v0.2.0: responseMimeType: "application/json"
       }
     });
   }
 
-  async createSubmission(context: LoopActorPromptContext): Promise<GeminiActorSubmission> {
+  async createSubmission(context: LoopActorPromptContext): Promise<AIAgentSubmission> {
     const systemInstruction = buildSystemInstruction(this.config.systemPrompt);
     const userPrompt = buildUserPrompt(context);
     const fullPrompt = `${systemInstruction}\n${userPrompt}`;
@@ -173,7 +186,7 @@ export class GeminiLoopActor {
     const promptHash = await sha256(fullPrompt);
 
     const actor: AIAgentActor = {
-      id: crypto.randomUUID() as never,
+      id: actorId(crypto.randomUUID()),
       type: "ai-agent",
       modelId: this.config.modelId,
       provider: "gemini",
@@ -184,8 +197,13 @@ export class GeminiLoopActor {
 
     return {
       actor,
-      decision,
-      rawResponse: result.response
+      signal: signalId(decision.signalId),
+      evidence: {
+        reasoning: decision.reasoning,
+        confidence: decision.confidence,
+        ...(decision.dataPoints ? { dataPoints: decision.dataPoints } : {}),
+        modelResponse: result.response
+      }
     };
   }
 }
@@ -193,6 +211,6 @@ export class GeminiLoopActor {
 export function createGeminiActorAdapter(
   apiKey: string,
   config: GeminiLoopActorConfig = {}
-): GeminiLoopActor {
+): ActorAdapter {
   return new GeminiLoopActor(apiKey, config);
 }

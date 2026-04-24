@@ -1,93 +1,256 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
-import type { AggregateId, LoopId } from "@loop-engine/core";
 import type {
-  LoopStorageAdapter,
-  RuntimeLoopInstance,
-  RuntimeTransitionRecord
-} from "@loop-engine/runtime";
+  AggregateId,
+  LoopId,
+  LoopInstance,
+  TransitionRecord
+} from "@loop-engine/core";
+import type { LoopStore } from "@loop-engine/runtime";
+import { runMigrations } from "./migrations/runner";
+import { TransactionIntegrityError, isConnectionError } from "./errors";
 
+/**
+ * Narrow duck-typed view of a `pg.PoolClient`. The migration runner and
+ * the `withTransaction` helper both acquire a client from the pool, issue
+ * a series of queries against it, and then `release()` it.
+ *
+ * The real `pg.PoolClient` satisfies this shape structurally; declaring a
+ * duck type rather than importing from `pg` keeps the adapter decoupled
+ * from the `pg` runtime for consumers who use alternative pool
+ * implementations (e.g., a test double that wraps `pg.Client`).
+ */
+export type PgClientLike = {
+  query(sql: string, values?: unknown[]): Promise<{ rows: unknown[] }>;
+  release(err?: Error | boolean): void;
+  /**
+   * Optional `EventEmitter`-style error subscription. pg clients
+   * emit `'error'` events for async server-side messages (e.g.,
+   * `FATAL` backend termination) delivered when no query is active;
+   * the event must be handled or it becomes an uncaught exception
+   * that can crash the consumer's process. Declared optional so
+   * narrow test doubles remain compatible with the type; the
+   * `withTransaction` helper detects presence at runtime and only
+   * wires a handler when these methods exist.
+   */
+  on?(event: "error", handler: (err: Error) => void): void;
+  off?(event: "error", handler: (err: Error) => void): void;
+};
+
+/**
+ * Narrow duck-typed view of a `pg.Pool`. Widened in SR-016.2 from the
+ * original `{ query }`-only shape to include `connect()`, which the
+ * migration runner and `withTransaction` helper both require. The real
+ * `pg.Pool` satisfies this shape structurally — no consumer action
+ * required.
+ */
 export type PgPoolLike = {
+  query(sql: string, values?: unknown[]): Promise<{ rows: unknown[] }>;
+  connect(): Promise<PgClientLike>;
+};
+
+/**
+ * A `pg`-shape object capable of issuing a query. Both `pg.Pool` and
+ * `pg.PoolClient` satisfy this shape; internal to the adapter, it lets
+ * the five `LoopStore` method bodies be defined once and bound to either
+ * a pool (non-transactional) or a client (transactional).
+ */
+type Querier = {
   query(sql: string, values?: unknown[]): Promise<{ rows: unknown[] }>;
 };
 
-export async function createSchema(pool: PgPoolLike): Promise<void> {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS loop_instances (
-      aggregate_id TEXT PRIMARY KEY,
-      loop_id TEXT NOT NULL,
-      current_state TEXT NOT NULL,
-      status TEXT NOT NULL,
-      started_at TIMESTAMPTZ NOT NULL,
-      updated_at TIMESTAMPTZ NOT NULL,
-      completed_at TIMESTAMPTZ NULL,
-      correlation_id TEXT NULL,
-      metadata JSONB NULL
-    );
-  `);
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS loop_transitions (
-      id BIGSERIAL PRIMARY KEY,
-      loop_id TEXT NOT NULL,
-      aggregate_id TEXT NOT NULL,
-      transition_id TEXT NOT NULL,
-      signal TEXT NOT NULL,
-      from_state TEXT NOT NULL,
-      to_state TEXT NOT NULL,
-      actor JSONB NOT NULL,
-      evidence JSONB NULL,
-      occurred_at TIMESTAMPTZ NOT NULL
-    );
-  `);
+export type {
+  Migration,
+  MigrationRunResult,
+  RunMigrationsOptions
+} from "./migrations/runner";
+
+export { loadMigrations, runMigrations } from "./migrations/runner";
+
+export type { PoolOptions } from "./pool";
+export { createPool, DEFAULT_POOL_OPTIONS } from "./pool";
+
+export type { PostgresStoreErrorKind } from "./errors";
+export {
+  PostgresStoreError,
+  TransactionIntegrityError,
+  classifyError,
+  isTransientError
+} from "./errors";
+
+/**
+ * LoopStore-shaped view into a running transaction. Every method routes
+ * its query through the transactional `pg.PoolClient` acquired by
+ * `withTransaction` rather than through a fresh pool connection, so calls
+ * on the same `tx` are guaranteed to be atomic with respect to each other
+ * (and isolated from any non-`tx` reads on the pool until COMMIT lands).
+ *
+ * Structurally identical to `LoopStore` — a `tx` is type-compatible with
+ * any function expecting `LoopStore`, which lets existing code that
+ * operates on a store work inside a transactional scope by receiving the
+ * `tx` parameter instead of the outer store.
+ *
+ * Intentionally does NOT expose a raw `pg.PoolClient` escape hatch, per
+ * PB-EX-02 Option A's layering discipline (provider-specific concerns
+ * stay in provider-specific factories; `TransactionClient`'s surface is
+ * the atomic-sequencing-of-LoopStore-operations concern and no wider).
+ * Consumers needing LISTEN/NOTIFY or other non-LoopStore Postgres
+ * operations should manage their own `pg.Pool` alongside the adapter's.
+ */
+export type TransactionClient = LoopStore;
+
+/**
+ * The return type of `postgresStore`. Extends `LoopStore` with
+ * `withTransaction` — a Postgres-specific atomic-sequencing helper.
+ *
+ * `LoopStore` itself is locked at the SR-002 shape (per
+ * `API_SURFACE_DECISIONS_RESOLVED.md`); `withTransaction` does not land
+ * on the `LoopStore` contract because its semantics are Postgres-specific
+ * (the `MemoryStore` has no analog, and a hypothetical file-based or
+ * key-value-backed store would implement it trivially or not at all).
+ * Consumers that need both LoopStore-portability and postgres-transaction
+ * access annotate with `PostgresStore` at construction and `LoopStore`
+ * wherever they only need the narrower contract.
+ */
+export interface PostgresStore extends LoopStore {
+  /**
+   * Execute `fn` inside a Postgres transaction. The transaction is
+   * `BEGIN`-ed on a pool-acquired client before `fn` runs; `COMMIT`-ed
+   * if `fn` resolves; `ROLLBACK`-ed if `fn` throws or rejects.
+   *
+   * `fn` receives a `TransactionClient` whose LoopStore methods route
+   * through the transactional client. Calls on the outer store (the one
+   * `withTransaction` was called on, i.e., the surrounding
+   * `postgresStore` return value) inside `fn` acquire their own
+   * connection from the pool and run in an independent non-transactional
+   * scope — nesting is by design via separate client acquisitions, not
+   * via SAVEPOINTs. To extend atomicity across nested calls, pass the
+   * inner operations the outer `tx` and use its LoopStore methods.
+   *
+   * Returns `fn`'s return value on successful commit; rethrows `fn`'s
+   * error on rollback. If `ROLLBACK` itself fails (e.g., connection
+   * lost mid-transaction), the original `fn` error is preserved — the
+   * ROLLBACK failure is swallowed, and `pg` will detect the broken
+   * connection on the next use of the pool and discard it.
+   */
+  withTransaction<T>(fn: (tx: TransactionClient) => Promise<T>): Promise<T>;
 }
 
-export function postgresStorageAdapter(_pool: PgPoolLike): LoopStorageAdapter {
-  function asRecord(value: unknown): Record<string, unknown> {
-    if (value && typeof value === "object") return value as Record<string, unknown>;
-    return {};
-  }
+/**
+ * Apply the adapter's baseline schema (`loop_instances` +
+ * `loop_transitions` + the `schema_migrations` tracking table).
+ *
+ * Pre-SR-016.2, this function issued two `CREATE TABLE IF NOT EXISTS`
+ * statements directly. From SR-016.2 on, it delegates to `runMigrations`
+ * so the same behavior is available whether callers use the high-level
+ * `createSchema` convenience or the lower-level runner API — and so the
+ * `schema_migrations` tracking table is provisioned consistently across
+ * both entry points.
+ *
+ * Retained as a backward-compatible alias; new consumers should prefer
+ * `runMigrations(pool)` directly, which returns structured information
+ * about which migrations were applied vs. skipped.
+ */
+export async function createSchema(pool: PgPoolLike): Promise<void> {
+  await runMigrations(pool);
+}
 
-  function asString(value: unknown, fallback = ""): string {
-    return typeof value === "string" ? value : fallback;
-  }
+function asRecord(value: unknown): Record<string, unknown> {
+  if (value && typeof value === "object") return value as Record<string, unknown>;
+  return {};
+}
 
-  function asLoopInstance(row: unknown): RuntimeLoopInstance {
-    const item = asRecord(row);
-    const metadata = item.metadata;
-    return {
-      loopId: asString(item.loop_id) as LoopId,
-      aggregateId: asString(item.aggregate_id) as AggregateId,
-      currentState: asString(item.current_state) as RuntimeLoopInstance["currentState"],
-      status: asString(item.status) as RuntimeLoopInstance["status"],
-      startedAt: new Date(asString(item.started_at)).toISOString(),
-      updatedAt: new Date(asString(item.updated_at)).toISOString(),
-      ...(item.completed_at ? { completedAt: new Date(asString(item.completed_at)).toISOString() } : {}),
-      ...(item.correlation_id ? { correlationId: asString(item.correlation_id) } : {}),
-      ...(metadata && typeof metadata === "object" ? { metadata: metadata as Record<string, unknown> } : {})
-    };
-  }
+function asString(value: unknown, fallback = ""): string {
+  return typeof value === "string" ? value : fallback;
+}
 
-  function asTransitionRecord(row: unknown): RuntimeTransitionRecord {
-    const item = asRecord(row);
-    const actor = asRecord(item.actor) as RuntimeTransitionRecord["actor"];
-    return {
-      loopId: asString(item.loop_id) as RuntimeTransitionRecord["loopId"],
-      aggregateId: asString(item.aggregate_id) as RuntimeTransitionRecord["aggregateId"],
-      transitionId: asString(item.transition_id) as RuntimeTransitionRecord["transitionId"],
-      signal: asString(item.signal) as RuntimeTransitionRecord["signal"],
-      fromState: asString(item.from_state) as RuntimeTransitionRecord["fromState"],
-      toState: asString(item.to_state) as RuntimeTransitionRecord["toState"],
-      actor,
-      occurredAt: new Date(asString(item.occurred_at)).toISOString(),
-      ...(item.evidence && typeof item.evidence === "object"
-        ? { evidence: item.evidence as Record<string, unknown> }
-        : {})
-    };
+/**
+ * Coerce a pg-returned TIMESTAMPTZ value to an ISO-8601 string.
+ *
+ * `pg`'s default type parser hydrates TIMESTAMPTZ columns into
+ * JavaScript `Date` instances (not strings). The pre-SR-016.3
+ * deserializers funnelled these through `asString(...) → new Date(...)
+ * → .toISOString()`, which silently substituted an empty-string
+ * fallback (because `Date` fails the `typeof === "string"` guard),
+ * yielding `Invalid Date` and a `RangeError` on `.toISOString()`.
+ *
+ * The bug predates SR-016; the adapter shipped with no tests exercising
+ * `saveInstance → getInstance` round-trips, so the broken path never
+ * surfaced until SR-016.3's withTransaction suite forced the round-trip.
+ * Documented in-execution-log as a substantive finding surfaced and
+ * resolved in-SR.
+ *
+ * Accepts both `Date` (default pg behavior) and `string` (consumer-
+ * configured `pg.types.setTypeParser` override) inputs so the adapter
+ * stays robust against either type-parser configuration.
+ */
+function asIsoString(value: unknown, fallback: string): string {
+  if (value instanceof Date) {
+    const time = value.getTime();
+    if (!Number.isNaN(time)) {
+      return value.toISOString();
+    }
+    return fallback;
   }
+  if (typeof value === "string" && value.length > 0) {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.toISOString();
+    }
+    return value; // already-normalized / non-ISO string; pass through
+  }
+  return fallback;
+}
 
+function asLoopInstance(row: unknown): LoopInstance {
+  const item = asRecord(row);
+  const metadata = item.metadata;
+  const nowIso = new Date(0).toISOString(); // deterministic fallback for test clarity
   return {
-    async getLoop(aggregateId: AggregateId): Promise<RuntimeLoopInstance | null> {
-      const result = await _pool.query(
+    loopId: asString(item.loop_id) as LoopId,
+    aggregateId: asString(item.aggregate_id) as AggregateId,
+    currentState: asString(item.current_state) as LoopInstance["currentState"],
+    status: asString(item.status) as LoopInstance["status"],
+    startedAt: asIsoString(item.started_at, nowIso),
+    updatedAt: asIsoString(item.updated_at, nowIso),
+    ...(item.completed_at ? { completedAt: asIsoString(item.completed_at, nowIso) } : {}),
+    ...(item.correlation_id ? { correlationId: asString(item.correlation_id) } : {}),
+    ...(metadata && typeof metadata === "object" ? { metadata: metadata as Record<string, unknown> } : {})
+  };
+}
+
+function asTransitionRecord(row: unknown): TransitionRecord {
+  const item = asRecord(row);
+  const actor = asRecord(item.actor) as TransitionRecord["actor"];
+  const nowIso = new Date(0).toISOString();
+  return {
+    loopId: asString(item.loop_id) as TransitionRecord["loopId"],
+    aggregateId: asString(item.aggregate_id) as TransitionRecord["aggregateId"],
+    transitionId: asString(item.transition_id) as TransitionRecord["transitionId"],
+    signal: asString(item.signal) as TransitionRecord["signal"],
+    fromState: asString(item.from_state) as TransitionRecord["fromState"],
+    toState: asString(item.to_state) as TransitionRecord["toState"],
+    actor,
+    occurredAt: asIsoString(item.occurred_at, nowIso),
+    ...(item.evidence && typeof item.evidence === "object"
+      ? { evidence: item.evidence as Record<string, unknown> }
+      : {})
+  };
+}
+
+/**
+ * Build the five `LoopStore` methods against any `pg`-shaped querier.
+ * Used twice: once against a `pg.Pool` (non-transactional path in
+ * `postgresStore`) and once against a `pg.PoolClient` inside
+ * `withTransaction`'s callback. Factoring the method bodies here keeps
+ * the transactional and non-transactional paths bit-for-bit identical
+ * at the query layer; the only difference is which underlying pg object
+ * executes the query.
+ */
+function buildLoopStoreAgainst(q: Querier): LoopStore {
+  return {
+    async getInstance(aggregateId: AggregateId): Promise<LoopInstance | null> {
+      const result = await q.query(
         `
           SELECT aggregate_id, loop_id, current_state, status, started_at, updated_at, completed_at, correlation_id, metadata
           FROM loop_instances
@@ -100,12 +263,22 @@ export function postgresStorageAdapter(_pool: PgPoolLike): LoopStorageAdapter {
       if (!row) return null;
       return asLoopInstance(row);
     },
-    async createLoop(instance: RuntimeLoopInstance): Promise<void> {
-      await _pool.query(
+
+    async saveInstance(instance: LoopInstance): Promise<void> {
+      await q.query(
         `
           INSERT INTO loop_instances (
             aggregate_id, loop_id, current_state, status, started_at, updated_at, completed_at, correlation_id, metadata
           ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+          ON CONFLICT (aggregate_id) DO UPDATE SET
+            loop_id = EXCLUDED.loop_id,
+            current_state = EXCLUDED.current_state,
+            status = EXCLUDED.status,
+            started_at = EXCLUDED.started_at,
+            updated_at = EXCLUDED.updated_at,
+            completed_at = EXCLUDED.completed_at,
+            correlation_id = EXCLUDED.correlation_id,
+            metadata = EXCLUDED.metadata
         `,
         [
           instance.aggregateId,
@@ -121,37 +294,8 @@ export function postgresStorageAdapter(_pool: PgPoolLike): LoopStorageAdapter {
       );
     },
 
-    async updateLoop(instance: RuntimeLoopInstance): Promise<void> {
-      await _pool.query(
-        `
-          UPDATE loop_instances
-          SET
-            loop_id = $2,
-            current_state = $3,
-            status = $4,
-            started_at = $5,
-            updated_at = $6,
-            completed_at = $7,
-            correlation_id = $8,
-            metadata = $9
-          WHERE aggregate_id = $1
-        `,
-        [
-          instance.aggregateId,
-          instance.loopId,
-          instance.currentState,
-          instance.status,
-          instance.startedAt,
-          instance.updatedAt,
-          instance.completedAt ?? null,
-          instance.correlationId ?? null,
-          instance.metadata ?? null
-        ]
-      );
-    },
-
-    async getTransitions(aggregateId: AggregateId): Promise<RuntimeTransitionRecord[]> {
-      const result = await _pool.query(
+    async getTransitionHistory(aggregateId: AggregateId): Promise<TransitionRecord[]> {
+      const result = await q.query(
         `
           SELECT loop_id, aggregate_id, transition_id, signal, from_state, to_state, actor, evidence, occurred_at
           FROM loop_transitions
@@ -163,8 +307,8 @@ export function postgresStorageAdapter(_pool: PgPoolLike): LoopStorageAdapter {
       return result.rows.map(asTransitionRecord);
     },
 
-    async appendTransition(record: RuntimeTransitionRecord): Promise<void> {
-      await _pool.query(
+    async saveTransitionRecord(record: TransitionRecord): Promise<void> {
+      await q.query(
         `
           INSERT INTO loop_transitions (
             loop_id, aggregate_id, transition_id, signal, from_state, to_state, actor, evidence, occurred_at
@@ -184,8 +328,8 @@ export function postgresStorageAdapter(_pool: PgPoolLike): LoopStorageAdapter {
       );
     },
 
-    async listOpenLoops(loopId: LoopId): Promise<RuntimeLoopInstance[]> {
-      const result = await _pool.query(
+    async listOpenInstances(loopId: LoopId): Promise<LoopInstance[]> {
+      const result = await q.query(
         `
           SELECT aggregate_id, loop_id, current_state, status, started_at, updated_at, completed_at, correlation_id, metadata
           FROM loop_instances
@@ -200,6 +344,93 @@ export function postgresStorageAdapter(_pool: PgPoolLike): LoopStorageAdapter {
   };
 }
 
-export function postgresStore(pool: PgPoolLike): LoopStorageAdapter {
-  return postgresStorageAdapter(pool);
+export function postgresStore(pool: PgPoolLike): PostgresStore {
+  const nonTxMethods = buildLoopStoreAgainst(pool);
+
+  async function withTransaction<T>(
+    fn: (tx: TransactionClient) => Promise<T>
+  ): Promise<T> {
+    // SR-016.5: the wrapping rule is indeterminacy-driven — we only
+    // throw `TransactionIntegrityError` when the adapter genuinely
+    // cannot confirm a definite terminal state (committed or rolled
+    // back). fn errors with a clean ROLLBACK pass through unchanged;
+    // COMMIT failures with definite rollback semantics (deferred
+    // constraint violation, etc.) pass through unchanged; only
+    // genuinely-indeterminate cases are wrapped.
+    const client = await pool.connect();
+
+    // SR-016.5 (substantive finding surfaced during integration
+    // testing): pg clients emit `'error'` events for async
+    // server-side messages (e.g., `FATAL` 57P01 backend termination
+    // when `pg_terminate_backend` is invoked from another session)
+    // that arrive while no query is pending. Unhandled, these
+    // become uncaught exceptions that can crash the consumer's
+    // process. Attach a no-op handler for the lifetime of the
+    // checked-out client; the error will also surface via the
+    // next query's rejection path, which withTransaction already
+    // handles correctly. Optional-method guard preserves
+    // compatibility with narrow test doubles.
+    const asyncErrorNoop = (): void => {
+      /* intentional no-op; errors flow through the query rejection path */
+    };
+    if (typeof client.on === "function") {
+      client.on("error", asyncErrorNoop);
+    }
+
+    try {
+      await client.query("BEGIN");
+
+      let result: T;
+      try {
+        const tx = buildLoopStoreAgainst(client);
+        result = await fn(tx);
+      } catch (fnErr) {
+        // fn threw. Try to ROLLBACK. If ROLLBACK succeeds, the
+        // transaction reached a definite terminal state and we
+        // propagate fn's original error unchanged. If ROLLBACK fails,
+        // the state is indeterminate and we wrap as
+        // `TransactionIntegrityError`.
+        try {
+          await client.query("ROLLBACK");
+        } catch {
+          throw new TransactionIntegrityError(
+            "withTransaction: ROLLBACK failed after fn error; transaction state is indeterminate",
+            { cause: fnErr }
+          );
+        }
+        throw fnErr;
+      }
+
+      try {
+        await client.query("COMMIT");
+      } catch (commitErr) {
+        // COMMIT failures bifurcate by cause:
+        //   - connection-level failure → we never received the ACK;
+        //     the tx may have been committed server-side before the
+        //     connection dropped. State indeterminate; wrap.
+        //   - non-connection failure (e.g., deferred constraint
+        //     violation) → Postgres definitively rolled back. Pass
+        //     through so consumers can inspect the SQLSTATE.
+        if (isConnectionError(commitErr)) {
+          throw new TransactionIntegrityError(
+            "withTransaction: COMMIT failed due to connection issue; transaction state is indeterminate",
+            { cause: commitErr }
+          );
+        }
+        throw commitErr;
+      }
+
+      return result;
+    } finally {
+      if (typeof client.off === "function") {
+        client.off("error", asyncErrorNoop);
+      }
+      client.release();
+    }
+  }
+
+  return {
+    ...nonTxMethods,
+    withTransaction
+  };
 }

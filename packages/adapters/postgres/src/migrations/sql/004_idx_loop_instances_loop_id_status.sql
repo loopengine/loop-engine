@@ -1,0 +1,39 @@
+-- Migration 004: idx_loop_instances_loop_id_status
+--
+-- Composite B-tree index on (loop_id, status) supporting the
+-- `listOpenInstances(loopId)` query path, which filters by
+-- `loop_id = $1 AND status = 'active'`.
+--
+-- Without this index, `listOpenInstances` falls back to a sequential
+-- scan over `loop_instances`, which becomes linear in total instance
+-- count rather than linear in active-instances-per-loop count — a
+-- pathological plan as soon as a deployment accumulates more than a
+-- few hundred completed loops against each active one.
+--
+-- Index shape choice (composite over partial): a partial index
+-- `WHERE status = 'active'` would be slightly more selective for the
+-- current query but closes off plan flexibility for future LoopStore
+-- surfaces that might filter by other statuses (e.g., listing all
+-- failed instances for a specific loop during incident review).
+-- The composite index supports any `(loop_id, status)` equality
+-- pair and pays a small storage cost for the flexibility. Revisit
+-- if production telemetry shows the 'active' filter dominates and
+-- storage pressure matters.
+--
+-- IDEMPOTENCY: `CREATE INDEX IF NOT EXISTS` lets this migration be
+-- re-applied safely; the runner additionally records it in
+-- `schema_migrations` after first application so subsequent runs
+-- skip it.
+--
+-- NOTE on concurrent index builds: the adapter's migration runner
+-- (SR-016.2) wraps each migration in a transaction, and
+-- `CREATE INDEX CONCURRENTLY` cannot run inside a transaction. For
+-- very large existing tables, this migration's index build briefly
+-- locks the table for writes. A future adapter release may add a
+-- non-transactional migration stream for such cases. At RC this is
+-- acceptable because (a) new deployments add the index against an
+-- empty table, and (b) existing deployments are small enough that
+-- the lock window is brief.
+
+CREATE INDEX IF NOT EXISTS idx_loop_instances_loop_id_status
+  ON loop_instances (loop_id, status);

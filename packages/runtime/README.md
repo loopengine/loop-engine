@@ -15,16 +15,16 @@ npm install @loop-engine/runtime @loop-engine/adapter-memory @loop-engine/guards
 ## Quick Start
 
 ```ts
-import { createLoopSystem } from "@loop-engine/runtime";
-import { createMemoryLoopStorageAdapter } from "@loop-engine/adapter-memory";
+import { createLoopEngine } from "@loop-engine/runtime";
+import { memoryStore } from "@loop-engine/adapter-memory";
 import { GuardRegistry } from "@loop-engine/guards";
 
 const guardRegistry = new GuardRegistry();
 guardRegistry.registerBuiltIns();
 const registry = { get: () => loopDefinition, list: () => [loopDefinition] };
-const system = createLoopSystem({ registry, storage: createMemoryLoopStorageAdapter(), guardRegistry });
+const system = createLoopEngine({ registry, store: memoryStore(), guardRegistry });
 
-await system.startLoop({ loopId: "expense.approval" as never, aggregateId: "EXP-1" as never, actor: { type: "human", id: "manager@acme.com" as never } });
+await system.start({ loopId: "expense.approval" as never, aggregateId: "EXP-1" as never, actor: { type: "human", id: "manager@acme.com" as never } });
 await system.transition({ aggregateId: "EXP-1" as never, transitionId: "approve" as never, actor: { type: "human", id: "manager@acme.com" as never } });
 ```
 

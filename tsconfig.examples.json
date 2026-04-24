@@ -20,5 +20,5 @@
       "@loop-engine/registry-client": ["./packages/registry-client/src/index.ts"]
     }
   },
-  "include": ["examples/ai-actors/shared/loop.ts"]
+  "include": ["examples/ai-actors/shared/**/*.ts"]
 }

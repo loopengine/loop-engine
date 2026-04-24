@@ -6,48 +6,42 @@ import {
   LoopDefinitionSchema,
   type AggregateId,
   type LoopDefinition,
-  type LoopId
+  type LoopId,
+  type LoopInstance,
+  type TransitionRecord
 } from "@loop-engine/core";
 import type { LoopEvent } from "@loop-engine/events";
 import { GuardRegistry } from "@loop-engine/guards";
 import type {
   EventBus,
   LoopDefinitionRegistry,
-  LoopStorageAdapter,
-  RuntimeLoopInstance,
-  RuntimeTransitionRecord
+  LoopStore
 } from "../interfaces";
-import { createLoopSystem } from "../engine";
+import { createLoopEngine } from "../engine";
 
-class MemoryAdapter implements LoopStorageAdapter {
-  loops = new Map<AggregateId, RuntimeLoopInstance>();
-  transitions = new Map<AggregateId, RuntimeTransitionRecord[]>();
-  lastUpdated?: RuntimeLoopInstance;
+class MemoryAdapter implements LoopStore {
+  loops = new Map<AggregateId, LoopInstance>();
+  transitions = new Map<AggregateId, TransitionRecord[]>();
 
-  async getLoop(aggregateId: AggregateId): Promise<RuntimeLoopInstance | null> {
+  async getInstance(aggregateId: AggregateId): Promise<LoopInstance | null> {
     return this.loops.get(aggregateId) ?? null;
   }
 
-  async createLoop(instance: RuntimeLoopInstance): Promise<void> {
+  async saveInstance(instance: LoopInstance): Promise<void> {
     this.loops.set(instance.aggregateId, instance);
   }
 
-  async updateLoop(instance: RuntimeLoopInstance): Promise<void> {
-    this.lastUpdated = instance;
-    this.loops.set(instance.aggregateId, instance);
-  }
-
-  async appendTransition(record: RuntimeTransitionRecord): Promise<void> {
+  async saveTransitionRecord(record: TransitionRecord): Promise<void> {
     const current = this.transitions.get(record.aggregateId) ?? [];
     current.push(record);
     this.transitions.set(record.aggregateId, current);
   }
 
-  async getTransitions(aggregateId: AggregateId): Promise<RuntimeTransitionRecord[]> {
+  async getTransitionHistory(aggregateId: AggregateId): Promise<TransitionRecord[]> {
     return this.transitions.get(aggregateId) ?? [];
   }
 
-  async listOpenLoops(loopId: LoopId): Promise<RuntimeLoopInstance[]> {
+  async listOpenInstances(loopId: LoopId): Promise<LoopInstance[]> {
     return [...this.loops.values()].filter(
       (instance) => instance.loopId === loopId && instance.status === "active"
     );
@@ -58,7 +52,7 @@ class MemoryRegistry implements LoopDefinitionRegistry {
   constructor(private readonly defs: LoopDefinition[]) {}
 
   get(id: LoopId): LoopDefinition | undefined {
-    return this.defs.find((d) => d.loopId === id);
+    return this.defs.find((d) => d.id === id);
   }
 
   list(): LoopDefinition[] {
@@ -68,33 +62,33 @@ class MemoryRegistry implements LoopDefinitionRegistry {
 
 function demoLoop(): LoopDefinition {
   return LoopDefinitionSchema.parse({
-    loopId: "demo.loop",
+    id: "demo.loop",
     version: "1.0.0",
     name: "Demo Loop",
     description: "Demo loop",
     states: [
-      { stateId: "OPEN", label: "Open" },
-      { stateId: "IN_REVIEW", label: "In Review" },
-      { stateId: "DONE", label: "Done", terminal: true }
+      { id: "OPEN", label: "Open" },
+      { id: "IN_REVIEW", label: "In Review" },
+      { id: "DONE", label: "Done", isTerminal: true }
     ],
     initialState: "OPEN",
     transitions: [
       {
-        transitionId: "review",
+        id: "review",
         from: "OPEN",
         to: "IN_REVIEW",
         signal: "ticket.review",
-        allowedActors: ["human", "automation", "ai-agent"]
+        actors: ["human", "automation", "ai-agent"]
       },
       {
-        transitionId: "close",
+        id: "close",
         from: "IN_REVIEW",
         to: "DONE",
         signal: "ticket.close",
-        allowedActors: ["human"],
+        actors: ["human"],
         guards: [
           {
-            guardId: "approval-obtained",
+            id: "approval-obtained",
             description: "Approval required",
             severity: "hard",
             evaluatedBy: "runtime"
@@ -111,11 +105,11 @@ function demoLoop(): LoopDefinition {
 }
 
 describe("LoopEngine", () => {
-  it("1) startLoop creates instance at initialState", async () => {
-    const storage = new MemoryAdapter();
-    const system = createLoopSystem({ registry: new MemoryRegistry([demoLoop()]), storage });
+  it("1) start creates instance at initialState", async () => {
+    const store = new MemoryAdapter();
+    const system = createLoopEngine({ registry: new MemoryRegistry([demoLoop()]), store });
 
-    const started = await system.startLoop({
+    const started = await system.start({
       loopId: "demo.loop",
       aggregateId: "A-1",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" }),
@@ -126,21 +120,21 @@ describe("LoopEngine", () => {
     expect(started.status).toBe("active");
   });
 
-  it("2) startLoop emits loop.started", async () => {
-    const storage = new MemoryAdapter();
+  it("2) start emits loop.started", async () => {
+    const store = new MemoryAdapter();
     const events: LoopEvent[] = [];
     const eventBus: EventBus = {
       async emit(event) {
         events.push(event);
       }
     };
-    const system = createLoopSystem({
+    const system = createLoopEngine({
       registry: new MemoryRegistry([demoLoop()]),
-      storage,
+      store,
       eventBus
     });
 
-    await system.startLoop({
+    await system.start({
       loopId: "demo.loop",
       aggregateId: "A-2",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
@@ -150,9 +144,9 @@ describe("LoopEngine", () => {
   });
 
   it("3) transition executes valid path", async () => {
-    const storage = new MemoryAdapter();
-    const system = createLoopSystem({ registry: new MemoryRegistry([demoLoop()]), storage });
-    await system.startLoop({
+    const store = new MemoryAdapter();
+    const system = createLoopEngine({ registry: new MemoryRegistry([demoLoop()]), store });
+    await system.start({
       loopId: "demo.loop",
       aggregateId: "A-3",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
@@ -168,9 +162,9 @@ describe("LoopEngine", () => {
   });
 
   it("4) transition rejects invalid transition", async () => {
-    const storage = new MemoryAdapter();
-    const system = createLoopSystem({ registry: new MemoryRegistry([demoLoop()]), storage });
-    await system.startLoop({
+    const store = new MemoryAdapter();
+    const system = createLoopEngine({ registry: new MemoryRegistry([demoLoop()]), store });
+    await system.start({
       loopId: "demo.loop",
       aggregateId: "A-4",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
@@ -187,9 +181,9 @@ describe("LoopEngine", () => {
   });
 
   it("5) transition rejects unauthorized actor before guard evaluation", async () => {
-    const storage = new MemoryAdapter();
-    const system = createLoopSystem({ registry: new MemoryRegistry([demoLoop()]), storage });
-    await system.startLoop({
+    const store = new MemoryAdapter();
+    const system = createLoopEngine({ registry: new MemoryRegistry([demoLoop()]), store });
+    await system.start({
       loopId: "demo.loop",
       aggregateId: "A-5",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
@@ -212,20 +206,20 @@ describe("LoopEngine", () => {
   });
 
   it("6) transition blocks on hard guard failure and keeps state unchanged", async () => {
-    const storage = new MemoryAdapter();
+    const store = new MemoryAdapter();
     const guardRegistry = new GuardRegistry();
     guardRegistry.register("approval-obtained", {
       async evaluate() {
         return { passed: false, message: "Approval missing" };
       }
     });
-    const system = createLoopSystem({
+    const system = createLoopEngine({
       registry: new MemoryRegistry([demoLoop()]),
-      storage,
+      store,
       guardRegistry
     });
 
-    await system.startLoop({
+    await system.start({
       loopId: "demo.loop",
       aggregateId: "A-6",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
@@ -241,14 +235,14 @@ describe("LoopEngine", () => {
       transitionId: "close",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
     });
-    const current = await storage.getLoop("A-6");
+    const current = await store.getInstance("A-6");
 
     expect(result.status).toBe("guard_failed");
     expect(current?.currentState).toBe("IN_REVIEW");
   });
 
   it("7) transition continues on soft guard failures", async () => {
-    const storage = new MemoryAdapter();
+    const store = new MemoryAdapter();
     const loop = LoopDefinitionSchema.parse({
       ...demoLoop(),
       transitions: [
@@ -257,7 +251,7 @@ describe("LoopEngine", () => {
           ...demoLoop().transitions[1],
           guards: [
             {
-              guardId: "soft-warning",
+              id: "soft-warning",
               description: "warning",
               severity: "soft",
               evaluatedBy: "runtime"
@@ -272,13 +266,13 @@ describe("LoopEngine", () => {
         return { passed: false, message: "Soft warning" };
       }
     });
-    const system = createLoopSystem({
+    const system = createLoopEngine({
       registry: new MemoryRegistry([loop]),
-      storage,
+      store,
       guardRegistry
     });
 
-    await system.startLoop({
+    await system.start({
       loopId: "demo.loop",
       aggregateId: "A-7",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
@@ -299,7 +293,7 @@ describe("LoopEngine", () => {
   });
 
   it("8) transition emits requested before executed", async () => {
-    const storage = new MemoryAdapter();
+    const store = new MemoryAdapter();
     const events: LoopEvent[] = [];
     const eventBus: EventBus = {
       async emit(event) {
@@ -308,14 +302,14 @@ describe("LoopEngine", () => {
     };
     const guardRegistry = new GuardRegistry();
     guardRegistry.register("approval-obtained", { async evaluate() { return { passed: true, message: "ok" }; } });
-    const system = createLoopSystem({
+    const system = createLoopEngine({
       registry: new MemoryRegistry([demoLoop()]),
-      storage,
+      store,
       eventBus,
       guardRegistry
     });
 
-    await system.startLoop({
+    await system.start({
       loopId: "demo.loop",
       aggregateId: "A-8",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
@@ -338,12 +332,12 @@ describe("LoopEngine", () => {
   });
 
   it("9) terminal transition updates storage to completed before loop.completed emission", async () => {
-    const storage = new MemoryAdapter();
+    const store = new MemoryAdapter();
     let completedStatePersistedBeforeEvent = false;
     const eventBus: EventBus = {
       emit: async (event) => {
         if (event.type === "loop.completed") {
-          const persisted = await storage.getLoop("A-9");
+          const persisted = await store.getInstance("A-9");
           completedStatePersistedBeforeEvent = Boolean(
             persisted?.status === "completed" && persisted.completedAt
           );
@@ -352,14 +346,14 @@ describe("LoopEngine", () => {
     };
     const guardRegistry = new GuardRegistry();
     guardRegistry.register("approval-obtained", { async evaluate() { return { passed: true, message: "ok" }; } });
-    const system = createLoopSystem({
+    const system = createLoopEngine({
       registry: new MemoryRegistry([demoLoop()]),
-      storage,
+      store,
       eventBus,
       guardRegistry
     });
 
-    await system.startLoop({
+    await system.start({
       loopId: "demo.loop",
       aggregateId: "A-9",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
@@ -379,18 +373,18 @@ describe("LoopEngine", () => {
   });
 
   it("10) terminal transition emits loop.completed event", async () => {
-    const storage = new MemoryAdapter();
+    const store = new MemoryAdapter();
     const events: LoopEvent[] = [];
     const guardRegistry = new GuardRegistry();
     guardRegistry.register("approval-obtained", { async evaluate() { return { passed: true, message: "ok" }; } });
-    const system = createLoopSystem({
+    const system = createLoopEngine({
       registry: new MemoryRegistry([demoLoop()]),
-      storage,
+      store,
       eventBus: { emit: async (event) => events.push(event) },
       guardRegistry
     });
 
-    await system.startLoop({
+    await system.start({
       loopId: "demo.loop",
       aggregateId: "A-10",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
@@ -410,16 +404,16 @@ describe("LoopEngine", () => {
   });
 
   it("11) transition after terminal completion is rejected as loop_closed", async () => {
-    const storage = new MemoryAdapter();
+    const store = new MemoryAdapter();
     const guardRegistry = new GuardRegistry();
     guardRegistry.register("approval-obtained", { async evaluate() { return { passed: true, message: "ok" }; } });
-    const system = createLoopSystem({
+    const system = createLoopEngine({
       registry: new MemoryRegistry([demoLoop()]),
-      storage,
+      store,
       guardRegistry
     });
 
-    await system.startLoop({
+    await system.start({
       loopId: "demo.loop",
       aggregateId: "A-11",
       actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
@@ -443,5 +437,49 @@ describe("LoopEngine", () => {
 
     expect(result.status).toBe("rejected");
     expect(result.rejectionReason).toBe("loop_closed");
+  });
+
+  it("12) listOpen returns only active instances for the given loopId (D-09)", async () => {
+    const store = new MemoryAdapter();
+    const guardRegistry = new GuardRegistry();
+    guardRegistry.register("approval-obtained", { async evaluate() { return { passed: true, message: "ok" }; } });
+    const system = createLoopEngine({
+      registry: new MemoryRegistry([demoLoop()]),
+      store,
+      guardRegistry
+    });
+
+    await system.start({
+      loopId: "demo.loop",
+      aggregateId: "A-12-active-1",
+      actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
+    });
+    await system.start({
+      loopId: "demo.loop",
+      aggregateId: "A-12-active-2",
+      actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
+    });
+
+    await system.start({
+      loopId: "demo.loop",
+      aggregateId: "A-12-completed",
+      actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
+    });
+    await system.transition({
+      aggregateId: "A-12-completed",
+      transitionId: "review",
+      actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
+    });
+    await system.transition({
+      aggregateId: "A-12-completed",
+      transitionId: "close",
+      actor: ActorRefSchema.parse({ id: "user-1", type: "human" })
+    });
+
+    const open = await system.listOpen("demo.loop");
+    const ids = open.map((instance) => instance.aggregateId).sort();
+
+    expect(ids).toEqual(["A-12-active-1", "A-12-active-2"]);
+    expect(open.every((instance) => instance.status === "active")).toBe(true);
   });
 });

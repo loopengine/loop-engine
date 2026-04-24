@@ -1,13 +1,12 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
-import type { AggregateId, StateId } from "@loop-engine/core";
-import type { RuntimeLoopInstance, RuntimeTransitionRecord } from "@loop-engine/runtime";
+import type { AggregateId, LoopInstance, StateId, TransitionRecord } from "@loop-engine/core";
 
 export interface LoopTimeline {
   aggregateId: AggregateId;
-  loopId: RuntimeLoopInstance["loopId"];
-  instance: RuntimeLoopInstance;
-  transitions: RuntimeTransitionRecord[];
+  loopId: LoopInstance["loopId"];
+  instance: LoopInstance;
+  transitions: TransitionRecord[];
   durationMs: number;
   isComplete: boolean;
 }
@@ -20,8 +19,8 @@ export interface StateResidency {
 }
 
 export function buildTimeline(
-  instance: RuntimeLoopInstance,
-  history: RuntimeTransitionRecord[]
+  instance: LoopInstance,
+  history: TransitionRecord[]
 ): LoopTimeline {
   const end = instance.completedAt ?? new Date().toISOString();
   return {

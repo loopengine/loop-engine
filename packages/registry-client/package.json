@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/registry-client",
-  "version": "0.1.8",
+  "version": "1.0.0-rc.0",
   "description": "Registry discovery client for loop definition catalogs.",
   "license": "Apache-2.0",
   "repository": {
@@ -53,11 +53,12 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.17"
   },
   "homepage": "https://loopengine.io/docs/packages/registry-client",
   "sideEffects": false,
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   }
 }

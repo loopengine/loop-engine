@@ -40,7 +40,7 @@ npm install @loop-engine/sdk
 
 ```typescript
 import { createLoopSystem, parseLoopYaml, GuardRegistry } from '@loop-engine/sdk'
-import { MemoryLoopStorageAdapter } from '@loop-engine/adapter-memory'
+import { MemoryStore } from '@loop-engine/adapter-memory'
 
 const definition = parseLoopYaml(`
   loopId: expense.approval
@@ -75,11 +75,11 @@ guards.registerBuiltIns()
 
 const { engine } = await createLoopSystem({
   loops: [definition],
-  storage: new MemoryLoopStorageAdapter(),
+  store: new MemoryStore(),
   guards
 })
 
-const loop = await engine.startLoop({
+const loop = await engine.start({
   loopId: definition.loopId,
   aggregateId: 'expense-4200' as never,
   actor: { id: 'alice', type: 'human' as const },
@@ -108,7 +108,7 @@ await engine.transition({
 | [`@loop-engine/adapter-openai`](packages/adapter-openai) | OpenAI AI actor |
 | [`@loop-engine/adapter-grok`](packages/adapter-grok) | Grok (xAI) AI actor |
 | [`@loop-engine/adapter-gemini`](packages/adapter-gemini) | Gemini AI actor |
-| [`@loop-engine/adapter-perplexity`](packages/adapter-perplexity) | Perplexity Sonar (`LLMAdapter`, citations) |
+| [`@loop-engine/adapter-perplexity`](packages/adapter-perplexity) | Perplexity Sonar (`ToolAdapter`, citations) |
 | [`@loop-engine/adapter-openclaw`](packages/adapter-openclaw) | OpenClaw integration |
 | [`@loop-engine/adapter-commerce-gateway`](packages/adapter-commerce-gateway) | Commerce Gateway |
 | [`@loop-engine/adapter-pagerduty`](packages/adapter-pagerduty) | PagerDuty incidents |

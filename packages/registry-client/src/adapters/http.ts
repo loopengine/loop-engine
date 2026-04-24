@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { LoopDefinition, LoopId } from "@loop-engine/core";
 import { LoopDefinitionSchema } from "@loop-engine/core";
-import { validateLoopDefinition } from "@loop-engine/loop-definition";
+import { applyAuthoringDefaults, validateLoopDefinition } from "@loop-engine/loop-definition";
 import type { LoopRegistry, LoopRegistryOptions } from "../types";
 import { RegistryConflictError, RegistryNetworkError } from "../types";
 
@@ -42,7 +42,7 @@ function normalizeRoot(baseUrl: string): string {
 }
 
 function parseLoopDefinition(input: unknown): LoopDefinition {
-  const definition = LoopDefinitionSchema.parse(input);
+  const definition = applyAuthoringDefaults(LoopDefinitionSchema.parse(input));
   const validated = validateLoopDefinition(definition);
   if (!validated.valid) {
     throw new Error(
@@ -110,7 +110,7 @@ export function httpRegistry(options: HttpRegistryOptions): LoopRegistry {
     const now = Date.now();
     for (const entry of listCache.values()) {
       if (entry.expiresAt <= now) continue;
-      const found = entry.data.find((definition) => definition.loopId === id);
+      const found = entry.data.find((definition) => definition.id === id);
       if (found) return found;
     }
     return null;
@@ -186,7 +186,7 @@ export function httpRegistry(options: HttpRegistryOptions): LoopRegistry {
         body: JSON.stringify(definition)
       });
       if (response.status === 409) {
-        throw new RegistryConflictError(definition.loopId, definition.version);
+        throw new RegistryConflictError(definition.id, definition.version);
       }
       if (response.status !== 201) {
         throw new RegistryNetworkError(url, response.status);

@@ -17,14 +17,17 @@ export function httpEventBus(options: {
       const retries = options.retries ?? 3;
       for (let attempt = 0; attempt < retries; attempt += 1) {
         try {
-          fetch(options.webhookUrl, {
+          const response = await fetch(options.webhookUrl, {
             method: "POST",
             headers: {
               "content-type": "application/json",
               ...(options.headers ?? {})
             },
             body: JSON.stringify(event)
-          }).catch(() => {});
+          });
+          if (!response.ok) {
+            throw new Error(`httpEventBus: webhook returned ${response.status}`);
+          }
           return;
         } catch {
           if (attempt === retries - 1) return;

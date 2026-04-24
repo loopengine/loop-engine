@@ -1,14 +1,29 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Better Data, Inc.
 
-import { ActorDecisionError, type AIAgentActor, type AIActorDecision, type LoopActorPromptContext } from "@loop-engine/actors";
+import { ActorDecisionError } from "@loop-engine/actors";
+import {
+  actorId,
+  signalId,
+  type ActorAdapter,
+  type AIAgentActor,
+  type AIAgentSubmission,
+  type LoopActorPromptContext
+} from "@loop-engine/core";
 import OpenAI from "openai";
-import type { GrokActorSubmission, GrokLoopActorConfig } from "./types";
+import type { GrokLoopActorConfig } from "./types";
 
 const DEFAULT_BASE_URL = "https://api.x.ai/v1";
 const DEFAULT_MODEL_ID = "grok-3";
 const DEFAULT_MAX_TOKENS = 1024;
 const DEFAULT_CONFIDENCE_THRESHOLD = 0.7;
+
+interface ParsedDecision {
+  signalId: string;
+  reasoning: string;
+  confidence: number;
+  dataPoints?: Record<string, unknown>;
+}
 
 function requireApiKey(apiKey: string, envVar: string): void {
   if (typeof apiKey !== "string" || apiKey.trim().length === 0) {
@@ -39,11 +54,11 @@ function buildUserPrompt(context: LoopActorPromptContext): string {
   ].join("\n");
 }
 
-function isSignalAllowed(signalId: string, context: LoopActorPromptContext): boolean {
-  return context.availableSignals.some((entry) => entry.signalId === signalId);
+function isSignalAllowed(candidate: string, context: LoopActorPromptContext): boolean {
+  return context.availableSignals.some((entry) => entry.signalId === candidate);
 }
 
-function parseDecision(raw: string, context: LoopActorPromptContext): AIActorDecision {
+function parseDecision(raw: string, context: LoopActorPromptContext): ParsedDecision {
   let parsed: unknown;
   try {
     parsed = JSON.parse(raw);
@@ -64,12 +79,12 @@ function parseDecision(raw: string, context: LoopActorPromptContext): AIActorDec
   }
 
   const record = parsed as Record<string, unknown>;
-  const signalId = record.signalId;
+  const parsedSignalId = record.signalId;
   const reasoning = record.reasoning;
   const confidence = record.confidence;
   const dataPoints = record.dataPoints;
 
-  if (typeof signalId !== "string" || !isSignalAllowed(signalId, context)) {
+  if (typeof parsedSignalId !== "string" || !isSignalAllowed(parsedSignalId, context)) {
     throw new ActorDecisionError({
       code: "INVALID_SIGNAL",
       raw: record,
@@ -94,7 +109,7 @@ function parseDecision(raw: string, context: LoopActorPromptContext): AIActorDec
   }
 
   return {
-    signalId,
+    signalId: parsedSignalId,
     reasoning,
     confidence,
     ...(dataPoints && typeof dataPoints === "object" && !Array.isArray(dataPoints)
@@ -110,9 +125,13 @@ async function sha256(value: string): Promise<string> {
     .join("");
 }
 
-export class GrokLoopActor {
+export class GrokLoopActor implements ActorAdapter {
+  readonly provider = "grok";
+  readonly model: string;
+
   private readonly client: OpenAI;
-  private readonly config: Required<Omit<GrokLoopActorConfig, "systemPrompt">> & Pick<GrokLoopActorConfig, "systemPrompt">;
+  private readonly config: Required<Omit<GrokLoopActorConfig, "systemPrompt">> &
+    Pick<GrokLoopActorConfig, "systemPrompt">;
 
   constructor(apiKey: string, config: GrokLoopActorConfig = {}) {
     requireApiKey(apiKey, "XAI_API_KEY");
@@ -123,13 +142,14 @@ export class GrokLoopActor {
       baseURL: config.baseURL ?? DEFAULT_BASE_URL,
       ...(config.systemPrompt ? { systemPrompt: config.systemPrompt } : {})
     };
+    this.model = this.config.modelId;
     this.client = new OpenAI({
       apiKey,
       baseURL: this.config.baseURL
     });
   }
 
-  async createSubmission(context: LoopActorPromptContext): Promise<GrokActorSubmission> {
+  async createSubmission(context: LoopActorPromptContext): Promise<AIAgentSubmission> {
     const systemPrompt = buildSystemPrompt(this.config.systemPrompt);
     const userPrompt = buildUserPrompt(context);
     const fullPrompt = `${systemPrompt}\n${userPrompt}`;
@@ -167,7 +187,7 @@ export class GrokLoopActor {
     const promptHash = await sha256(fullPrompt);
 
     const actor: AIAgentActor = {
-      id: crypto.randomUUID() as never,
+      id: actorId(crypto.randomUUID()),
       type: "ai-agent",
       modelId: this.config.modelId,
       provider: "grok",
@@ -178,12 +198,20 @@ export class GrokLoopActor {
 
     return {
       actor,
-      decision,
-      rawResponse: response
+      signal: signalId(decision.signalId),
+      evidence: {
+        reasoning: decision.reasoning,
+        confidence: decision.confidence,
+        ...(decision.dataPoints ? { dataPoints: decision.dataPoints } : {}),
+        modelResponse: response
+      }
     };
   }
 }
 
-export function createGrokActorAdapter(apiKey: string, config: GrokLoopActorConfig = {}): GrokLoopActor {
+export function createGrokActorAdapter(
+  apiKey: string,
+  config: GrokLoopActorConfig = {}
+): ActorAdapter {
   return new GrokLoopActor(apiKey, config);
 }

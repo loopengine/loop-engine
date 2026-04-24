@@ -1,3 +1,4 @@
+import { aggregateId } from "@loop-engine/core";
 import type { DemandSpikeSignal, ReplenishmentContext } from "./types";
 
 export const LUMEBONDE_SIGNAL: DemandSpikeSignal = {
@@ -19,8 +20,7 @@ export const LUMEBONDE_SIGNAL: DemandSpikeSignal = {
 
 export const REPLENISHMENT_CONTEXT: ReplenishmentContext = {
   signal: LUMEBONDE_SIGNAL,
-  loopAggregateId: "repl-lmb-brs-001-dc-east-20260311",
-  orgId: "lumebonde",
+  loopAggregateId: aggregateId("repl-lmb-brs-001-dc-east-20260311"),
   buyerEmail: "supply@lumebonde.com"
 };
 

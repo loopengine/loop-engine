@@ -1,22 +1,37 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ActorRef, TransitionSpec } from "@loop-engine/core";
+import type { ActorRef, TransitionId, TransitionSpec } from "@loop-engine/core";
+
+export interface AIActorConstraints {
+  requiresHumanApprovalFor?: TransitionId[];
+}
 
 export interface ActorAuthorizationResult {
   authorized: boolean;
+  requiresApproval: boolean;
   reason?: string;
 }
 
-export function isAuthorized(
+export function canActorExecuteTransition(
   actor: ActorRef,
-  transition: TransitionSpec
+  transition: TransitionSpec,
+  constraints?: AIActorConstraints
 ): ActorAuthorizationResult {
-  if (!transition.allowedActors.includes(actor.type)) {
+  if (!transition.actors.includes(actor.type)) {
     return {
       authorized: false,
+      requiresApproval: false,
       reason: "Actor type not allowed for this transition"
     };
   }
-  return { authorized: true };
+
+  if (
+    actor.type === "ai-agent" &&
+    constraints?.requiresHumanApprovalFor?.includes(transition.id)
+  ) {
+    return { authorized: true, requiresApproval: true };
+  }
+
+  return { authorized: true, requiresApproval: false };
 }

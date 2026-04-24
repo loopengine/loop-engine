@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-openclaw",
-  "version": "0.1.8",
+  "version": "1.0.0-rc.0",
   "description": "OpenClaw adapter for governed agent skills and approvals.",
   "keywords": [
     "loop-engine",
@@ -58,10 +58,11 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.17"
   },
   "sideEffects": false,
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   }
 }

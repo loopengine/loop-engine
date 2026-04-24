@@ -121,22 +121,22 @@ describe("events package", () => {
       }
     ];
     const definition = LoopDefinitionSchema.parse({
-      loopId: "support.ticket",
+      id: "support.ticket",
       version: "1.0.0",
       name: "Support Ticket",
       description: "Ticket loop",
       states: [
-        { stateId: "OPEN", label: "Open" },
-        { stateId: "RESOLVED", label: "Resolved", terminal: true }
+        { id: "OPEN", label: "Open" },
+        { id: "RESOLVED", label: "Resolved", isTerminal: true }
       ],
       initialState: "OPEN",
       transitions: [
         {
-          transitionId: "resolve",
+          id: "resolve",
           from: "OPEN",
           to: "RESOLVED",
           signal: "support.ticket.resolve",
-          allowedActors: ["human"]
+          actors: ["human"]
         }
       ],
       outcome: {
@@ -167,22 +167,22 @@ describe("events package", () => {
       durationMs: 259_200_000
     };
     const definition = LoopDefinitionSchema.parse({
-      loopId: "support.ticket",
+      id: "support.ticket",
       version: "1.0.0",
       name: "Support Ticket",
       description: "Ticket loop",
       states: [
-        { stateId: "OPEN", label: "Open" },
-        { stateId: "RESOLVED", label: "Resolved", terminal: true }
+        { id: "OPEN", label: "Open" },
+        { id: "RESOLVED", label: "Resolved", isTerminal: true }
       ],
       initialState: "OPEN",
       transitions: [
         {
-          transitionId: "resolve",
+          id: "resolve",
           from: "OPEN",
           to: "RESOLVED",
           signal: "support.ticket.resolve",
-          allowedActors: ["human"]
+          actors: ["human"]
         }
       ],
       outcome: {
@@ -233,22 +233,22 @@ describe("events package", () => {
       durationMs: 86_400_000
     };
     const definition = LoopDefinitionSchema.parse({
-      loopId: "support.ticket",
+      id: "support.ticket",
       version: "1.0.0",
       name: "Support Ticket",
       description: "Ticket loop",
       states: [
-        { stateId: "OPEN", label: "Open" },
-        { stateId: "RESOLVED", label: "Resolved", terminal: true }
+        { id: "OPEN", label: "Open" },
+        { id: "RESOLVED", label: "Resolved", isTerminal: true }
       ],
       initialState: "OPEN",
       transitions: [
         {
-          transitionId: "resolve",
+          id: "resolve",
           from: "OPEN",
           to: "RESOLVED",
           signal: "support.ticket.resolve",
-          allowedActors: ["human"]
+          actors: ["human"]
         }
       ],
       outcome: {

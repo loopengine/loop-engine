@@ -106,7 +106,7 @@ const system = createLoopSystem({
   guards: CommonGuards
 });
 
-const loop = await system.startLoop({ definition, context: {} });
+const loop = await system.start({ definition, context: {} });
 
 await system.transition({
   loopId: loop.loopId,

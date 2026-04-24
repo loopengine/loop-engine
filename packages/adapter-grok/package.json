@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-grok",
-  "version": "0.1.8",
+  "version": "1.0.0-rc.0",
   "description": "xAI Grok adapter for governed AI loop actors.",
   "keywords": [
     "loop-engine",
@@ -41,7 +41,7 @@
     "test": "vitest run"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.17"
   },
   "dependencies": {
     "@loop-engine/core": "workspace:*",
@@ -56,6 +56,7 @@
   ],
   "sideEffects": false,
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   }
 }

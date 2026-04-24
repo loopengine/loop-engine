@@ -90,9 +90,9 @@ async function main() {
     guards: CommonGuards,
   })
 
-  const adapter = createOpenAIActorAdapter(process.env.OPENAI_API_KEY, {
-    modelId: 'gpt-4o',
-    confidenceThreshold: 0.70,
+  const adapter = createOpenAIActorAdapter({
+    apiKey: process.env.OPENAI_API_KEY ?? '',
+    model: 'gpt-4o',
   })
 
   // The proposed change
@@ -105,7 +105,7 @@ async function main() {
     affectedRegions: ['us-east-1', 'us-west-2'],
   }
 
-  const loop = await system.startLoop({
+  const loop = await system.start({
     definition,
     context: changeRequest,
   })
@@ -123,7 +123,7 @@ async function main() {
 
   console.log('Analyzing blast radius with GPT-4o...')
 
-  const { actor, decision } = await adapter.createSubmission({
+  const { actor, signal, evidence } = await adapter.createSubmission({
     loopId: loop.loopId,
     loopName: 'Infrastructure Change Approval',
     currentState: 'analyzing',
@@ -147,22 +147,22 @@ async function main() {
     },
   })
 
-  console.log(`GPT-4o analysis: ${decision.signalId}`)
-  console.log(`Confidence: ${decision.confidence}`)
-  console.log(`Reasoning: ${decision.reasoning}`)
+  console.log(`GPT-4o analysis: ${signal}`)
+  console.log(`Confidence: ${evidence.confidence}`)
+  console.log(`Reasoning: ${evidence.reasoning}`)
 
   // Submit analysis — evidence-required guard checks for blast_radius_score,
   // affected_services, and rollback_plan
   const analysisResult = await system.transition({
     loopId: loop.loopId,
-    signalId: decision.signalId,
+    signalId: signal,
     actor,
     evidence: {
       blast_radius_score: 0.35,
       affected_services: ['api-gateway', 'auth-service', 'billing-service'],
       rollback_plan: 'pg_upgrade --revert within 10 minutes if health checks fail',
-      reasoning: decision.reasoning,
-      confidence: decision.confidence,
+      reasoning: evidence.reasoning,
+      confidence: evidence.confidence,
       model: actor.modelId,
       promptHash: actor.promptHash,
     },

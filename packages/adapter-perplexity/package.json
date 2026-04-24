@@ -43,7 +43,7 @@
     "node": ">=18.17"
   },
   "peerDependencies": {
-    "@loop-engine/core": "^1.0.0-rc.0"
+    "@loop-engine/core": "workspace:^"
   },
   "devDependencies": {
     "@loop-engine/core": "workspace:*",

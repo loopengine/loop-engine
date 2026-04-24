@@ -30,7 +30,7 @@
     "@loop-engine/guards": "workspace:*"
   },
   "peerDependencies": {
-    "@loop-engine/events": "^1.0.0-rc.0"
+    "@loop-engine/events": "workspace:^"
   },
   "files": [
     "dist/",

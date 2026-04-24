@@ -219,8 +219,8 @@ importers:
   packages/adapter-pagerduty:
     dependencies:
       '@loop-engine/core':
-        specifier: ^0.1.5
-        version: 0.1.5
+        specifier: workspace:^
+        version: link:../core
     devDependencies:
       tsup:
         specifier: ^8.5.1
@@ -250,8 +250,8 @@ importers:
   packages/adapter-vercel-ai:
     dependencies:
       '@loop-engine/core':
-        specifier: ^0.1.5
-        version: 0.1.5
+        specifier: workspace:^
+        version: link:../core
       '@loop-engine/runtime':
         specifier: workspace:*
         version: link:../runtime
@@ -382,8 +382,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@loop-engine/events':
-        specifier: ^0.1.5
-        version: 0.1.5
+        specifier: workspace:^
+        version: link:../events
       '@loop-engine/guards':
         specifier: workspace:*
         version: link:../guards
@@ -1170,16 +1170,6 @@ packages:
 
   '@kwsites/file-exists@1.1.1':
     resolution: {integrity: sha512-m9/5YGR18lIwxSFDwfE3oA7bWuq9kdau6ugN4H2rJeyhFQZcG9AgSHkQtSD15a8WvTgfz9aikZMrKPHvbpqFiw==}
-
-  '@loop-engine/core@0.1.5':
-    resolution: {integrity: sha512-de2IDWZR25Sn1P2Y/I9qSNrd43mXVMf5Q3LzXS8e+UWd8sZJw9O/2ex2+4I8MFuR1JWw83Olte4NXIUUrfgmow==}
-    engines: {node: '>=18.0.0'}
-    deprecated: Merged into @loop-engine/sdk
-
-  '@loop-engine/events@0.1.5':
-    resolution: {integrity: sha512-36ovPNXIy/mE/lfSraMO4G1Oe3iDYUXHRNfXXMKq/bMA+E6e2nxDPNEbRUI9d7wh9P7/Rr1SPLXJpUAt904dcg==}
-    engines: {node: '>=18.0.0'}
-    deprecated: Merged into @loop-engine/sdk
 
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -4228,15 +4218,6 @@ snapshots:
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
-
-  '@loop-engine/core@0.1.5':
-    dependencies:
-      zod: 3.25.76
-
-  '@loop-engine/events@0.1.5':
-    dependencies:
-      '@loop-engine/core': 0.1.5
-      zod: 3.25.76
 
   '@manypkg/find-root@1.1.0':
     dependencies:

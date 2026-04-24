@@ -22,10 +22,10 @@ import type {
  * spell their intent at the type level.
  *
  * If runtime validation is needed (e.g., constraining the format of a
- * `LoopId`), use the corresponding `*Schema` from `./schemas` directly:
+ * `LoopId`), use the corresponding `*Schema` from `./schemas` directly
+ * (exported from this same package):
  *
  * ```ts
- * import { LoopIdSchema } from "@loop-engine/core";
  * const id = LoopIdSchema.parse(input); // throws on invalid
  * ```
  *

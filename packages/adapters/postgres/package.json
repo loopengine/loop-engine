@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-postgres",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "description": "PostgreSQL loop state store for durable production workloads.",
   "homepage": "https://loopengine.io/docs/packages/adapter-postgres",
   "keywords": [

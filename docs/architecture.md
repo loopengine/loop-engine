@@ -143,11 +143,11 @@ Verified from package dependencies:
 @loop-engine/sdk
   ├── @loop-engine/runtime
   │     ├── @loop-engine/core
-  │     ├── @loop-engine/dsl
+  │     ├── @loop-engine/loop-definition
   │     ├── @loop-engine/events
   │     ├── @loop-engine/actors
   │     └── @loop-engine/guards
-  ├── @loop-engine/dsl
+  ├── @loop-engine/loop-definition
   ├── @loop-engine/signals
   ├── @loop-engine/events
   ├── @loop-engine/observability

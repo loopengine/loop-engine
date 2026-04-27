@@ -40,7 +40,7 @@ Maintainer review and approval is sufficient. No RFC required.
 **New packages or significant API changes:**
 RFC required. Minimum 2-week comment period before implementation begins.
 
-**Breaking changes to `@loop-engine/core`, `@loop-engine/events`, or `@loop-engine/dsl`:**
+**Breaking changes to `@loop-engine/core`, `@loop-engine/events`, or `@loop-engine/loop-definition`:**
 RFC required. 6-month deprecation window on the prior version before removal.
 
 Rationale: event schemas are consumed by AI training pipelines downstream.

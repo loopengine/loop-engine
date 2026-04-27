@@ -3,7 +3,7 @@
 ## v0.1 - Foundation (current)
 
 - [x] Core domain model (@loop-engine/core)
-- [x] DSL - YAML and TypeScript builder (@loop-engine/dsl)
+- [x] DSL - YAML and TypeScript builder (@loop-engine/loop-definition)
 - [x] Runtime - state machine executor (@loop-engine/runtime)
 - [x] Guards - deterministic policy checks (@loop-engine/guards)
 - [x] Actors - human, automation, AI agent model (@loop-engine/actors)

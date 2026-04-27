@@ -12,7 +12,7 @@ Better Data hosted tenant, billing, or proprietary intelligence systems, it does
 From `packages/`:
 
 - `@loop-engine/core`
-- `@loop-engine/dsl`
+- `@loop-engine/loop-definition`
 - `@loop-engine/runtime`
 - `@loop-engine/events`
 - `@loop-engine/actors`
@@ -62,7 +62,7 @@ rg "procurement|inventory|shipment|lot" packages/core/src
 
 | I want to... | Use |
 |---|---|
-| Define a loop type | `@loop-engine/dsl` |
+| Define a loop type | `@loop-engine/sdk` |
 | Run loops in my application | `@loop-engine/sdk` |
 | Subscribe to loop events | `@loop-engine/events` |
 | Add custom guard logic | `@loop-engine/guards` |

@@ -1,6 +1,6 @@
 # Loop Engine
 
-> Open runtime for governed, observable enterprise loops.
+> An open governed operational runtime platform for AI-assisted enterprise systems.
 
 [![npm](https://img.shields.io/npm/v/@loop-engine/sdk.svg?label=@loop-engine/sdk)](https://www.npmjs.com/package/@loop-engine/sdk)
 [![Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
@@ -8,7 +8,9 @@
 
 ## What is Loop Engine?
 
-Loop Engine is an open runtime for governing decisions made by AI agents, humans, and automations working together.
+Loop Engine is an open governed operational runtime platform for AI-assisted enterprise systems.
+
+Loop Engine connects AI providers, communication channels, and enterprise systems through decision loops.
 
 Every transition through a loop:
 - Names the actor responsible (human, automation, or AI agent)
@@ -20,17 +22,21 @@ This creates a decision record produced at runtime, not reconstructed afterward.
 
 ## Why Loop Engine?
 
-AI systems make recommendations. Humans approve decisions. Workflows execute actions. But who governed what happened in between?
-
-Loop Engine sits between AI reasoning and operational execution. It enforces who can do what, under what conditions, with what evidence.
+AI systems make recommendations. Humans approve on channels they already use. Enterprise systems execute side effects. Loop Engine governs what happens between them — who may transition, under which guards, with what evidence.
 
 ```text
-AI Agent
+Providers (intelligence)
    ↓
-Loop Engine    ← decision governance
+Decision loops + guards
    ↓
-Workflow / ERP / Infrastructure
+Channels (human surfaces)
+   ↓
+Integrations (enterprise systems)
+   ↓
+Evidence + learning
 ```
+
+Loop Engine is not a workflow engine, Slack bot, or generic integration platform. It is governance substrate for AI-assisted operations — local-first, developer-operable, Apache-2.0.
 
 ## Quick Start
 
@@ -119,7 +125,7 @@ Core primitives are bundled in `@loop-engine/sdk`. Internal monorepo-only packag
 
 ## Documentation
 
-Full docs at **[loopengine.io](https://loopengine.io)**
+Canonical documentation lives at **[loopengine.io](https://loopengine.io)** (runtime, taxonomy, examples, self-host).
 
 - [Quick Start](https://loopengine.io/docs/getting-started/quick-start)
 - [Core Concepts](https://loopengine.io/docs/core-concepts)

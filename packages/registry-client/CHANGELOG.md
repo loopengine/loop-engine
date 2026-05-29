@@ -1,5 +1,11 @@
 # @loop-engine/registry-client
 
+## Unreleased (RT-03)
+
+- Add **`v0Registry()`** for registry-loop `/v0/loops/*` read contract.
+- **`betterDataRegistry`** uses `v0Registry` (origin-only base URL).
+- Deprecate **`httpRegistry`** for v0 catalogs (flat `/loops` behavior unchanged).
+
 ## 1.0.0-rc.0
 
 ### Major Changes

@@ -52,7 +52,26 @@ const registry = localRegistry({
 Inline definitions are applied after directory load and override matching loop IDs.
 When IDs conflict, inline definitions take precedence over directory-loaded definitions.
 
-## HTTP registry (any server)
+## Registry v0 (canonical — registry-loop)
+
+Production catalog services (`apps/registry-loop`, Better Data registry) implement the
+[frozen v0 read contract](../../../docs/specs/loop-registry-api-v0.md). Use **`v0Registry`**:
+
+```ts
+import { v0Registry } from "@loop-engine/registry-client";
+
+const registry = v0Registry({
+  baseUrl: "http://localhost:3011", // origin only — no /loops suffix
+  channel: "stable", // or "latest"
+  headers: { Authorization: `Bearer ${token}` },
+});
+```
+
+`v0Registry` implements `LoopRegistry` via `GET /v0/loops`, channel-aware loop summary,
+and per-version artifact download. Publisher writes use registry-loop’s `/v0/publisher/*`
+routes (not exposed on `LoopRegistry.register`).
+
+## HTTP registry (legacy flat `/loops`)
 
 ```ts
 import { httpRegistry } from "@loop-engine/registry-client";
@@ -63,7 +82,8 @@ const registry = httpRegistry({
 });
 ```
 
-The server must implement the REST contract (see `docs/http-api.md`).
+**Deprecated** for registry-loop v0. Targets legacy flat `GET /loops/{id}` servers only
+(see `docs/http-api.md`).
 
 ## Running a local registry server
 

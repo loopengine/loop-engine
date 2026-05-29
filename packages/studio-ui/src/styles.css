@@ -1,0 +1,90 @@
+/* Loop Engine Studio UI — scoped presentational styles (RT-06) */
+.le-studio {
+  --le-studio-fg: #0f172a;
+  --le-studio-muted: #64748b;
+  --le-studio-border: #e2e8f0;
+  --le-studio-surface: #f8fafc;
+  --le-studio-accent: #2563eb;
+  --le-studio-danger: #dc2626;
+  --le-studio-success: #16a34a;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  color: var(--le-studio-fg);
+  line-height: 1.5;
+}
+
+.le-studio * {
+  box-sizing: border-box;
+}
+
+.le-studio-card {
+  border: 1px solid var(--le-studio-border);
+  border-radius: 8px;
+  background: #fff;
+  padding: 1rem;
+}
+
+.le-studio-muted {
+  color: var(--le-studio-muted);
+  font-size: 0.875rem;
+}
+
+.le-studio-badge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--le-studio-surface);
+  border: 1px solid var(--le-studio-border);
+}
+
+.le-studio-badge--governed {
+  border-color: var(--le-studio-accent);
+  color: var(--le-studio-accent);
+}
+
+.le-studio-badge--blocked {
+  border-color: var(--le-studio-danger);
+  color: var(--le-studio-danger);
+}
+
+.le-studio-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.le-studio-list li {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--le-studio-border);
+}
+
+.le-studio-list li:last-child {
+  border-bottom: none;
+}
+
+.le-studio-state-frame {
+  padding: 2rem 1rem;
+  text-align: center;
+  border: 1px dashed var(--le-studio-border);
+  border-radius: 8px;
+  color: var(--le-studio-muted);
+}
+
+.le-studio-state-frame--error {
+  border-color: var(--le-studio-danger);
+  color: var(--le-studio-danger);
+}
+
+.le-studio-timeline-step {
+  display: grid;
+  grid-template-columns: 6rem 1fr;
+  gap: 0.5rem 1rem;
+  padding: 0.5rem 0;
+}
+
+.le-studio-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.75rem;
+}

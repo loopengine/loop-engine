@@ -1,0 +1,48 @@
+{
+  "name": "@loop-engine/studio-ui",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Presentational Loop Engine Studio UI primitives (fixtures only, RT-06)",
+  "license": "Apache-2.0",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": ["**/*.css"],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./styles.css": "./src/styles.css"
+  },
+  "files": ["dist", "src/styles.css", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@loop-engine/observability": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@testing-library/react": "^16.2.0",
+    "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.2",
+    "jsdom": "^27.0.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7"
+  }
+}

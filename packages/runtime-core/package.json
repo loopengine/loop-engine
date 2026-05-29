@@ -1,0 +1,70 @@
+{
+  "name": "@loop-engine/runtime-core",
+  "version": "1.0.0-rc.0",
+  "private": false,
+  "description": "OSS runtime primitives — Postgres trace store, run-read response builders, runtime connections catalog, and DB-backed auth adapter for the self-host Loop Engine runtime",
+  "keywords": [
+    "loop-engine",
+    "self-host",
+    "trace-store",
+    "runtime",
+    "oss"
+  ],
+  "license": "Apache-2.0",
+  "author": "Better Data, Inc.",
+  "homepage": "https://loopengine.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/betterdataco/bd-forge-main.git",
+    "directory": "packages/oss/loop-engine-runtime-core"
+  },
+  "bugs": {
+    "url": "https://github.com/betterdataco/bd-forge-main/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "schemas",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@loop-engine/auth-iface": "workspace:*",
+    "@loop-engine/entitlements-iface": "workspace:*",
+    "@loop-engine/observability": "workspace:*",
+    "@loop-engine/runtime-db": "workspace:*"
+  },
+  "peerDependencies": {
+    "@loop-engine/core": "1.0.0-rc.0",
+    "@loop-engine/runtime": "1.0.0-rc.0",
+    "@loop-engine/sdk": "1.0.0-rc.0"
+  },
+  "devDependencies": {
+    "@loop-engine/core": "1.0.0-rc.0",
+    "@loop-engine/runtime": "1.0.0-rc.0",
+    "@loop-engine/sdk": "1.0.0-rc.0",
+    "@types/node": "^20.14.10",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7"
+  }
+}

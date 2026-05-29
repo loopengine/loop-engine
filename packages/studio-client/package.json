@@ -1,0 +1,38 @@
+{
+  "name": "@loop-engine/studio-client",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Typed Studio HTTP client and mock provider for Loop Engine runtime APIs (RT-07)",
+  "license": "Apache-2.0",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@loop-engine/observability": "workspace:*"
+  },
+  "devDependencies": {
+    "@loop-engine/studio-ui": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7"
+  }
+}

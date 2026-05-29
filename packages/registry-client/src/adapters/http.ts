@@ -56,6 +56,12 @@ async function sleep(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * Legacy flat `/loops/{id}` HTTP adapter.
+ *
+ * @deprecated For registry-loop and Better Data production catalogs, use
+ * {@link v0Registry} with an origin-only `baseUrl` (paths under `/v0/loops/*`).
+ */
 export function httpRegistry(options: HttpRegistryOptions): LoopRegistry {
   const baseRoot = normalizeRoot(options.baseUrl);
   const timeoutMs = options.timeoutMs ?? 10_000;

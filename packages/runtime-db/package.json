@@ -1,0 +1,63 @@
+{
+  "name": "@loop-engine/runtime-db",
+  "version": "1.0.0-rc.0",
+  "private": false,
+  "description": "OSS-subset Prisma schema and client for the Loop Engine self-host runtime",
+  "keywords": [
+    "loop-engine",
+    "prisma",
+    "postgres",
+    "self-host",
+    "oss"
+  ],
+  "license": "Apache-2.0",
+  "author": "Better Data, Inc.",
+  "homepage": "https://loopengine.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/betterdataco/bd-forge-main.git",
+    "directory": "packages/oss/loop-engine-runtime-db"
+  },
+  "bugs": {
+    "url": "https://github.com/betterdataco/bd-forge-main/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "generated",
+    "prisma",
+    "scripts",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "pnpm db:generate && tsc",
+    "typecheck": "pnpm db:generate && tsc --noEmit",
+    "test": "vitest run",
+    "db:generate": "node ./scripts/run-prisma.mjs generate",
+    "db:push": "node ./scripts/run-prisma.mjs db push",
+    "db:migrate": "node ./scripts/run-prisma.mjs migrate deploy"
+  },
+  "dependencies": {
+    "@prisma/client": "6.16.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "dotenv": "^16.4.5",
+    "prisma": "6.16.3",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7"
+  }
+}

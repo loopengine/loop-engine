@@ -1,0 +1,146 @@
+// OSS-subset Prisma schema for the Loop Engine self-host runtime (RT-20a).
+//
+// This schema is intentionally a strict subset of `packages/database-loops/prisma/schema.prisma`.
+// Every model + field that appears here MUST also exist with the same type in the hosted schema,
+// enforced by `scripts/check-runtime-db-prefix.mjs`. Cloud-only models
+// (DecisionMessage, SheetEditStaging, GoogleOAuthConnection, LoopBillingEvent, BaselineManifest,
+// GovernedAiAuditTrail, GovernedIncidentExecutionCheckpoint, SlackWorkspaceInstall,
+// SlackUserLink, SlackInteractiveIdempotency, GoogleDocSnapshotEvidence) intentionally
+// stay in the hosted package and never leak into OSS.
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/client"
+  // `binaryTargets` covers macOS dev + linux production deploys (compose runs node:20-bookworm-slim → debian-openssl-3.0.x).
+  binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x", "linux-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("LOOP_ENGINE_DATABASE_URL")
+  directUrl = env("LOOP_ENGINE_DATABASE_MIGRATE_URL")
+}
+
+model LoopInstance {
+  id             String   @id @default(cuid())
+  aggregateId    String   @unique
+  loopId         String
+  tenantId       String
+  idempotencyKey String?
+  currentState   String
+  status         String   @default("OPEN")
+  context        Json     @default("{}")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  events LoopEvent[]
+
+  @@unique([tenantId, idempotencyKey])
+  @@index([tenantId])
+  @@index([tenantId, loopId])
+  @@index([tenantId, status])
+}
+
+model LoopEvent {
+  id          String   @id @default(cuid())
+  aggregateId String
+  tenantId    String
+  type        String
+  fromState   String
+  toState     String
+  actorId     String
+  actorType   String
+  confidence  Float?
+  promptHash  String?
+  evidence    Json?
+  occurredAt  DateTime @default(now())
+
+  instance LoopInstance @relation(fields: [aggregateId], references: [aggregateId])
+
+  @@index([aggregateId])
+  @@index([tenantId])
+}
+
+model LoopDefinition {
+  id          String   @id @default(cuid())
+  loopId      String
+  version     String
+  displayName String
+  description String
+  tier        Int      @default(1)
+  definition  Json
+  status      String   @default("active")
+  publishedAt DateTime @default(now())
+
+  @@unique([loopId, version])
+  @@index([loopId])
+  @@index([tier])
+}
+
+/// Per-transition trace row. Powers RT-05 history/evidence/timeline reads.
+model LoopTraceRecord {
+  id           String   @id @default(cuid())
+  loopRunId    String
+  loopId       String
+  tenantId     String
+  sequence     Int
+  timestamp    DateTime
+  type         String
+  fromState    String?
+  toState      String?
+  transitionId String?
+  actorType    String
+  actorId      String
+  inputHash    String
+  input        Json
+  output       Json
+  guards       Json
+  evidence     Json
+  durationMs   Int
+  blocked      Boolean
+  blockReason  String?
+  governed     Boolean
+
+  @@unique([tenantId, loopRunId, sequence])
+  @@index([tenantId, loopId])
+  @@index([tenantId, loopRunId])
+}
+
+/// Aggregated run metadata for list/compare APIs (RT-05).
+model LoopRunSummary {
+  tenantId      String
+  loopRunId     String
+  loopId        String
+  startedAt     DateTime
+  completedAt   DateTime?
+  terminalState String?
+  stepCount     Int       @default(0)
+  blockedCount  Int       @default(0)
+  governed      Boolean   @default(false)
+  updatedAt     DateTime  @updatedAt
+
+  @@id([tenantId, loopRunId])
+  @@index([tenantId, loopId])
+}
+
+/// Self-host developer API keys (`le_` prefix). Plain key shown once; `keyHash` is SHA-256 of the full string.
+enum LoopEngineApiKeyStatus {
+  ACTIVE
+  REVOKED
+}
+
+model LoopEngineApiKey {
+  id             String                 @id @default(cuid())
+  tenantId       String
+  name           String?
+  keyHash        String                 @unique
+  keyPrefix      String
+  status         LoopEngineApiKeyStatus @default(ACTIVE)
+  graceKeyHash   String?                @unique
+  graceExpiresAt DateTime?
+  lastUsedAt     DateTime?
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+}

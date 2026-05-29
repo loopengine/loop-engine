@@ -1,15 +1,12 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "@repo/typescript-config/base.json",
   "compilerOptions": {
     "rootDir": ".",
-    "outDir": "dist"
+    "outDir": "dist",
+    "noEmit": true,
+    "moduleResolution": "bundler",
+    "module": "ESNext"
   },
-  "include": [
-    "src/**/*",
-    "betterdata.ts"
-  ],
-  "exclude": [
-    "src/__tests__",
-    "src/**/*.test.ts"
-  ]
+  "include": ["src/**/*.ts", "betterdata.ts"],
+  "exclude": ["src/__tests__", "src/**/*.test.ts", "examples"]
 }

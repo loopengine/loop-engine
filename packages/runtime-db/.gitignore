@@ -1,0 +1,9 @@
+# Prisma generated client (regenerated via `pnpm db:generate`).
+# Included in the published tarball via the `files` field, but never committed.
+generated/
+
+# Local env overrides (sanitized by scripts/run-prisma.mjs).
+.env.local
+
+# Test/build artifacts that shouldn't slip through the root .gitignore.
+*.tsbuildinfo

@@ -1,7 +1,7 @@
 // @license Apache-2.0
 // SPDX-License-Identifier: Apache-2.0
 import type { LoopRegistry } from "../types";
-import { httpRegistry } from "./http";
+import { v0Registry } from "./v0";
 
 export interface BetterDataRegistryOptions {
   /**
@@ -35,10 +35,10 @@ export function betterDataRegistry(
   const env = options.env ?? "production";
   const baseUrl =
     env === "staging"
-      ? "https://registry-staging.betterdata.co/loops"
-      : "https://registry.betterdata.co/loops";
+      ? "https://registry-staging.betterdata.co"
+      : "https://registry.betterdata.co";
 
-  return httpRegistry({
+  return v0Registry({
     baseUrl,
     headers: {
       Authorization: `Bearer ${options.apiKey}`,

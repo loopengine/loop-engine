@@ -1,0 +1,38 @@
+{
+  "name": "@betterdata/canonical-json",
+  "version": "0.1.0",
+  "private": false,
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "Deterministic JSON canonicalization + SHA-256 helpers for tamper-evident artifacts (baseline manifests, loop-definition hashes, source-data digests). Strict by design: rejects inputs that cannot be deterministically serialized (NaN, ±Infinity, oversize integers, lone surrogates, undefined, functions). Apache-2.0 OSS substrate; depended on by @betterdata/loop-engine-baselines and other governance tooling.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "node -e \"console.log('canonical-json lint')\"",
+    "test": "vitest run",
+    "prepublishOnly": "pnpm build"
+  },
+  "devDependencies": {
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7"
+  }
+}

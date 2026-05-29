@@ -3,8 +3,19 @@ import { defineConfig } from "tsup";
 export default defineConfig({
   entry: ["src/index.ts"],
   format: ["cjs", "esm"],
-  dts: true,
+  dts: {
+    compilerOptions: {
+      module: "ESNext",
+      moduleResolution: "bundler",
+    },
+  },
   sourcemap: true,
   clean: true,
-  outDir: "dist"
+  outDir: "dist",
+  splitting: false,
+  treeshake: true,
+  external: ["@loop-engine/core"],
+  outExtension({ format }) {
+    return { js: format === "cjs" ? ".cjs" : ".mjs" };
+  },
 });

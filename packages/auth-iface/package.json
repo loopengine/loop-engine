@@ -1,0 +1,56 @@
+{
+  "name": "@loop-engine/auth-iface",
+  "version": "1.0.0-rc.0",
+  "private": false,
+  "description": "Authentication interface, bearer extraction, and API-key helpers for the Loop Engine self-host runtime",
+  "keywords": [
+    "loop-engine",
+    "auth",
+    "api-key",
+    "bearer",
+    "self-host",
+    "oss"
+  ],
+  "license": "Apache-2.0",
+  "author": "Better Data, Inc.",
+  "homepage": "https://loopengine.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/betterdataco/bd-forge-main.git",
+    "directory": "packages/oss/loop-engine-auth-iface"
+  },
+  "bugs": {
+    "url": "https://github.com/betterdataco/bd-forge-main/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7"
+  }
+}

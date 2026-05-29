@@ -1,0 +1,14 @@
+{
+  "name": "loop-engine-self-host-example",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Minimal HTTP client example for Loop Engine OSS self-host (RT-23)",
+  "type": "module",
+  "scripts": {
+    "start": "node run.mjs",
+    "validate-imports": "node validate-imports.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

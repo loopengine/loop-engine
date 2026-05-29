@@ -8,8 +8,8 @@ import {
   type LoopInstance,
   type TransitionRecord
 } from "@loop-engine/core";
-import { computeMetrics } from "../metrics";
-import { replayLoop } from "../replay";
+import { computeMetrics } from "../metrics.js";
+import { replayLoop } from "../replay.js";
 
 describe("observability package", () => {
   it("computeMetrics returns aggregate metrics", () => {

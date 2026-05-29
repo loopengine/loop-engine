@@ -1,5 +1,5 @@
 {
-  "extends": "@repo/typescript-config/base.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
@@ -7,7 +7,9 @@
     "jsx": "react-jsx",
     "moduleResolution": "bundler",
     "module": "ESNext",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "isolatedModules": true,
+    "moduleDetection": "force"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["src/__tests__"]

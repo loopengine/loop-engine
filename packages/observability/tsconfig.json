@@ -1,11 +1,13 @@
 {
-  "extends": "@repo/typescript-config/base.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
     "noEmit": true,
     "moduleResolution": "bundler",
-    "module": "ESNext"
+    "module": "ESNext",
+    "isolatedModules": true,
+    "moduleDetection": "force"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/__tests__"]

@@ -30,7 +30,6 @@
   },
   "devDependencies": {
     "@loop-engine/studio-ui": "workspace:*",
-    "@repo/typescript-config": "workspace:*",
     "tsup": "^8.4.0",
     "typescript": "^5.8.2",
     "vitest": "^3.0.7"

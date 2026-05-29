@@ -77,7 +77,7 @@ export function RunSummaryCard({
 
 export function RunSummaryCardFromDetail({
   detail,
-  className,
+  className = "",
 }: {
   detail: RunDetailReadResponse;
   className?: string;

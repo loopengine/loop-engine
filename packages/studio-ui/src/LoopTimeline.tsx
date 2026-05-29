@@ -27,7 +27,7 @@ export function LoopTimeline({
     <StudioStateFrame
       status={transitions.length === 0 && status === "ready" ? "empty" : status}
       emptyLabel={emptyLabel}
-      errorMessage={errorMessage}
+      {...(errorMessage !== undefined ? { errorMessage } : {})}
       className={className}
     >
       <section className="le-studio-card" aria-label="Loop timeline">

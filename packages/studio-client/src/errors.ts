@@ -21,7 +21,9 @@ export class StudioClientError extends Error {
     super(message, { cause: options?.cause });
     this.name = "StudioClientError";
     this.code = code;
-    this.status = options?.status;
+    if (options?.status !== undefined) {
+      this.status = options.status;
+    }
     this.body = options?.body;
   }
 }

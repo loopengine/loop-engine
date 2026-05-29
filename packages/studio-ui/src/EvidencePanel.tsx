@@ -58,7 +58,7 @@ export function EvidencePanel({
     <StudioStateFrame
       status={items.length === 0 && status === "ready" ? "empty" : status}
       emptyLabel={emptyLabel}
-      errorMessage={errorMessage}
+      {...(errorMessage !== undefined ? { errorMessage } : {})}
       className={className}
     >
       <section className="le-studio-card" aria-label="Evidence">
@@ -76,7 +76,7 @@ export function EvidencePanel({
 export function EvidencePanelFromResponse({
   response,
   status = "ready",
-  className,
+  className = "",
 }: {
   response: RunEvidenceReadResponse;
   status?: StudioViewStatus;

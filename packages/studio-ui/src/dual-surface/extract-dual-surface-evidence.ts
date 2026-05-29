@@ -84,6 +84,25 @@ function readNumber(obj: Record<string, unknown>, key: string): number | undefin
   return undefined;
 }
 
+/**
+ * Drop keys whose value is `undefined` so object literals built from optional
+ * `readString`/`readNumber` results satisfy `exactOptionalPropertyTypes` without
+ * widening the published view types. Runtime behavior is unchanged: an omitted
+ * optional key reads back as `undefined`, exactly as before.
+ */
+function defined<T extends Record<string, unknown>>(
+  obj: T,
+): { [K in keyof T]?: Exclude<T[K], undefined> } {
+  const out: Record<string, unknown> = {};
+  for (const key of Object.keys(obj)) {
+    const value = obj[key];
+    if (value !== undefined) {
+      out[key] = value;
+    }
+  }
+  return out as { [K in keyof T]?: Exclude<T[K], undefined> };
+}
+
 function baseContext(item: RunEvidenceItemDto): DualSurfaceEvidenceContext {
   return {
     sequence: item.sequence,
@@ -124,10 +143,12 @@ export function extractDualSurfaceEvidence(
             slackTeamId,
             slackChannelId,
             slackMessageTs,
-            slackUserId: readString(channel, "slackUserId"),
-            slackActionId: readString(channel, "slackActionId"),
-            decisionSignalId: readString(channel, "decisionSignalId"),
-            slackThreadTs: readString(channel, "slackThreadTs"),
+            ...defined({
+              slackUserId: readString(channel, "slackUserId"),
+              slackActionId: readString(channel, "slackActionId"),
+              decisionSignalId: readString(channel, "decisionSignalId"),
+              slackThreadTs: readString(channel, "slackThreadTs"),
+            }),
           });
         }
       }
@@ -146,13 +167,15 @@ export function extractDualSurfaceEvidence(
         googleDocs.push({
           ...ctx,
           integrationConnectionId,
-          googleConnectionId: readString(integration, "googleConnectionId"),
           googleDocumentId,
-          docContentSha256: readString(integration, "docContentSha256"),
-          docSnapshotEvidenceId: readString(integration, "docSnapshotEvidenceId"),
-          documentUrl: readString(integration, "documentUrl"),
-          revisionId: readString(integration, "revisionId"),
-          decisionSignalId: readString(integration, "decisionSignalId"),
+          ...defined({
+            googleConnectionId: readString(integration, "googleConnectionId"),
+            docContentSha256: readString(integration, "docContentSha256"),
+            docSnapshotEvidenceId: readString(integration, "docSnapshotEvidenceId"),
+            documentUrl: readString(integration, "documentUrl"),
+            revisionId: readString(integration, "revisionId"),
+            decisionSignalId: readString(integration, "decisionSignalId"),
+          }),
         });
       }
       continue;
@@ -164,28 +187,34 @@ export function extractDualSurfaceEvidence(
         googleSheets.push({
           ...ctx,
           integrationConnectionId,
-          googleConnectionId: readString(integration, "googleConnectionId"),
           spreadsheetId,
-          spreadsheetUrl: readString(integration, "spreadsheetUrl"),
-          stagedEditId: readString(integration, "stagedEditId"),
-          sheetName: readString(integration, "sheetName"),
-          rangeA1: readString(integration, "rangeA1"),
-          proposedValue: readString(integration, "proposedValue"),
-          priorValue: readString(integration, "priorValue"),
-          applyStatus: readString(integration, "applyStatus"),
-          appliedRanges: readNumber(integration, "appliedRanges"),
-          decisionSignalId: readString(integration, "decisionSignalId"),
+          ...defined({
+            googleConnectionId: readString(integration, "googleConnectionId"),
+            spreadsheetUrl: readString(integration, "spreadsheetUrl"),
+            stagedEditId: readString(integration, "stagedEditId"),
+            sheetName: readString(integration, "sheetName"),
+            rangeA1: readString(integration, "rangeA1"),
+            proposedValue: readString(integration, "proposedValue"),
+            priorValue: readString(integration, "priorValue"),
+            applyStatus: readString(integration, "applyStatus"),
+            appliedRanges: readNumber(integration, "appliedRanges"),
+            decisionSignalId: readString(integration, "decisionSignalId"),
+          }),
         });
       }
     }
   }
 
-  return {
+  const result: DualSurfaceEvidenceExtract = {
     slackDecisions,
     googleDocs,
     googleSheets,
-    latestSlack: slackDecisions.at(-1),
-    latestDocs: googleDocs.at(-1),
-    latestSheets: googleSheets.at(-1),
   };
+  const latestSlack = slackDecisions.at(-1);
+  if (latestSlack !== undefined) result.latestSlack = latestSlack;
+  const latestDocs = googleDocs.at(-1);
+  if (latestDocs !== undefined) result.latestDocs = latestDocs;
+  const latestSheets = googleSheets.at(-1);
+  if (latestSheets !== undefined) result.latestSheets = latestSheets;
+  return result;
 }

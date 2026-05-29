@@ -65,11 +65,14 @@ function evidenceToRecord(ev: unknown): Record<string, unknown> | undefined {
 function guardResultsFromTrace(
   guards: TraceRecord["guards"],
 ): Array<{ guardId: string; passed: boolean; reason?: string }> {
-  return guards.map((g) => ({
-    guardId: g.guardId,
-    passed: g.passed,
-    reason: g.reason || undefined,
-  }));
+  return guards.map((g) => {
+    const result: { guardId: string; passed: boolean; reason?: string } = {
+      guardId: g.guardId,
+      passed: g.passed,
+    };
+    if (g.reason) result.reason = g.reason;
+    return result;
+  });
 }
 
 /**
@@ -89,11 +92,11 @@ export function buildTimelineFromTrace(records: unknown[]): TraceLoopTimeline {
     };
   }
 
-  const loopId = list[0].loopId;
-  const instanceId = list[0].loopRunId;
+  const loopId = list[0]!.loopId;
+  const instanceId = list[0]!.loopRunId;
 
   const startedRec =
-    list.find((r) => r.type === "loop.started") ?? list[0];
+    list.find((r) => r.type === "loop.started") ?? list[0]!;
   const terminalRec = list.find((r) => r.type === "loop.terminal") ?? null;
 
   const startedAt = toIso(startedRec.timestamp);
@@ -107,7 +110,7 @@ export function buildTimelineFromTrace(records: unknown[]): TraceLoopTimeline {
     }
     const from = r.fromState ?? "";
     const to = r.toState ?? "";
-    transitions.push({
+    const transition: TraceLoopTimeline["transitions"][number] = {
       from,
       to,
       transitionId: r.transitionId ?? "",
@@ -116,9 +119,11 @@ export function buildTimelineFromTrace(records: unknown[]): TraceLoopTimeline {
         type: String(r.actor?.type ?? "unknown"),
       },
       timestamp: toIso(r.timestamp),
-      evidence: evidenceToRecord(r.evidence),
       guardResults: guardResultsFromTrace(r.guards),
-    });
+    };
+    const evidence = evidenceToRecord(r.evidence);
+    if (evidence !== undefined) transition.evidence = evidence;
+    transitions.push(transition);
   }
 
   const stateResidency = computeStateResidency(list);

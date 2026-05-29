@@ -24,7 +24,7 @@ export function RunHistoryPanel({
     <StudioStateFrame
       status={events.length === 0 && status === "ready" ? "empty" : status}
       emptyLabel={emptyLabel}
-      errorMessage={errorMessage}
+      {...(errorMessage !== undefined ? { errorMessage } : {})}
       className={className}
     >
       <section className="le-studio-card" aria-label="Run history">
@@ -63,7 +63,7 @@ export function RunHistoryPanel({
 export function RunHistoryPanelFromResponse({
   response,
   status = "ready",
-  className,
+  className = "",
 }: {
   response: RunHistoryReadResponse;
   status?: StudioViewStatus;

@@ -20,7 +20,11 @@ export function ReplaySummaryPanel({
   const { metrics } = summary;
 
   return (
-    <StudioStateFrame status={status} errorMessage={errorMessage} className={className}>
+    <StudioStateFrame
+      status={status}
+      {...(errorMessage !== undefined ? { errorMessage } : {})}
+      className={className}
+    >
       <section className="le-studio-card" aria-label="Replay summary">
         <h3 style={{ margin: "0 0 0.75rem", fontSize: "1rem" }}>Replay summary</h3>
         <p className="le-studio-muted" style={{ margin: "0 0 1rem" }}>

@@ -144,7 +144,7 @@ function canonicalSerialize(value: CanonicalizableValue): string {
   const keys = Object.keys(value).sort();
   const parts: string[] = [];
   for (const key of keys) {
-    parts.push(`${JSON.stringify(key)}:${canonicalSerialize(value[key])}`);
+    parts.push(`${JSON.stringify(key)}:${canonicalSerialize(value[key]!)}`);
   }
   return `{${parts.join(",")}}`;
 }

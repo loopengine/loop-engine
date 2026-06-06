@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import { RUNTIME_API_CONTRACT_VERSION } from "@loop-engine/observability";
 import { describe, expect, it, vi } from "vitest";
 import { StudioClientError } from "../errors.js";

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import { describe, expect, it } from "vitest";
 import { RUNTIME_API_CONTRACT_VERSION } from "@loop-engine/observability";
 import {

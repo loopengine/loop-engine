@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/runtime-routes",
-  "version": "1.0.0-rc.0",
+  "version": "1.0.0-rc.1",
   "private": false,
   "description": "Route handler factories for the RT-01 frozen Loop Engine runtime API. Mounted by the OSS self-host app (`apps/loop-engine-runtime`).",
   "keywords": [

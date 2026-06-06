@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import { describe, it, expect, beforeEach } from "vitest";
 import { actorId } from "@loop-engine/core";
 import { MemoryTraceStore } from "../memory-trace-store.js";

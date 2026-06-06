@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /**
  * RT-03 — SDK client URLs align with registry-loop v0 read contract (frozen RT-01/RT-02).
  */

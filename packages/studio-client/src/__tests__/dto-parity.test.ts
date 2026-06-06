@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import { describe, expect, it } from "vitest";
 import { mockStudioRunBundle } from "@loop-engine/studio-ui";
 import { createMockStudioProviderFromBundle } from "../mock-studio-provider.js";

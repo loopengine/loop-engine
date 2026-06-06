@@ -1,5 +1,13 @@
 # @loop-engine/playground
 
+## 0.1.1-rc.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @loop-engine/sdk@1.0.0-rc.1
+  - @loop-engine/ui-devtools@1.0.0-rc.1
+
 ## 0.1.1-rc.0
 
 ### Patch Changes

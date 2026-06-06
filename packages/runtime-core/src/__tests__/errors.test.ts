@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import { describe, expect, it } from "vitest";
 
 import { err401, err403, err404, err422, err429, err503 } from "../errors.js";

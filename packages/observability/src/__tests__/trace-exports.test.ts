@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /**
  * RT-04 — Canonical trace types exported from @loop-engine/observability.
  */

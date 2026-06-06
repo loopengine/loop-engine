@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/runtime-core",
-  "version": "1.0.0-rc.0",
+  "version": "1.0.0-rc.1",
   "private": false,
   "description": "OSS runtime primitives — Postgres trace store, run-read response builders, runtime connections catalog, and DB-backed auth adapter for the self-host Loop Engine runtime",
   "keywords": [
@@ -56,12 +56,12 @@
   "peerDependencies": {
     "@loop-engine/core": "1.0.0-rc.0",
     "@loop-engine/runtime": "1.0.0-rc.0",
-    "@loop-engine/sdk": "1.0.0-rc.0"
+    "@loop-engine/sdk": "1.0.0-rc.1"
   },
   "devDependencies": {
     "@loop-engine/core": "1.0.0-rc.0",
     "@loop-engine/runtime": "1.0.0-rc.0",
-    "@loop-engine/sdk": "1.0.0-rc.0",
+    "@loop-engine/sdk": "1.0.0-rc.1",
     "@types/node": "^20.14.10",
     "tsup": "^8.4.0",
     "typescript": "^5.8.2",

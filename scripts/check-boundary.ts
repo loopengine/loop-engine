@@ -116,13 +116,14 @@ async function run(): Promise<void> {
       ...Object.keys(pkg.dependencies ?? {}),
       ...Object.keys(pkg.peerDependencies ?? {})
     ]);
-    const srcFiles = (await walkFiles(path.join(dir, "src"))).filter((f) =>
-      /\.(ts|tsx|js|jsx)$/.test(f)
+    const srcFiles = (await walkFiles(path.join(dir, "src"))).filter(
+      (f) => /\.(ts|tsx|js|jsx)$/.test(f) && !f.includes(`${path.sep}__tests__${path.sep}`)
     );
     for (const file of srcFiles) {
       const source = await readFile(file, "utf8");
       for (const spec of parseImports(source)) {
         if (spec.startsWith(".") || isNodeBuiltin(spec)) continue;
+        if (spec === pkg.name) continue;
         if (spec.startsWith("@loop-engine/") && packageNames.has(spec) && !deps.has(spec)) {
           violations.push({
             check: "dependency-declarations",

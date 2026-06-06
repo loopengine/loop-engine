@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import { afterEach, describe, expect, it } from "vitest";
 
 async function readJson<T = Record<string, unknown>>(res: Response): Promise<T> {

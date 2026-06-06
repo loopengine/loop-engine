@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import { describe, expect, it } from "vitest";
 import { extractDualSurfaceEvidence } from "../dual-surface/extract-dual-surface-evidence.js";
 import { slackWebClientPermalink } from "../dual-surface/slack-permalink.js";

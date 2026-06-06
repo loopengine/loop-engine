@@ -1,6 +1,6 @@
 {
   "name": "@loop-engine/adapter-commerce-gateway",
-  "version": "1.0.0-rc.0",
+  "version": "1.0.0-rc.1",
   "description": "Commerce Gateway framework adapter for governed tool routing.",
   "keywords": [
     "loop-engine",

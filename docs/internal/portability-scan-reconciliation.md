@@ -1,10 +1,11 @@
 # Loop Engine build-portability scan — reconciliation note
 
-> **Status:** reconciliation note (OSS track). **Do not commit the raw scan artifact.** It scanned a
-> **pre-seam ref**; its blockers are already cured on `extraction/oss-seam`. Committing the raw scan
-> would create a competing, stale plan — the same duplicate-plan failure mode the GATEWAY work hit.
-> What is worth persisting is *this* note: what the scan found, why it is already addressed, and the
-> few **live** actions that remain.
+> **Status:** **SUPERSEDED** by [`portability-scan-evidenced-ready.md`](./portability-scan-evidenced-ready.md)
+> (the post-seam re-run on merged ref `4a2eb8d` — the artifact to keep for the gate). This note remains
+> as the history: scan ran **pre-seam → cure committed on the seam branch → re-run post-merge for the
+> gate**. **Do not commit the raw pre-seam scan artifact** — committing it would create a competing,
+> stale plan (the duplicate-plan failure mode the GATEWAY work hit). The live actions below are now
+> **done**: seam merged + double clone collapsed, `validate:publish` green, scan re-run → READY.
 
 ## TL;DR
 

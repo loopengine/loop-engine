@@ -1,4 +1,4 @@
-# @betterdata/canonical-json
+# @loop-engine/canonical-json
 
 Deterministic JSON canonicalization + SHA-256 helpers for tamper-evident
 artifacts (baseline manifests, loop-definition hashes, source-data digests).
@@ -81,7 +81,7 @@ thing that changes.
 ## Install
 
 ```sh
-pnpm add @betterdata/canonical-json
+pnpm add @loop-engine/canonical-json
 ```
 
 Workspace consumers reference it via `workspace:*` in `package.json`.
@@ -89,7 +89,7 @@ Workspace consumers reference it via `workspace:*` in `package.json`.
 ## Usage
 
 ```ts
-import { canonicalize, sha256CanonicalHex } from "@betterdata/canonical-json";
+import { canonicalize, sha256CanonicalHex } from "@loop-engine/canonical-json";
 
 const definition = { id: "scm.demand-forecast", version: "1.0.0", states: ["OPEN", "CLOSED"] };
 

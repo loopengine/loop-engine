@@ -36,7 +36,7 @@ Computed by diffing each public package's manifest version against
 
 | Package | Version | Note |
 | --- | --- | --- |
-| `@betterdata/canonical-json` | `0.1.0` | **cross-scope** — publishes under `@betterdata`, not `@loop-engine` |
+| `@loop-engine/canonical-json` | `0.1.0` | new (relocated from `@betterdata/*` pre-publish — see Decisions) |
 | `@loop-engine/auth-iface` | `1.0.0-rc.0` | new |
 | `@loop-engine/entitlements-iface` | `1.0.0-rc.0` | new |
 | `@loop-engine/runtime-db` | `1.0.0-rc.0` | new |
@@ -67,9 +67,13 @@ Private (never publish): `inspector`, `playground`.
 
 First-ever publishes — each needs a Trusted Publisher configured on npmjs before the tagged run can
 push it (OIDC, no token): `auth-iface`, `entitlements-iface`, `runtime-db`, `runtime-core`,
-`runtime-routes`, `loop-status-client`, `studio-client`, `studio-ui`, and
-**`@betterdata/canonical-json`** (different scope — confirm `@betterdata` org access + that a public
-OSS publish under `@betterdata` is intended, vs. relocating it to `@loop-engine`).
+`runtime-routes`, `loop-status-client`, `studio-client`, `studio-ui`, and `canonical-json`. All 16
+publishing packages now bind under a single npm org (`@loop-engine`) for Trusted-Publisher setup —
+no second-scope binding to maintain.
+
+First-publish caveat: if a Trusted Publisher cannot be bound to a name that does not yet exist on
+npm, publish that name once via the automation-token path, then bind the Trusted Publisher for
+subsequent releases.
 
 ## Decisions baked into this prep
 
@@ -82,6 +86,15 @@ OSS publish under `@betterdata` is intended, vs. relocating it to `@loop-engine`
 2. **`observability` / `registry-client` bumped `patch`** to iterate within the `1.0.0` RC line
    (→ `rc.1`). The changes are additive, but the eventual stable `1.0.0` is governed by the consumed
    surface-reconciliation (`sr-*`) changesets; the `patch` here only advances the rc counter.
+3. **`canonical-json` relocated `@betterdata/*` → `@loop-engine/*`** before first publish. It ships
+   from this repo, versions through this repo's changesets, and releases on this repo's tag — its
+   scope should say so. `@betterdata` is a mixed proprietary/OSS scope (deepens classify-by-identity
+   burden); `@loop-engine` is the unambiguous Boss Loops OSS distribution namespace. Done now because
+   the package is unpublished: a pure in-repo find-replace (zero in-repo importers — the only
+   `@betterdata/*` references in the tree are to the proprietary `@betterdata/database-loops`), no
+   deprecation, no dual-publish. **No version-bump changeset** was added — that would reintroduce the
+   phantom-version problem (Decision 1); the package first-publishes fresh at `@loop-engine/canonical-json@0.1.0`.
+   Publish count is unchanged at 16 — one corrected name.
 
 ## Verification
 

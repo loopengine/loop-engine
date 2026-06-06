@@ -29,7 +29,7 @@
     "@loop-engine/signals": "0.1.5",
     "@loop-engine/ui-devtools": "0.1.6",
     "@loop-engine/auth-iface": "1.0.0-rc.0",
-    "@betterdata/canonical-json": "0.1.0",
+    "@loop-engine/canonical-json": "0.1.0",
     "@loop-engine/entitlements-iface": "1.0.0-rc.0",
     "@loop-engine/loop-status-client": "0.1.0",
     "@loop-engine/runtime-core": "1.0.0-rc.0",

@@ -5,7 +5,7 @@
  * REGRESSION-EQUIVALENCE HARNESS
  *
  * Purpose: lock the cross-implementation behavior of every canonicalizer
- * that existed in the monorepo at the moment `@betterdata/canonical-json`
+ * that existed in the monorepo at the moment `@loop-engine/canonical-json`
  * was extracted, so that the migration of each call site to this package
  * is provably byte-equivalent for every input the call site actually
  * passes.
@@ -206,7 +206,7 @@ const allImpls: readonly CanonicalizerImpl[] = [canonicalImpl, ...legacyImpls];
  * built from object literals with known shape.
  *
  * Cross-implementation byte-equality is REQUIRED for every fixture in this
- * corpus. Failure means migration to `@betterdata/canonical-json` would
+ * corpus. Failure means migration to `@loop-engine/canonical-json` would
  * change a hash for a real call site — surface it before the migration
  * commits land, not after.
  */
@@ -370,7 +370,7 @@ const documentedDivergenceFixtures: readonly {
 // ---------------------------------------------------------------------------
 
 /**
- * These inputs violate `@betterdata/canonical-json`'s strict contract. The
+ * These inputs violate `@loop-engine/canonical-json`'s strict contract. The
  * canonical implementation throws; the legacy implementations silently
  * produce a hash (because they delegate to `JSON.stringify`, which has its
  * own permissive behavior for these inputs).

@@ -1,5 +1,5 @@
 {
-  "name": "@betterdata/canonical-json",
+  "name": "@loop-engine/canonical-json",
   "version": "0.1.0",
   "private": false,
   "license": "Apache-2.0",

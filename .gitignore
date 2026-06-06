@@ -8,3 +8,10 @@ coverage/
 sbom.json
 .next/
 apps/**/.next/
+
+# Packed tarballs (smoke/scratch artifacts — never committed)
+*.tgz
+
+# Deploy-side env files (possible secrets — never committed)
+deploy/**/.env
+deploy/**/.env.*

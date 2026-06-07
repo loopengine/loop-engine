@@ -54,14 +54,14 @@
     "@loop-engine/runtime-db": "workspace:*"
   },
   "peerDependencies": {
-    "@loop-engine/core": "1.0.0-rc.0",
-    "@loop-engine/runtime": "1.0.0-rc.0",
-    "@loop-engine/sdk": "1.0.0-rc.1"
+    "@loop-engine/core": "workspace:*",
+    "@loop-engine/runtime": "workspace:*",
+    "@loop-engine/sdk": "workspace:*"
   },
   "devDependencies": {
-    "@loop-engine/core": "1.0.0-rc.0",
-    "@loop-engine/runtime": "1.0.0-rc.0",
-    "@loop-engine/sdk": "1.0.0-rc.1",
+    "@loop-engine/core": "workspace:*",
+    "@loop-engine/runtime": "workspace:*",
+    "@loop-engine/sdk": "workspace:*",
     "@types/node": "^20.14.10",
     "tsup": "^8.4.0",
     "typescript": "^5.8.2",

@@ -31,10 +31,10 @@
     "test:contract": "vitest run src/__tests__/trace-exports.test.ts"
   },
   "dependencies": {
-    "@loop-engine/core": "1.0.0-rc.0"
+    "@loop-engine/core": "workspace:*"
   },
   "devDependencies": {
-    "@loop-engine/runtime": "1.0.0-rc.0",
+    "@loop-engine/runtime": "workspace:*",
     "tsup": "^8.4.0",
     "typescript": "^5.8.2",
     "vitest": "^3.0.7"

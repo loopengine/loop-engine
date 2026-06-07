@@ -409,12 +409,12 @@ importers:
   packages/observability:
     dependencies:
       '@loop-engine/core':
-        specifier: 1.0.0-rc.0
-        version: 1.0.0-rc.0
+        specifier: workspace:*
+        version: link:../core
     devDependencies:
       '@loop-engine/runtime':
-        specifier: 1.0.0-rc.0
-        version: 1.0.0-rc.0(@loop-engine/events@1.0.0-rc.0)
+        specifier: workspace:*
+        version: link:../runtime
       tsup:
         specifier: ^8.4.0
         version: 8.5.1(jiti@2.7.0)(postcss@8.5.8)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
@@ -428,11 +428,11 @@ importers:
   packages/registry-client:
     dependencies:
       '@loop-engine/core':
-        specifier: 1.0.0-rc.0
-        version: 1.0.0-rc.0
+        specifier: workspace:*
+        version: link:../core
       '@loop-engine/loop-definition':
-        specifier: 1.0.0-rc.0
-        version: 1.0.0-rc.0
+        specifier: workspace:*
+        version: link:../loop-definition
     devDependencies:
       '@types/express':
         specifier: ^4.17.25
@@ -481,14 +481,14 @@ importers:
         version: link:../runtime-db
     devDependencies:
       '@loop-engine/core':
-        specifier: 1.0.0-rc.0
-        version: 1.0.0-rc.0
+        specifier: workspace:*
+        version: link:../core
       '@loop-engine/runtime':
-        specifier: 1.0.0-rc.0
-        version: 1.0.0-rc.0(@loop-engine/events@1.0.0-rc.0)
+        specifier: workspace:*
+        version: link:../runtime
       '@loop-engine/sdk':
-        specifier: 1.0.0-rc.0
-        version: 1.0.0-rc.0
+        specifier: workspace:*
+        version: link:../sdk
       '@types/node':
         specifier: ^20.14.10
         version: 20.19.41
@@ -540,11 +540,11 @@ importers:
         version: link:../runtime-core
     devDependencies:
       '@loop-engine/core':
-        specifier: 1.0.0-rc.0
-        version: 1.0.0-rc.0
+        specifier: workspace:*
+        version: link:../core
       '@loop-engine/runtime':
-        specifier: 1.0.0-rc.0
-        version: 1.0.0-rc.0(@loop-engine/events@1.0.0-rc.0)
+        specifier: workspace:*
+        version: link:../runtime
       '@types/node':
         specifier: ^20.14.10
         version: 20.19.41
@@ -1450,52 +1450,6 @@ packages:
 
   '@kwsites/file-exists@1.1.1':
     resolution: {integrity: sha512-m9/5YGR18lIwxSFDwfE3oA7bWuq9kdau6ugN4H2rJeyhFQZcG9AgSHkQtSD15a8WvTgfz9aikZMrKPHvbpqFiw==}
-
-  '@loop-engine/actors@1.0.0-rc.0':
-    resolution: {integrity: sha512-o1LzGD4zwzBEM7zRoUTWNeOF8ozFxzISNyxY+plFuxEd1gRlWw27OnpQIqctGtWZUxqPD4xAFTfh/CagBv/mxg==}
-    engines: {node: '>=18.17'}
-
-  '@loop-engine/adapter-memory@1.0.0-rc.0':
-    resolution: {integrity: sha512-qU4Ry4VneigySnmx8p2ZGjv3jEMdG2YmUWmtcHZeKOAYxwzsOKwJ6szrnn6vm42tDqMiS8CwgOhYJ9L6sPQyww==}
-    engines: {node: '>=18.17'}
-
-  '@loop-engine/core@1.0.0-rc.0':
-    resolution: {integrity: sha512-7jOXW69Rz7QW6B7IJIxd8DUYKuC0ucWKSnfOUEv1SW/J7tMXbJHDsLoauhvm2zXsn/YGLRTTe3vrb9K3Y7SJcQ==}
-    engines: {node: '>=18.17'}
-
-  '@loop-engine/events@1.0.0-rc.0':
-    resolution: {integrity: sha512-SavHdN9tAUd3iEc7r+p4+TWOZNQzEsAmZZiB+j9xV8Lmo5RTtXsPrUvDkMSAJsMFQqNbsA3LcHG8ktt5EQVGSw==}
-    engines: {node: '>=18.17'}
-
-  '@loop-engine/guards@1.0.0-rc.0':
-    resolution: {integrity: sha512-SnKofzo2YjSjtU48xNzQaM23ixq/RZ18tA6licZEWwy5GMKuL7eCgrGlHPFynBfqImfL1OUtDOpLGiffzRM7cg==}
-    engines: {node: '>=18.17'}
-
-  '@loop-engine/loop-definition@1.0.0-rc.0':
-    resolution: {integrity: sha512-zwVuA+3vqeZIBHSBdlQRrfIq58mlkY+ZShC1OTRdn8gyglHmwk+hof42p/7Gl/wV5IsMJRjEgFitdNuQ4ui2VA==}
-    engines: {node: '>=18.17'}
-
-  '@loop-engine/observability@1.0.0-rc.0':
-    resolution: {integrity: sha512-S70Pisoy3bq1No4ShKhSX1rxc3KabUHsHJSosSa6CwOSdrM/IYR28HmQZ0uL6Odb9G28pmy2pXW777kL8M5J5Q==}
-    engines: {node: '>=18.17'}
-
-  '@loop-engine/registry-client@1.0.0-rc.0':
-    resolution: {integrity: sha512-FJGahZPfSqVKb30xvufQnQKQtD/BhUCUbRIoDzoqySCwF7HRyLCOC5AlZAGBsiqp+OkzKqvivusHKcQmtreczQ==}
-    engines: {node: '>=18.17'}
-
-  '@loop-engine/runtime@1.0.0-rc.0':
-    resolution: {integrity: sha512-hSJcSSm5lLewRAYLjMTvt4UwwTI/pJ62NpbTyaxD8W6bgTF/bHvho16AGFCIuBKDgpu4uOYW56hqDuOMyTaI7A==}
-    engines: {node: '>=18.17'}
-    peerDependencies:
-      '@loop-engine/events': ^1.0.0-rc.0
-
-  '@loop-engine/sdk@1.0.0-rc.0':
-    resolution: {integrity: sha512-BUFLXHEoEkPp2P5oCHxw/tloHbFoi9aM9CM22clPVd0ragSLW+K4zulwlBcDv6Pnpq5JjUXS+afLG+PSePR0dw==}
-    engines: {node: '>=18.0.0'}
-
-  '@loop-engine/signals@1.0.0-rc.0':
-    resolution: {integrity: sha512-cmOwY9EhHsutR6Ooo0PK5noEXigZTSAxoMOiwu5Mo74BW3owjG2lCzMlZCoIXuwWz33jOGP3fM+XWyHciTW8Gw==}
-    engines: {node: '>=18.17'}
 
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -4933,75 +4887,6 @@ snapshots:
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
-
-  '@loop-engine/actors@1.0.0-rc.0':
-    dependencies:
-      '@loop-engine/core': 1.0.0-rc.0
-      zod: 3.25.76
-
-  '@loop-engine/adapter-memory@1.0.0-rc.0(@loop-engine/events@1.0.0-rc.0)':
-    dependencies:
-      '@loop-engine/core': 1.0.0-rc.0
-      '@loop-engine/runtime': 1.0.0-rc.0(@loop-engine/events@1.0.0-rc.0)
-    transitivePeerDependencies:
-      - '@loop-engine/events'
-
-  '@loop-engine/core@1.0.0-rc.0':
-    dependencies:
-      zod: 3.25.76
-
-  '@loop-engine/events@1.0.0-rc.0':
-    dependencies:
-      '@loop-engine/core': 1.0.0-rc.0
-      zod: 3.25.76
-
-  '@loop-engine/guards@1.0.0-rc.0':
-    dependencies:
-      '@loop-engine/actors': 1.0.0-rc.0
-      '@loop-engine/core': 1.0.0-rc.0
-
-  '@loop-engine/loop-definition@1.0.0-rc.0':
-    dependencies:
-      '@loop-engine/core': 1.0.0-rc.0
-      yaml: 2.8.2
-      zod: 3.25.76
-
-  '@loop-engine/observability@1.0.0-rc.0(@loop-engine/events@1.0.0-rc.0)':
-    dependencies:
-      '@loop-engine/core': 1.0.0-rc.0
-      '@loop-engine/runtime': 1.0.0-rc.0(@loop-engine/events@1.0.0-rc.0)
-    transitivePeerDependencies:
-      - '@loop-engine/events'
-
-  '@loop-engine/registry-client@1.0.0-rc.0':
-    dependencies:
-      '@loop-engine/core': 1.0.0-rc.0
-      '@loop-engine/loop-definition': 1.0.0-rc.0
-
-  '@loop-engine/runtime@1.0.0-rc.0(@loop-engine/events@1.0.0-rc.0)':
-    dependencies:
-      '@loop-engine/actors': 1.0.0-rc.0
-      '@loop-engine/core': 1.0.0-rc.0
-      '@loop-engine/events': 1.0.0-rc.0
-      '@loop-engine/guards': 1.0.0-rc.0
-
-  '@loop-engine/sdk@1.0.0-rc.0':
-    dependencies:
-      '@loop-engine/actors': 1.0.0-rc.0
-      '@loop-engine/adapter-memory': 1.0.0-rc.0(@loop-engine/events@1.0.0-rc.0)
-      '@loop-engine/core': 1.0.0-rc.0
-      '@loop-engine/events': 1.0.0-rc.0
-      '@loop-engine/guards': 1.0.0-rc.0
-      '@loop-engine/loop-definition': 1.0.0-rc.0
-      '@loop-engine/observability': 1.0.0-rc.0(@loop-engine/events@1.0.0-rc.0)
-      '@loop-engine/registry-client': 1.0.0-rc.0
-      '@loop-engine/runtime': 1.0.0-rc.0(@loop-engine/events@1.0.0-rc.0)
-      '@loop-engine/signals': 1.0.0-rc.0
-
-  '@loop-engine/signals@1.0.0-rc.0':
-    dependencies:
-      '@loop-engine/core': 1.0.0-rc.0
-      zod: 3.25.76
 
   '@manypkg/find-root@1.1.0':
     dependencies:

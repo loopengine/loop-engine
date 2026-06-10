@@ -1,6 +1,9 @@
 # `@loop-engine/*` RC.1 release — enumerated publish plan
 
-**Status:** prepared, awaiting tag. This is the artifact to review **before** pushing the release tag.
+**Status: EXECUTED — 2026-06-10.** Bootstrap dispatch published the 9 first-publish names (token +
+provenance); Trusted Publishers bound; `v1.0.0-rc.1` re-pointed to `9c5be4e` and the tag run
+OIDC-published the remaining 7 and passed the clean-install verify. Post-release plan check:
+**TOTAL TO PUBLISH = 0** — registry parity with `main` achieved. All 16 shipped as enumerated.
 
 ## Why this release exists
 

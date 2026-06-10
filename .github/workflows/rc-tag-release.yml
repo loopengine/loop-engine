@@ -117,18 +117,16 @@ jobs:
             exit 1
           fi
           # Names that do not exist on npmjs yet — trusted publishing cannot create them (npm/cli#8544).
-          # After this run succeeds: bind Trusted Publishers for each, then DELETE entries from this list.
-          BOOTSTRAP_PACKAGES=(
-            "@loop-engine/auth-iface"
-            "@loop-engine/canonical-json"
-            "@loop-engine/entitlements-iface"
-            "@loop-engine/loop-status-client"
-            "@loop-engine/runtime-core"
-            "@loop-engine/runtime-db"
-            "@loop-engine/runtime-routes"
-            "@loop-engine/studio-client"
-            "@loop-engine/studio-ui"
-          )
+          # After a bootstrap run succeeds: bind Trusted Publishers for each, then DELETE entries from
+          # this list. The rc.1 bootstrap (2026-06-10) published the original 9; list is empty until
+          # the next first-publish name arrives.
+          BOOTSTRAP_PACKAGES=()
+          if [ ${#BOOTSTRAP_PACKAGES[@]} -eq 0 ]; then
+            echo "❌ BOOTSTRAP_PACKAGES is empty — nothing to bootstrap. Add the new package names"
+            echo "   to the list in rc-tag-release.yml before dispatching with token_bootstrap."
+            echo "   (Guard: an empty list must never fall through to an unfiltered token publish.)"
+            exit 1
+          fi
           FLAGS="--access public --no-git-checks"
           if [ "${{ inputs.dry_run }}" = "true" ]; then
             FLAGS="$FLAGS --dry-run"

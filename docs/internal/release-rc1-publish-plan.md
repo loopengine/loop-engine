@@ -127,3 +127,63 @@ bootstrap path is built into `rc-tag-release.yml` as the `token_bootstrap` dispa
   `changeset publish` plan matches this list exactly.
 
 Tag push is performed manually after this review.
+
+---
+
+## DATED STATE — Prompt 1.5 OSS publish verification (2026-06-10)
+
+**Family/version:** `@loop-engine/*` rc.1 — 16/16 packages published on the public npm registry.
+
+**Registry parity: PASS**
+- Enumerated plan check re-run post-release: **TOTAL TO PUBLISH: 0**.
+- Per-package `npm view` vs manifest diff across the full 16-package publish set: 16 OK, 0 diffs
+  (rc.1 closure at `1.0.0-rc.1`; ifaces/runtime-db at `1.0.0-rc.0`; four clients at `0.1.0`).
+
+**Clean consumer: PASS**
+- Fresh external project (`/tmp/rc1-consumer`, outside the repo) installed
+  `@loop-engine/sdk@1.0.0-rc.1`, `@loop-engine/observability@1.0.0-rc.1`,
+  `@loop-engine/studio-client@0.1.0` from the public registry — zero workspace symlinks in the tree.
+- Stale-proof symbol verified both module systems: CJS and **ESM named import** (the exact rc.0
+  failure mode) of `RUNTIME_API_CONTRACT_VERSION` → `runtime-api-2026-05`; `studio-client` loads
+  (11 exports); `sdk.createLoopSystem` callable.
+
+**Provenance: PASS**
+- `npm audit signatures` in the consumer project: 14 verified registry signatures, 13 verified
+  attestations.
+- Attestations present on BOTH publish paths: OIDC tag run (`sdk`, `observability`) and token
+  bootstrap (`auth-iface`, `canonical-json`, `studio-client`) — the `NPM_CONFIG_PROVENANCE=true` +
+  `id-token: write` bootstrap design held.
+- CI publish confirmed from GitHub Actions: bootstrap dispatch `27287626502` (success, `580a8c5`),
+  OIDC tag run `27288864301` (success, `9c5be4e`). No laptop publish.
+
+**Credential hygiene: PASS (one item user-attested)**
+- 9 first-ever names bootstrapped via the gated `token_bootstrap` dispatch; path retired —
+  `BOOTSTRAP_PACKAGES` pruned with empty-list guard (`9c5be4e`).
+- `NPM_TOKEN` repo secret **deleted** (verified: `gh secret list` empty).
+- Trusted Publishers bound for the 9 (repo `loopengine/loop-engine`, workflow
+  `rc-tag-release.yml`, environment blank) — user-performed 2026-06-10; mechanically provable at
+  the next OIDC publish of any of the 9.
+- npm-side token revocation: user-attested (registry state not queryable from CI).
+
+**Tag integrity: PASS**
+- Remote `refs/tags/v1.0.0-rc.1` (annotated `8a3c067`) dereferences to **`9c5be4e`**; the stale
+  tag at `ffb0853` was deleted from the remote before re-tagging (single ref remains).
+- GitHub Release `v1.0.0-rc.1` created 2026-06-10T16:01:24Z from the corrected tag, marked
+  prerelease.
+
+**Registered cleanup follow-ups (non-blocking — none affect the clean-consumer verification):**
+- **LOOP-CLEANUP-01** — `runtime-core` test types (5 TS errors in 2 seam-era test files:
+  `RuntimeIdentity` missing `role`/`source`; unbranded `StateId` strings) — owner: TBD — status: registered.
+- **LOOP-CLEANUP-02** — `registry-client` contract-test spec path (resolves `../../../../..` to
+  monorepo depth; `docs/specs/loop-registry-api-v0.md` exists only in bd-forge-main — vendor the
+  spec + fix depth) — owner: TBD — status: registered.
+- **LOOP-CLEANUP-03** — `runtime-db` empty test suite (`vitest run` exits 1 with no test files;
+  `--passWithNoTests` or drop the script) — owner: TBD — status: registered.
+- Note: these gate **Prompt 2's fresh-clone TEST criterion** (per the revised prompt set) and must
+  clear before Boss Loops' hosted extraction, but do not block this publish gate.
+
+**Gate result: PASS**
+- Boss Loops OSS row flipped to **published-and-green (registry parity)** in the prompt-0-5
+  scoreboard (bd-forge-main `d70e2203`).
+- Prompt 2's OSS-publish precondition is **satisfied for this OSS family** (remaining Prompt 2
+  gates — readiness steps 1–4, per-coupling severances, extraction order — tracked in the set).

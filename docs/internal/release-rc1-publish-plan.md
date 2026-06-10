@@ -86,7 +86,16 @@ subsequent releases.
 2. **`observability` / `registry-client` bumped `patch`** to iterate within the `1.0.0` RC line
    (→ `rc.1`). The changes are additive, but the eventual stable `1.0.0` is governed by the consumed
    surface-reconciliation (`sr-*`) changesets; the `patch` here only advances the rc counter.
-3. **`canonical-json` relocated `@betterdata/*` → `@loop-engine/*`** before first publish. It ships
+3. **`repository` metadata normalized to `loopengine/loop-engine`** before the tag. Five seam
+   packages (`auth-iface`, `entitlements-iface`, `runtime-db`, `runtime-core`, `runtime-routes`)
+   carried `repository.url`/`bugs.url` pointing at the proprietary monorepo
+   (`betterdataco/bd-forge-main`) with directories that don't exist in this repo — a provenance
+   validation failure waiting at publish (npm checks the manifest's `repository` against the
+   attestation's source repo) and a leak of the monorepo's name into public OSS metadata. Four more
+   (`canonical-json`, `studio-client`, `studio-ui`, `observability`) had no `repository` at all.
+   All nine now carry `repository.url = loopengine/loop-engine` with correct `directory`, matching
+   the rest of the family. Lockfile untouched (metadata only); `validate:publish` green.
+4. **`canonical-json` relocated `@betterdata/*` → `@loop-engine/*`** before first publish. It ships
    from this repo, versions through this repo's changesets, and releases on this repo's tag — its
    scope should say so. `@betterdata` is a mixed proprietary/OSS scope (deepens classify-by-identity
    burden); `@loop-engine` is the unambiguous Boss Loops OSS distribution namespace. Done now because

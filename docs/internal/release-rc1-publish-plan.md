@@ -71,9 +71,18 @@ push it (OIDC, no token): `auth-iface`, `entitlements-iface`, `runtime-db`, `run
 publishing packages now bind under a single npm org (`@loop-engine`) for Trusted-Publisher setup —
 no second-scope binding to maintain.
 
-First-publish caveat: if a Trusted Publisher cannot be bound to a name that does not yet exist on
-npm, publish that name once via the automation-token path, then bind the Trusted Publisher for
-subsequent releases.
+First-publish caveat (confirmed — npm/cli#8544): Trusted Publishing **cannot** create a package
+that does not yet exist on the registry; the TP config requires an existing package record. The
+bootstrap path is built into `rc-tag-release.yml` as the `token_bootstrap` dispatch input:
+
+1. Add `NPM_TOKEN` repo secret (granular automation token: new-package create rights on
+   `@loop-engine`, bypass-2FA).
+2. Run the workflow manually from `main` with `token_bootstrap` CHECKED and `dry_run` UNCHECKED —
+   publishes ONLY the 9 names above (token auth + provenance), skips the GitHub Release.
+3. Bind Trusted Publishers for the 9 on npmjs (repo `loopengine/loop-engine`, workflow
+   `rc-tag-release.yml`, environment left blank — it must match the workflow, which declares none).
+4. Delete the `NPM_TOKEN` secret, prune the `BOOTSTRAP_PACKAGES` list, then push the tag — the
+   normal OIDC publish ships the remaining 7 and skips the 9 already on the registry.
 
 ## Decisions baked into this prep
 

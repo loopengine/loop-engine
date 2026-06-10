@@ -22,6 +22,16 @@
 # `npm install -g npm@...` here; it can break the toolcache install (e.g. MODULE_NOT_FOUND promise-retry).
 # Each published package needs Trusted Publisher on npmjs (same repo + workflow filename rc-tag-release.yml).
 #
+# First-publish bootstrap (token_bootstrap input): npm trusted publishing CANNOT create a package
+# that does not yet exist on the registry (npm/cli#8544) — the TP config UI requires an existing
+# package record. For brand-new names, run this workflow manually with token_bootstrap CHECKED and
+# dry_run UNCHECKED: the bootstrap step publishes ONLY the names listed in BOOTSTRAP_PACKAGES via a
+# granular automation token (secrets.NPM_TOKEN — new-package create rights on @loop-engine,
+# bypass-2FA), with provenance (id-token: write makes attestation work under token auth too).
+# Then bind Trusted Publishers for the new names on npmjs and publish everything else via the tag.
+# IMPORTANT: an empty NODE_AUTH_TOKEN is still a value — npm only falls back to OIDC when the var
+# is completely unset. That is why token auth lives on a separate step, not a conditional env value.
+#
 # Optional: NPM_READ_TOKEN + NODE_AUTH_TOKEN only if you add private @scope deps during install (public monorepo: omit).
 
 name: RC tag release
@@ -37,6 +47,11 @@ on:
         type: boolean
         default: true
         required: true
+      token_bootstrap:
+        description: "First-publish bootstrap: token-auth publish of ONLY the BOOTSTRAP_PACKAGES list (names trusted publishing can't create yet). Requires secrets.NPM_TOKEN."
+        type: boolean
+        default: false
+        required: false
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -91,7 +106,42 @@ jobs:
 
           echo "✅ Ref check passed: ${{ github.ref }}"
 
+      - name: Bootstrap first publishes (token auth — names TP cannot create)
+        if: ${{ inputs.token_bootstrap }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: "true"
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "❌ token_bootstrap requires secrets.NPM_TOKEN (granular automation token with new-package create rights)."
+            exit 1
+          fi
+          # Names that do not exist on npmjs yet — trusted publishing cannot create them (npm/cli#8544).
+          # After this run succeeds: bind Trusted Publishers for each, then DELETE entries from this list.
+          BOOTSTRAP_PACKAGES=(
+            "@loop-engine/auth-iface"
+            "@loop-engine/canonical-json"
+            "@loop-engine/entitlements-iface"
+            "@loop-engine/loop-status-client"
+            "@loop-engine/runtime-core"
+            "@loop-engine/runtime-db"
+            "@loop-engine/runtime-routes"
+            "@loop-engine/studio-client"
+            "@loop-engine/studio-ui"
+          )
+          FLAGS="--access public --no-git-checks"
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            FLAGS="$FLAGS --dry-run"
+            echo "ℹ️  Dry run mode — no packages will be published"
+          fi
+          FILTERS=""
+          for pkg in "${BOOTSTRAP_PACKAGES[@]}"; do
+            FILTERS="$FILTERS --filter $pkg"
+          done
+          pnpm publish -r $FILTERS $FLAGS
+
       - name: Publish to npm
+        if: ${{ !inputs.token_bootstrap }}
         run: |
           FLAGS="--access public --no-git-checks"
           if [ "${{ inputs.dry_run }}" = "true" ]; then
@@ -102,8 +152,9 @@ jobs:
           pnpm publish -r $FLAGS
 
       # Skip only on workflow_dispatch with dry_run (inputs undefined on tag push — do not use !inputs.dry_run alone).
+      # Also skip on bootstrap runs — they publish a subset from a branch ref, not a release tag.
       - name: Create GitHub Release
-        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.dry_run }}
+        if: ${{ github.event_name != 'workflow_dispatch' || (!inputs.dry_run && !inputs.token_bootstrap) }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}

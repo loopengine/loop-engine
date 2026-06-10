@@ -156,14 +156,18 @@ Tag push is performed manually after this review.
 - CI publish confirmed from GitHub Actions: bootstrap dispatch `27287626502` (success, `580a8c5`),
   OIDC tag run `27288864301` (success, `9c5be4e`). No laptop publish.
 
-**Credential hygiene: PASS (one item user-attested)**
+**Credential hygiene: PASS (confirmed)**
 - 9 first-ever names bootstrapped via the gated `token_bootstrap` dispatch; path retired —
   `BOOTSTRAP_PACKAGES` pruned with empty-list guard (`9c5be4e`).
 - `NPM_TOKEN` repo secret **deleted** (verified: `gh secret list` empty).
 - Trusted Publishers bound for the 9 (repo `loopengine/loop-engine`, workflow
   `rc-tag-release.yml`, environment blank) — user-performed 2026-06-10; mechanically provable at
   the next OIDC publish of any of the 9.
-- npm-side token revocation: user-attested (registry state not queryable from CI).
+- npm-side tokens revoked — **confirmed 2026-06-10 09:57 PT** (account token page): bootstrap
+  "Runbook Token", rc.0-era "automation", and expired "bttrdata" all deleted. **No standing
+  long-lived token remains for the `@loop-engine` family** — TP-only publishing from here. One
+  account token remains by deliberate choice (`betterdata-org-publish`, expires Jul 30) for the
+  `@betterdata/*` npmjs pipeline (Signal Tags) — different family, out of this gate's scope.
 
 **Tag integrity: PASS**
 - Remote `refs/tags/v1.0.0-rc.1` (annotated `8a3c067`) dereferences to **`9c5be4e`**; the stale

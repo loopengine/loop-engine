@@ -32,6 +32,8 @@ const identity = (tenantId = TENANT): RuntimeIdentity => ({
   tenantId,
   apiKeyId: "key-1",
   actorId: "user:demo",
+  role: "API_KEY",
+  source: "api",
 });
 
 function buildInstance(overrides: Partial<PersistedLoopInstance> = {}): PersistedLoopInstance {

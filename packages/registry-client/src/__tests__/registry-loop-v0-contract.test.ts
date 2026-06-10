@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it, vi } from "vitest";
 import { v0Registry } from "../adapters/v0";
 
-const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../..");
+const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
 const REGISTRY_SPEC = path.join(REPO_ROOT, "docs/specs/loop-registry-api-v0.md");
 
 describe("registry-loop v0 contract (SDK client)", () => {

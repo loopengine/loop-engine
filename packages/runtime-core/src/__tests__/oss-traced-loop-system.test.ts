@@ -2,6 +2,7 @@
 // Copyright (c) Better Data, Inc.
 
 import { describe, expect, it, vi } from "vitest";
+import { stateId } from "@loop-engine/sdk";
 import type { LoopEngine, TransitionParams, TransitionResult } from "@loop-engine/runtime";
 import type { TraceRecord, TraceStore } from "@loop-engine/observability";
 
@@ -35,8 +36,8 @@ describe("createOssTracedLoopSystem — sequence allocation", () => {
 
     const engine = makeEngine({
       status: "executed",
-      toState: "APPROVED",
-      fromState: "OPEN",
+      toState: stateId("APPROVED"),
+      fromState: stateId("OPEN"),
     });
     const traced = createOssTracedLoopSystem(engine, traceStore, {
       loopId: "loop.demo",
@@ -67,8 +68,8 @@ describe("createOssTracedLoopSystem — sequence allocation", () => {
 
     const engine = makeEngine({
       status: "executed",
-      toState: "APPROVED",
-      fromState: "OPEN",
+      toState: stateId("APPROVED"),
+      fromState: stateId("OPEN"),
     });
     const traced = createOssTracedLoopSystem(engine, traceStore, {
       loopId: "loop.demo",

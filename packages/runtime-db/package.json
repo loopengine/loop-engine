@@ -45,7 +45,7 @@
   "scripts": {
     "build": "pnpm db:generate && tsc",
     "typecheck": "pnpm db:generate && tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "db:generate": "node ./scripts/run-prisma.mjs generate",
     "db:push": "node ./scripts/run-prisma.mjs db push",
     "db:migrate": "node ./scripts/run-prisma.mjs migrate deploy"

@@ -191,3 +191,55 @@ Tag push is performed manually after this review.
   scoreboard (bd-forge-main `d70e2203`).
 - Prompt 2's OSS-publish precondition is **satisfied for this OSS family** (remaining Prompt 2
   gates — readiness steps 1–4, per-coupling severances, extraction order — tracked in the set).
+
+## DATED STATE — Prompt 1.5 RE-RUN, import-graph-derived (2026-06-11)
+
+**Why re-run:** the 2026-06-10 block's parity expected-set was derived from the rc.1
+RELEASE BUMP-SET. That basis is **VOID** — it was blind to imported-but-never-released
+packages, and three `@loop-engine/*`-named workspace packages reached Boss Loops' Prompt 2
+doorstep under a false green (resolved by the package closure,
+bd-forge-main `0fd19001` / `boss-loops-prompt-2-package-closure.md`). This block is the
+corrected gate: the expected universe is derived from the **consuming hosted app's actual
+import graph**, independently, not inherited from any upstream artifact.
+
+**1. Registry parity — PASS (derived, not inherited).**
+Universe = hosted-loops RUNTIME closure (fresh import scan of `apps/hosted-loops/{app,lib}`
++ transitive workspace members `database-loops`, `loop-state-sync-internal`,
+`engine-baselines-internal`): `core@1.0.0-rc.0`, `runtime@1.0.0-rc.0`, `sdk@1.0.0-rc.1`,
+`adapter-postgres@0.2.0`, `adapter-http@1.0.0-rc.0`, `observability@1.0.0-rc.1`,
+`canonical-json@0.1.0` (transitive — surfaced only by the graph derivation); dev closure
+adds `registry-client@1.0.0-rc.1`. Every member on the registry at a version **matching
+this repo's `main`** (8/8 npm-view diff = MATCH). Post-closure, zero hosted imports
+resolve to unpublished `@loop-engine/*` names. **TOTAL TO PUBLISH: 0.**
+
+**2. Clean-consumer install — PASS.** Fresh external ESM project (`/tmp`, outside any
+workspace), `npm install` of 10 family packages from the public registry, registry-resolved
+closure (31 packages). All 10 import with non-empty export surfaces; staleness-proof
+symbols present: `createLoopStatusClient` + `parseSseFrame` (the LOOP-STATE-01 seam
+client) and `RUNTIME_API_CONTRACT_VERSION` (observability contract const). Exit 0.
+
+**3. Provenance — PASS.** `dist.attestations` present for 10/10 checked specs (incl. both
+rc.0-pinned and rc.1 members) — CI publish with `id-token: write`.
+
+**4. Credential hygiene — PASS, one residue flagged.** `npm whoami` → E401: **no live
+credential on the operator machine**; bootstrap tokens were revoked 2026-06-10 and no
+token has been minted since. Residue: a **dead** `npm_…` token string remains in the
+operator's `~/.npmrc` (rejected by the registry — that is the E401). Not a live
+credential, does not fail the gate; flagged for deletion of the line.
+
+**5. Tag integrity — PASS.** `v1.0.0-rc.1` → `9c5be4e`, ancestor of `origin/main`, local
+and remote agree; single ref (the 2026-06-10 correction holds). Historical note:
+`v1.0.0-rc.0` (`3f4d93e`) and `v0.2.0` (`4a45489`) are not ancestors of current `main`
+because they predate the R3 hard-reset; they match the remote and the published artifacts
+— not stale/moved tags.
+
+**6. Cleanup registered — PASS.** LOOP-CLEANUP-01..03: **cleared 2026-06-10 (D2)**.
+New registrations from the package closure (owners assigned, tracked in bd-forge-main's
+0.5 board): C6/LOOP-ACTORS-01 (workspace `@loop-engine/actors` collision → CC closure
+round); FAN-OUT-INVERSION (inlined CC fan-out mirror in hosted-loops → CC severance
+track); CC `apps/scm` + Platform Admin `apps/admin` pre-existing typecheck debt
+(registered against their own gates, not Boss Loops').
+
+**Gate result: PASS — derived independently; the import-graph universe is the recorded
+basis.** Boss Loops' OSS row reads published-and-green (registry parity, corrected basis);
+Prompt 2's OSS-publish precondition is genuinely satisfied.

@@ -39,6 +39,11 @@ validation, and runtime enforcement follow in later WP-1 steps.
 - `LoopEngine.transition()` wires governed path after guards; Phase 5 commits
   `snapshotIds` + `versions` on transition record
 
+**Step 6**
+
+- Phase 6 reconstruction tests in `runtime/src/__tests__/engine-evidence-enforcement.test.ts`
+  — governed paths reject non-defensible commits; golden `INV-2026-004521` path green
+
 ## Dependency direction
 
 ```text

@@ -99,7 +99,8 @@ export const TransitionSpecSchema = z
     signal: SignalIdSchema.optional(),
     actors: z.array(ActorTypeSchema).min(1),
     guards: z.array(GuardSpecSchema).optional(),
-    description: z.string().optional()
+    description: z.string().optional(),
+    metadata: z.record(z.unknown()).optional()
   })
   .transform((data) => ({
     ...data,
@@ -143,6 +144,7 @@ export const LoopDefinitionSchema = z.object({
   initialState: StateIdSchema,
   transitions: z.array(TransitionSpecSchema),
   outcome: OutcomeSpecSchema.optional(),
-  tags: z.array(z.string()).optional()
+  tags: z.array(z.string()).optional(),
+  metadata: z.record(z.unknown()).optional()
 });
 export type LoopDefinition = z.infer<typeof LoopDefinitionSchema>;

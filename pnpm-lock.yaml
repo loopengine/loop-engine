@@ -480,6 +480,9 @@ importers:
       '@loop-engine/events':
         specifier: workspace:^
         version: link:../events
+      '@loop-engine/evidence':
+        specifier: workspace:*
+        version: link:../evidence
       '@loop-engine/guards':
         specifier: workspace:*
         version: link:../guards

@@ -8,6 +8,7 @@
  * WP-1 step 2: `canonicalizeSnapshotValues()` (delegates to canonical-json).
  * WP-1 step 3: `snapshotContentHash()` (sha256 of canonical semantic values).
  * WP-1 step 4: `SnapshotStore` port + structural validators (Phase 2 / 4).
+ * WP-1 step 5: `commitGovernedEvidenceSnapshots()` pipeline helper (Phases 2–4).
  */
 export type {
   DecisionRecordVersionMetadata,
@@ -23,6 +24,17 @@ export {
   type SnapshotSemanticValues,
 } from "./canonicalize-snapshot-values.js";
 export { snapshotContentHash } from "./snapshot-content-hash.js";
+export type {
+  GovernedEvidenceCommitFailure,
+  GovernedEvidenceCommitParams,
+  GovernedEvidenceCommitResult,
+  GovernedEvidenceCommitSuccess,
+  GovernedEvidenceRejectionReason,
+} from "./governed-evidence-commit.js";
+export {
+  commitGovernedEvidenceSnapshots,
+  requiresGovernedEvidence,
+} from "./governed-evidence-commit.js";
 export type {
   EvidenceValidationError,
   EvidenceValidationResult,

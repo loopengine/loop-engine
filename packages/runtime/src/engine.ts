@@ -36,6 +36,11 @@ import {
   createLoopTransitionExecutedEvent,
   createLoopTransitionRequestedEvent
 } from "@loop-engine/events";
+import {
+  commitGovernedEvidenceSnapshots,
+  requiresGovernedEvidence,
+  type EvidenceSnapshotCommitInput,
+} from "@loop-engine/evidence";
 import type { LoopEngineOptions } from "./interfaces";
 
 export interface StartLoopParams {
@@ -50,7 +55,12 @@ export interface TransitionParams {
   aggregateId: AggregateId;
   transitionId: TransitionId;
   actor: ActorRef;
+  /** Legacy freeform evidence — non-governed transitions only. */
   evidence?: Record<string, unknown>;
+  /** Required on governed transitions (`metadata.governedEvidence: true`). */
+  evidenceSnapshots?: EvidenceSnapshotCommitInput[];
+  /** Tenant scope for SnapshotStore persistence; defaults to aggregateId. */
+  tenantId?: string;
   correlationId?: string;
   constraints?: AIActorConstraints;
 }
@@ -283,6 +293,52 @@ export class LoopEngine {
       };
     }
 
+    let committedEvidence: Record<string, unknown> = {
+      ...evidence,
+      ...(guardSummary.softFailures.length > 0
+        ? {
+            _softGuardWarnings: guardSummary.softFailures.map((failure) => ({
+              guardId: failure.guardId,
+              message: failure.message
+            }))
+          }
+        : {})
+    };
+
+    if (
+      requiresGovernedEvidence({
+        ...(definition.metadata ? { loopMetadata: definition.metadata } : {}),
+        ...(transition.metadata ? { transitionMetadata: transition.metadata } : {})
+      })
+    ) {
+      const tenantId = String(
+        params.tenantId ??
+          instance.metadata?.tenantId ??
+          instance.metadata?.organizationId ??
+          instance.aggregateId
+      );
+      const governedCommit = await commitGovernedEvidenceSnapshots({
+        tenantId,
+        aggregateId: params.aggregateId,
+        evidenceSnapshots: params.evidenceSnapshots,
+        ...(this.options.snapshotStore
+          ? { snapshotStore: this.options.snapshotStore }
+          : {})
+      });
+      if (!governedCommit.ok) {
+        return {
+          status: "rejected",
+          fromState: instance.currentState,
+          rejectionReason: governedCommit.rejectionReason
+        };
+      }
+      committedEvidence = {
+        ...committedEvidence,
+        snapshotIds: governedCommit.refs.snapshotIds,
+        versions: governedCommit.refs.versions
+      };
+    }
+
     const now = this.now();
     const updated: LoopInstance = {
       ...instance,
@@ -304,20 +360,9 @@ export class LoopEngine {
       toState: transition.to,
       actor: params.actor,
       occurredAt: now,
-      evidence: {
-        ...evidence,
-        ...(guardSummary.softFailures.length > 0
-          ? {
-              _softGuardWarnings: guardSummary.softFailures.map((failure) => ({
-                guardId: failure.guardId,
-                message: failure.message
-              }))
-            }
-          : {})
-      }
+      evidence: committedEvidence
     };
     await this.options.store.saveTransitionRecord(record);
-    const history = await this.options.store.getTransitionHistory(updated.aggregateId);
 
     const transitionEvent: LoopTransitionExecutedEvent = createLoopTransitionExecutedEvent({
       loopId: updated.loopId,

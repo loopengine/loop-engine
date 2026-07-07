@@ -27,6 +27,7 @@
   "dependencies": {
     "@loop-engine/actors": "workspace:*",
     "@loop-engine/core": "workspace:*",
+    "@loop-engine/evidence": "workspace:*",
     "@loop-engine/guards": "workspace:*"
   },
   "peerDependencies": {

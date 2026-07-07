@@ -9,6 +9,7 @@ import type {
 } from "@loop-engine/core";
 import type { LoopEvent } from "@loop-engine/events";
 import type { GuardRegistry } from "@loop-engine/guards";
+import type { SnapshotStore } from "@loop-engine/evidence";
 
 export interface LoopStore {
   getInstance(aggregateId: AggregateId): Promise<LoopInstance | null>;
@@ -38,5 +39,7 @@ export interface LoopEngineOptions {
   store: LoopStore;
   eventBus?: EventBus;
   guardRegistry?: GuardRegistry;
+  /** Insert-only port for governed evidence snapshots (Phase 4). */
+  snapshotStore?: SnapshotStore;
   now?: () => string;
 }

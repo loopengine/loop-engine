@@ -33,6 +33,12 @@ validation, and runtime enforcement follow in later WP-1 steps.
   `validateEvidenceSnapshotCommitInput`, `validateEvidenceSnapshotCommitBatch`,
   `validateGovernedEvidencePresent`, `validateEvidenceSnapshotPersisted*`
 
+**Step 5**
+
+- `commitGovernedEvidenceSnapshots()` — Phases 2–4 orchestration
+- `LoopEngine.transition()` wires governed path after guards; Phase 5 commits
+  `snapshotIds` + `versions` on transition record
+
 ## Dependency direction
 
 ```text

@@ -6,6 +6,7 @@ import { InMemoryEventBus } from "@loop-engine/events";
 import { GuardRegistry } from "@loop-engine/guards";
 import { httpRegistry, localRegistry, type LoopRegistry } from "@loop-engine/registry-client";
 import { createLoopEngine, type LoopDefinitionRegistry, type LoopStore, type LoopEngine } from "@loop-engine/runtime";
+import type { SnapshotStore } from "@loop-engine/evidence";
 import { SignalRegistry } from "@loop-engine/signals";
 import { validateLoopDefinition } from "@loop-engine/loop-definition";
 
@@ -224,6 +225,8 @@ export interface CreateLoopSystemOptions {
    * with the same loopId (local wins).
    */
   registry?: LoopRegistry;
+  /** Insert-only port for governed evidence snapshots (ADR-0004 Phase 4). */
+  snapshotStore?: SnapshotStore;
 }
 
 function mergeDefinitions(registryLoops: LoopDefinition[], localLoops: LoopDefinition[]): LoopDefinition[] {
@@ -280,7 +283,8 @@ export async function createLoopSystem(options: CreateLoopSystemOptions): Promis
     registry: new InMemoryLoopRegistry(mergedLoops),
     store,
     eventBus,
-    guardRegistry
+    guardRegistry,
+    ...(options.snapshotStore ? { snapshotStore: options.snapshotStore } : {})
   });
 
   return {

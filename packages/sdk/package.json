@@ -28,6 +28,7 @@
     "@loop-engine/adapter-memory": "workspace:*",
     "@loop-engine/actors": "workspace:*",
     "@loop-engine/core": "workspace:*",
+    "@loop-engine/evidence": "workspace:*",
     "@loop-engine/events": "workspace:*",
     "@loop-engine/guards": "workspace:*",
     "@loop-engine/loop-definition": "workspace:*",

@@ -4,13 +4,10 @@
 /**
  * `@loop-engine/evidence` — Decision Record evidence contracts (ADR-0004 WP-1).
  *
- * WP-1 step 1: types and ports only.
- *   - version metadata (`decisionRecordVersion`, `invariantVersion`, `canonicalVersion`)
- *   - commit/persisted snapshot shapes
- *   - `SnapshotStore` insert-only port
+ * WP-1 step 1: types and ports.
+ * WP-1 step 2: `canonicalizeSnapshotValues()` (delegates to canonical-json).
  *
- * Canonicalization, hashing, structural validation, and runtime enforcement
- * land in subsequent WP-1 steps — not in this package's early scope.
+ * Hashing, structural validation, and runtime enforcement land in later steps.
  */
 export type {
   DecisionRecordVersionMetadata,
@@ -21,3 +18,7 @@ export type {
 } from "./types.js";
 export { LAUNCH_DECISION_RECORD_VERSIONS } from "./types.js";
 export type { SnapshotStore } from "./snapshot-store.js";
+export {
+  canonicalizeSnapshotValues,
+  type SnapshotSemanticValues,
+} from "./canonicalize-snapshot-values.js";

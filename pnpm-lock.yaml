@@ -370,6 +370,10 @@ importers:
         version: 3.25.76
 
   packages/evidence:
+    dependencies:
+      '@loop-engine/canonical-json':
+        specifier: workspace:*
+        version: link:../canonical-json
     devDependencies:
       '@types/node':
         specifier: ^20.14.10

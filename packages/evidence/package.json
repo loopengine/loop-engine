@@ -46,6 +46,9 @@
     "lint": "node -e \"console.log('evidence lint')\"",
     "test": "vitest run"
   },
+  "dependencies": {
+    "@loop-engine/canonical-json": "workspace:*"
+  },
   "devDependencies": {
     "@types/node": "^20.14.10",
     "tsup": "^8.4.0",

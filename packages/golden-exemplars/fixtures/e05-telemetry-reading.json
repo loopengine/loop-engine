@@ -1,0 +1,26 @@
+{
+  "id": "E05",
+  "label": "Telemetry reading",
+  "archetype": "operational",
+  "providerRole": "source",
+  "snapshot": {
+    "snapshotKey": "sensor-reading",
+    "sourceSystem": "telemetry",
+    "sourceRef": "device://temp-sensor-12",
+    "capturedAt": "2026-07-07T12:00:00.000Z",
+    "capturedBy": "provider-operational",
+    "values": { "celsius": 4.2, "unit": "C" },
+    "versions": { "decisionRecordVersion": 1, "invariantVersion": 1, "canonicalVersion": 1 },
+    "qualification": {
+      "provenance": "origin-attested",
+      "definition": "not-applicable",
+      "freshness": {
+        "applicable": "applicable",
+        "snapshotFrozenAt": "2026-07-07T12:00:00.000Z",
+        "valueAsOf": "2026-07-07T12:00:00.000Z",
+        "freshnessVerdict": "fresh"
+      }
+    },
+    "nativeMetadata": { "attestationMethod": "device-signature" }
+  }
+}

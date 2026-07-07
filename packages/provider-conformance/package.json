@@ -1,0 +1,39 @@
+{
+  "name": "@loop-engine/provider-conformance",
+  "version": "0.1.0",
+  "private": false,
+  "description": "ADR-0005 provider conformance suite — validates Set 0 contract + Set 0.5 exemplars",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "lint": "node -e \"console.log('provider-conformance lint')\"",
+    "test": "vitest run",
+    "test-provider": "vitest run"
+  },
+  "dependencies": {
+    "@loop-engine/evidence": "workspace:*",
+    "@loop-engine/golden-exemplars": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

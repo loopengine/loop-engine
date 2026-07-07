@@ -1,0 +1,20 @@
+{
+  "id": "E10",
+  "label": "Manual upload",
+  "archetype": "manual",
+  "providerRole": "source",
+  "snapshot": {
+    "snapshotKey": "manual-upload",
+    "sourceSystem": "human-upload",
+    "sourceRef": "upload://invoice-scan.pdf",
+    "capturedAt": "2026-07-07T12:00:00.000Z",
+    "capturedBy": "user-finance-1",
+    "values": { "filename": "invoice-scan.pdf", "note": "Scanned copy" },
+    "versions": { "decisionRecordVersion": 1, "invariantVersion": 1, "canonicalVersion": 1 },
+    "qualification": {
+      "provenance": "unknown",
+      "definition": "not-applicable",
+      "freshness": { "applicable": "not-applicable" }
+    }
+  }
+}

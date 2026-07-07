@@ -1,0 +1,38 @@
+{
+  "name": "@loop-engine/provider-api",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Evidence Provider interface and capability profiles (ADR-0005 Set 0)",
+  "license": "Apache-2.0",
+  "author": "Better Data, Inc.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "lint": "node -e \"console.log('provider-api lint')\"",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@loop-engine/evidence": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

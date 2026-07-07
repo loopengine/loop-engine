@@ -1,0 +1,24 @@
+{
+  "id": "E07",
+  "label": "Signed PDF",
+  "archetype": "document",
+  "providerRole": "source",
+  "snapshot": {
+    "snapshotKey": "signed-pdf",
+    "sourceSystem": "document-store",
+    "sourceRef": "doc://policies/safety-signed.pdf",
+    "capturedAt": "2026-07-07T12:00:00.000Z",
+    "capturedBy": "provider-document",
+    "values": {
+      "filename": "safety-signed.pdf",
+      "signedAt": "2026-05-01T10:00:00.000Z"
+    },
+    "versions": { "decisionRecordVersion": 1, "invariantVersion": 1, "canonicalVersion": 1 },
+    "qualification": {
+      "provenance": "system-attested",
+      "definition": "not-applicable",
+      "freshness": { "applicable": "not-applicable" }
+    },
+    "version": { "kind": "must_equal", "value": "sha256:a1b2c3d4e5f6" }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "E04",
+  "label": "Dashboard tile",
+  "archetype": "semantic",
+  "providerRole": "source",
+  "snapshot": {
+    "snapshotKey": "dashboard-tile",
+    "sourceSystem": "semantic-bi",
+    "sourceRef": "dashboard://finance/revenue-kpi",
+    "capturedAt": "2026-07-07T12:00:00.000Z",
+    "capturedBy": "provider-semantic",
+    "values": { "kpi": "revenue_mtd", "amount": 890000, "currency": "USD" },
+    "versions": { "decisionRecordVersion": 1, "invariantVersion": 1, "canonicalVersion": 1 },
+    "qualification": {
+      "provenance": "system-attested",
+      "definition": "certified",
+      "freshness": {
+        "applicable": "applicable",
+        "snapshotFrozenAt": "2026-07-07T12:00:00.000Z",
+        "valueAsOf": "2026-07-07T11:58:00.000Z",
+        "bindingClock": "valueAsOf",
+        "freshnessVerdict": "fresh"
+      }
+    }
+  }
+}

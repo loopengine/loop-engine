@@ -1,0 +1,31 @@
+{
+  "id": "E08",
+  "label": "Model summary (derived)",
+  "archetype": "derived",
+  "providerRole": "derived",
+  "snapshot": {
+    "snapshotKey": "claude-assessment",
+    "sourceSystem": "Claude Sonnet",
+    "sourceRef": "decision-assistant",
+    "capturedAt": "2026-07-07T12:00:00.000Z",
+    "capturedBy": "provider-derived",
+    "values": {
+      "recommendation": "Approve with Finance review",
+      "confidence": "moderate"
+    },
+    "versions": { "decisionRecordVersion": 1, "invariantVersion": 1, "canonicalVersion": 1 },
+    "qualification": {
+      "provenance": "system-attested",
+      "definition": "unreviewed",
+      "freshness": {
+        "applicable": "applicable",
+        "snapshotFrozenAt": "2026-07-07T12:00:00.000Z",
+        "valueAsOf": "2026-07-07T12:00:00.000Z",
+        "freshnessVerdict": "fresh"
+      }
+    },
+    "lineage": [{ "kind": "derived-input", "ref": "snapshot:invoice-received" }],
+    "measurements": { "modelConfidence": 0.72 },
+    "nativeMetadata": { "modelId": "claude-sonnet-4", "promptVersion": "2026-06-01" }
+  }
+}

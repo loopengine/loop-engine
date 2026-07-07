@@ -1,0 +1,26 @@
+{
+  "id": "E03",
+  "label": "Semantic metric (BI)",
+  "archetype": "semantic",
+  "providerRole": "source",
+  "snapshot": {
+    "snapshotKey": "bi-metric-tile",
+    "sourceSystem": "semantic-bi",
+    "sourceRef": "explore://spend/variance",
+    "capturedAt": "2026-07-07T12:00:00.000Z",
+    "capturedBy": "provider-semantic",
+    "values": { "variancePct": 7.3 },
+    "versions": { "decisionRecordVersion": 1, "invariantVersion": 1, "canonicalVersion": 1 },
+    "qualification": {
+      "provenance": "system-attested",
+      "definition": "certified",
+      "freshness": {
+        "applicable": "applicable",
+        "snapshotFrozenAt": "2026-07-07T12:00:00.000Z",
+        "valueAsOf": "2026-07-07T11:58:00.000Z",
+        "bindingClock": "valueAsOf",
+        "freshnessVerdict": "fresh"
+      }
+    }
+  }
+}

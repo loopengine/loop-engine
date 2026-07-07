@@ -1,0 +1,35 @@
+{
+  "name": "@loop-engine/golden-exemplars",
+  "version": "0.1.0",
+  "private": false,
+  "description": "ADR-0005 Set 0.5 contract validation exemplars (E01–E10 fixtures)",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./fixtures/*": "./fixtures/*"
+  },
+  "files": ["dist", "fixtures", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "lint": "node -e \"console.log('golden-exemplars lint')\"",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@loop-engine/evidence": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

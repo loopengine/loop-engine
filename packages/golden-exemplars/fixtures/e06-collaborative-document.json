@@ -1,0 +1,21 @@
+{
+  "id": "E06",
+  "label": "Collaborative document",
+  "archetype": "document",
+  "providerRole": "source",
+  "snapshot": {
+    "snapshotKey": "contract-doc",
+    "sourceSystem": "document-store",
+    "sourceRef": "doc://contracts/acme-2026",
+    "capturedAt": "2026-07-07T12:00:00.000Z",
+    "capturedBy": "provider-document",
+    "values": { "title": "Acme Supply Agreement", "revision": "r3" },
+    "versions": { "decisionRecordVersion": 1, "invariantVersion": 1, "canonicalVersion": 1 },
+    "qualification": {
+      "provenance": "system-attested",
+      "definition": "not-applicable",
+      "freshness": { "applicable": "not-applicable" }
+    },
+    "version": { "kind": "must_equal", "value": "r3" }
+  }
+}

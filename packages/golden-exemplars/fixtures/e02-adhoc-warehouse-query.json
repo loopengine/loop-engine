@@ -1,0 +1,25 @@
+{
+  "id": "E02",
+  "label": "Ad-hoc warehouse query",
+  "archetype": "semantic",
+  "providerRole": "source",
+  "snapshot": {
+    "snapshotKey": "adhoc-query-result",
+    "sourceSystem": "warehouse",
+    "sourceRef": "sql://adhoc/select-1",
+    "capturedAt": "2026-07-07T12:00:00.000Z",
+    "capturedBy": "provider-semantic",
+    "values": { "rows": 1, "total": 9900 },
+    "versions": { "decisionRecordVersion": 1, "invariantVersion": 1, "canonicalVersion": 1 },
+    "qualification": {
+      "provenance": "system-attested",
+      "definition": "unreviewed",
+      "freshness": {
+        "applicable": "applicable",
+        "snapshotFrozenAt": "2026-07-07T12:00:00.000Z",
+        "valueAsOf": "2026-07-07T12:00:00.000Z",
+        "freshnessVerdict": "fresh"
+      }
+    }
+  }
+}

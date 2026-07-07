@@ -1,0 +1,28 @@
+{
+  "id": "E01",
+  "label": "Governed semantic metric",
+  "archetype": "semantic",
+  "providerRole": "source",
+  "snapshot": {
+    "snapshotKey": "revenue-total",
+    "sourceSystem": "warehouse",
+    "sourceRef": "semantic://finance/revenue_total",
+    "capturedAt": "2026-07-07T12:00:00.000Z",
+    "capturedBy": "provider-semantic",
+    "values": { "metric": "revenue_total", "amount": 1250000, "currency": "USD" },
+    "versions": { "decisionRecordVersion": 1, "invariantVersion": 1, "canonicalVersion": 1 },
+    "qualification": {
+      "provenance": "system-attested",
+      "definition": "governed",
+      "freshness": {
+        "applicable": "applicable",
+        "snapshotFrozenAt": "2026-07-07T12:00:00.000Z",
+        "valueAsOf": "2026-07-07T11:55:00.000Z",
+        "sourceDataFreshness": "2026-07-07T11:50:00.000Z",
+        "bindingClock": "sourceDataFreshness",
+        "freshnessVerdict": "fresh"
+      }
+    },
+    "nativeMetadata": { "semanticModel": "finance_core", "objectType": "semantic_view" }
+  }
+}

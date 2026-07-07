@@ -25,6 +25,58 @@ function evidenceAsRecord(ev: unknown): Record<string, unknown> {
   return {};
 }
 
+const TRACE_STATUS_METADATA_KEYS = new Set([
+  "transitionStatus",
+  "fromState",
+  "toState",
+  "rejectionReason",
+  "guardFailures",
+]);
+
+function hasSnapshotRefs(payload: Record<string, unknown>): boolean {
+  const ids = payload.snapshotIds;
+  return Array.isArray(ids) && ids.length > 0;
+}
+
+function snapshotRefPayload(payload: Record<string, unknown>): Record<string, unknown> {
+  const refs: Record<string, unknown> = { snapshotIds: payload.snapshotIds };
+  if (payload.versions !== undefined) {
+    refs.versions = payload.versions;
+  }
+  return refs;
+}
+
+function isTransitionStatusMetadata(payload: Record<string, unknown>): boolean {
+  const keys = Object.keys(payload);
+  return keys.length > 0 && keys.every((key) => TRACE_STATUS_METADATA_KEYS.has(key));
+}
+
+/**
+ * RT-05 interim (WP-1.5a): submitted evidence from trace input when snapshot
+ * refs are absent. See `oss-traced-loop-system.ts` — payload is written to
+ * `TraceRecord.input`; `TraceRecord.evidence` is status metadata only.
+ */
+export function submittedEvidenceForRt05(record: TraceRecord): Record<string, unknown> {
+  const input = evidenceAsRecord(record.input);
+  if (hasSnapshotRefs(input)) {
+    return snapshotRefPayload(input);
+  }
+  if (Object.keys(input).length > 0) {
+    return input;
+  }
+
+  const legacyEvidence = evidenceAsRecord(record.evidence);
+  if (hasSnapshotRefs(legacyEvidence)) {
+    return snapshotRefPayload(legacyEvidence);
+  }
+  if (isTransitionStatusMetadata(legacyEvidence)) {
+    return {};
+  }
+
+  // Legacy traces/fixtures may still carry submitted payload in evidence.
+  return legacyEvidence;
+}
+
 export function summaryRowToRunSummary(row: PersistedRunSummaryRow): RunSummary {
   return {
     loopRunId: row.loopRunId,
@@ -79,7 +131,7 @@ export function traceToEvidenceItems(trace: TraceRecord[]): RunEvidenceItemDto[]
       transitionId: record.transitionId,
       type: record.type,
       occurredAt: record.timestamp.toISOString(),
-      evidence: evidenceAsRecord(record.evidence),
+      evidence: submittedEvidenceForRt05(record),
     }));
 }
 

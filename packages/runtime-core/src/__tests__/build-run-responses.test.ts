@@ -9,6 +9,7 @@ import {
   buildRunHistoryResponse,
   buildRunReplaySummaryResponse,
   buildRunTimelineResponse,
+  submittedEvidenceForRt05,
   validateTraceSequence,
 } from "../build-run-responses.js";
 
@@ -65,15 +66,19 @@ function trace(): TraceRecord[] {
       transitionId: "sheet.submitted",
       actor: { type: "human", id: "user:demo" } as TraceRecord["actor"],
       inputHash: "h1",
-      input: {},
-      output: {},
-      guards: [],
-      evidence: {
+      input: {
         integration: {
           provider: "google",
           integrationConnectionId: "integration.google_sheets",
           spreadsheetId: "demo",
         },
+      },
+      output: {},
+      guards: [],
+      evidence: {
+        transitionStatus: "executed",
+        fromState: "OPEN",
+        toState: "PENDING_APPROVAL",
       } as unknown as EvidenceRecord,
       durationMs: 5,
       blocked: false,
@@ -107,9 +112,44 @@ describe("buildRunHistoryResponse", () => {
 });
 
 describe("buildRunEvidenceResponse", () => {
-  it("preserves the integration.google_sheets evidence shape so the dual-surface tab lights up", () => {
+  it("reads submitted payload from TraceRecord.input (oss-traced-loop-system)", () => {
     const res = buildRunEvidenceResponse(summary(), trace());
     expect(res.items[1]?.evidence).toMatchObject({
+      integration: { integrationConnectionId: "integration.google_sheets" },
+    });
+    expect(res.items[1]?.evidence.transitionStatus).toBeUndefined();
+  });
+
+  it("returns snapshot refs when snapshotIds are present on input", () => {
+    const records = trace();
+    const withRefs = {
+      ...records[1]!,
+      input: {
+        snapshotIds: ["snap_01", "snap_02"],
+        versions: { decisionRecordVersion: 1 },
+        legacyNote: "should not leak",
+      },
+      evidence: {
+        transitionStatus: "executed",
+      } as unknown as EvidenceRecord,
+    };
+    const item = submittedEvidenceForRt05(withRefs);
+    expect(item).toEqual({
+      snapshotIds: ["snap_01", "snap_02"],
+      versions: { decisionRecordVersion: 1 },
+    });
+  });
+
+  it("falls back to legacy evidence payload when input is empty", () => {
+    const records = trace();
+    const legacy = {
+      ...records[1]!,
+      input: {},
+      evidence: {
+        integration: { integrationConnectionId: "integration.google_sheets" },
+      } as unknown as EvidenceRecord,
+    };
+    expect(submittedEvidenceForRt05(legacy)).toMatchObject({
       integration: { integrationConnectionId: "integration.google_sheets" },
     });
   });

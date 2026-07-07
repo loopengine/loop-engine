@@ -41,6 +41,7 @@ export {
   toRunReadSummaryDto,
   traceToAuditEvents,
   traceToEvidenceItems,
+  submittedEvidenceForRt05,
   validateTraceSequence,
 } from "./build-run-responses.js";
 

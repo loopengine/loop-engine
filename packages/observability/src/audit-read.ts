@@ -46,6 +46,16 @@ export interface RunEvidenceItemDto {
   transitionId: string | null;
   type: string;
   occurredAt: string;
+  /**
+   * Submitted transition evidence for RT-05 read surfaces.
+   *
+   * Interim (WP-1.5a): sourced from `TraceRecord.input` (redacted request
+   * payload) when `snapshotIds` are absent. When refs are present, returns
+   * `{ snapshotIds, versions? }` until snapshot-store resolution (WP-1.5b).
+   *
+   * `TraceRecord.evidence` stores transition status metadata only — not
+   * submitted business evidence.
+   */
   evidence: Record<string, unknown>;
 }
 

@@ -21,6 +21,11 @@ validation, and runtime enforcement follow in later WP-1 steps.
 - `canonicalizeSnapshotValues(values)` — canonical JSON for semantic `values`
   via `@loop-engine/canonical-json` (Phase 3 input; never ORM row serialization)
 
+**Step 3**
+
+- `snapshotContentHash(values)` — lowercase hex SHA-256 of canonical semantic
+  `values`; produces `contentSha256` at commit (Phase 3)
+
 ## Dependency direction
 
 ```text

@@ -6,8 +6,9 @@
  *
  * WP-1 step 1: types and ports.
  * WP-1 step 2: `canonicalizeSnapshotValues()` (delegates to canonical-json).
+ * WP-1 step 3: `snapshotContentHash()` (sha256 of canonical semantic values).
  *
- * Hashing, structural validation, and runtime enforcement land in later steps.
+ * Structural validation and runtime enforcement land in later steps.
  */
 export type {
   DecisionRecordVersionMetadata,
@@ -22,3 +23,4 @@ export {
   canonicalizeSnapshotValues,
   type SnapshotSemanticValues,
 } from "./canonicalize-snapshot-values.js";
+export { snapshotContentHash } from "./snapshot-content-hash.js";

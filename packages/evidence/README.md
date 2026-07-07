@@ -26,6 +26,13 @@ validation, and runtime enforcement follow in later WP-1 steps.
 - `snapshotContentHash(values)` — lowercase hex SHA-256 of canonical semantic
   `values`; produces `contentSha256` at commit (Phase 3)
 
+**Step 4**
+
+- `SnapshotStore` + `SnapshotStoreInsertInput` — insert-only persistence port
+- Structural validators for Phase 2 / 4:
+  `validateEvidenceSnapshotCommitInput`, `validateEvidenceSnapshotCommitBatch`,
+  `validateGovernedEvidencePresent`, `validateEvidenceSnapshotPersisted*`
+
 ## Dependency direction
 
 ```text

@@ -7,8 +7,7 @@
  * WP-1 step 1: types and ports.
  * WP-1 step 2: `canonicalizeSnapshotValues()` (delegates to canonical-json).
  * WP-1 step 3: `snapshotContentHash()` (sha256 of canonical semantic values).
- *
- * Structural validation and runtime enforcement land in later steps.
+ * WP-1 step 4: `SnapshotStore` port + structural validators (Phase 2 / 4).
  */
 export type {
   DecisionRecordVersionMetadata,
@@ -18,9 +17,21 @@ export type {
   EvidenceSnapshotRefs,
 } from "./types.js";
 export { LAUNCH_DECISION_RECORD_VERSIONS } from "./types.js";
-export type { SnapshotStore } from "./snapshot-store.js";
+export type { SnapshotStore, SnapshotStoreInsertInput } from "./snapshot-store.js";
 export {
   canonicalizeSnapshotValues,
   type SnapshotSemanticValues,
 } from "./canonicalize-snapshot-values.js";
 export { snapshotContentHash } from "./snapshot-content-hash.js";
+export type {
+  EvidenceValidationError,
+  EvidenceValidationResult,
+} from "./validate-evidence-snapshot.js";
+export {
+  validateDecisionRecordVersions,
+  validateEvidenceSnapshotCommitBatch,
+  validateEvidenceSnapshotCommitInput,
+  validateEvidenceSnapshotPersisted,
+  validateEvidenceSnapshotPersistedBatch,
+  validateGovernedEvidencePresent,
+} from "./validate-evidence-snapshot.js";

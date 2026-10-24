@@ -1,4 +1,5 @@
 id: support.ticket_resolution
+name: Ticket resolution
 version: 1.0.0
 domain: support
 description: >
@@ -7,12 +8,18 @@ description: >
 
 states:
   - id: CREATED
+    label: CREATED
   - id: TRIAGED
+    label: TRIAGED
   - id: ASSIGNED
+    label: ASSIGNED
   - id: ESCALATED
+    label: ESCALATED
   - id: RESOLVED
+    label: RESOLVED
     isTerminal: true
   - id: CLOSED_NO_ACTION
+    label: CLOSED NO ACTION
     isTerminal: true
 
 initialState: CREATED
@@ -21,17 +28,17 @@ transitions:
   - id: triage
     from: CREATED
     to: TRIAGED
-    allowedActors: [automation, human]
+    actors: [automation, human]
 
   - id: assign
     from: TRIAGED
     to: ASSIGNED
-    allowedActors: [automation, human]
+    actors: [automation, human]
 
   - id: escalate
     from: ASSIGNED
     to: ESCALATED
-    allowedActors: [automation, human, ai-agent]
+    actors: [automation, human, ai-agent]
     guards:
       - id: deadline_not_exceeded
         severity: soft
@@ -42,17 +49,17 @@ transitions:
   - id: resolve_from_assigned
     from: ASSIGNED
     to: RESOLVED
-    allowedActors: [human]
+    actors: [human]
 
   - id: resolve_from_escalated
     from: ESCALATED
     to: RESOLVED
-    allowedActors: [human]
+    actors: [human]
 
   - id: close_no_action
     from: TRIAGED
     to: CLOSED_NO_ACTION
-    allowedActors: [human]
+    actors: [human]
 
 outcome:
   id: ticket_resolved

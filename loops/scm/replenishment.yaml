@@ -1,4 +1,5 @@
 id: scm.replenishment
+name: Replenishment
 version: 1.0.0
 domain: scm
 description: >
@@ -7,11 +8,16 @@ description: >
 
 states:
   - id: SIGNAL_RECEIVED
+    label: SIGNAL RECEIVED
   - id: THRESHOLD_ASSESSED
+    label: THRESHOLD ASSESSED
   - id: REPLENISHMENT_RECOMMENDED
+    label: REPLENISHMENT RECOMMENDED
   - id: PO_TRIGGERED
+    label: PO TRIGGERED
     isTerminal: true
   - id: DISMISSED
+    label: DISMISSED
     isTerminal: true
 
 initialState: SIGNAL_RECEIVED
@@ -20,17 +26,17 @@ transitions:
   - id: assess_threshold
     from: SIGNAL_RECEIVED
     to: THRESHOLD_ASSESSED
-    allowedActors: [system, automation]
+    actors: [system, automation]
 
   - id: recommend_replenishment
     from: THRESHOLD_ASSESSED
     to: REPLENISHMENT_RECOMMENDED
-    allowedActors: [system, automation, ai-agent]
+    actors: [system, automation, ai-agent]
 
   - id: trigger_po
     from: REPLENISHMENT_RECOMMENDED
     to: PO_TRIGGERED
-    allowedActors: [human, automation, ai-agent]
+    actors: [human, automation, ai-agent]
     guards:
       - id: approval_obtained
         severity: hard
@@ -41,7 +47,7 @@ transitions:
   - id: dismiss
     from: REPLENISHMENT_RECOMMENDED
     to: DISMISSED
-    allowedActors: [human]
+    actors: [human]
 
 outcome:
   id: replenishment_triggered

@@ -1,16 +1,18 @@
-# Loop Engine
+# LoopEngine
 
-> An open governed operational runtime platform for AI-assisted enterprise systems.
+> Open-source execution library used by Boss Loops. Packages stay `@loop-engine/*`.
 
 [![npm](https://img.shields.io/npm/v/@loop-engine/sdk.svg?label=@loop-engine/sdk)](https://www.npmjs.com/package/@loop-engine/sdk)
 [![Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![loopengine.io](https://img.shields.io/badge/docs-loopengine.io-blue)](https://loopengine.io)
+[![docs](https://img.shields.io/badge/docs-bossloops.io-blue)](https://www.bossloops.io/docs/getting-started/boss-loops-and-loopengine)
 
-## What is Loop Engine?
+## What is LoopEngine?
 
-Loop Engine is an open governed operational runtime platform for AI-assisted enterprise systems.
+LoopEngine is the open-source execution library for governed decision loops. Boss Loops is the product and hosted platform built with this library. The product was originally introduced as LoopEngine. The library kept this name.
 
-Loop Engine connects AI providers, communication channels, and enterprise systems through decision loops.
+This repository is the library. It is not the hosted product at [app.bossloops.io](https://app.bossloops.io). Installing `@loop-engine/sdk` runs execution in your process. It does not issue an organization API key or apply hosted approver assignments.
+
+LoopEngine connects providers, channels, and systems through decision loops.
 
 Every transition through a loop:
 
@@ -23,7 +25,7 @@ This creates a decision record produced at runtime, not reconstructed afterward.
 
 ## What exists today
 
-Loop Engine is an **OSS operational substrate** you run in your environment — local-first, developer-operable, governance-native.
+LoopEngine is the library you run in your environment — local-first, developer-operable, governance-native. Boss Loops Cloud is a separate hosted product.
 
 | Capability | Status |
 | --- | --- |
@@ -34,7 +36,7 @@ Loop Engine is an **OSS operational substrate** you run in your environment — 
 | Routing / human surfaces (OpenClaw, PagerDuty, Vercel AI SDK patterns) | Shipped |
 | Observability timelines and replay | Shipped |
 
-Install one SDK entrypoint, add adapters for your stack, define loops in YAML or TypeScript. Full taxonomy and guides live on **[loopengine.io](https://loopengine.io)** — the canonical documentation surface for this runtime.
+Install one SDK entrypoint, add adapters for your stack, define loops in YAML or TypeScript. Library and product docs live on **[bossloops.io/docs](https://www.bossloops.io/docs)**. `loopengine.io` redirects there. Package names remain `@loop-engine/*`.
 
 ## Why Loop Engine?
 
@@ -133,28 +135,28 @@ Contributor-only monorepo packages: `core`, `dsl`, and related internals bundled
 
 ## Documentation
 
-**Canonical documentation:** **[loopengine.io/docs](https://loopengine.io/docs)** — runtime model, taxonomy, examples, and self-host paths. This repository README is a GitHub entrypoint; do not treat the package table above as the product story.
+**Canonical documentation:** **[bossloops.io/docs](https://www.bossloops.io/docs)**. `loopengine.io` redirects there. This README is a GitHub entrypoint for the library, not the product story.
 
-- [Quick Start](https://loopengine.io/docs/getting-started/quick-start)
-- [Architecture](https://loopengine.io/docs/getting-started/architecture)
-- [Integrations](https://loopengine.io/docs/integrations)
-- [Examples](https://loopengine.io/docs/examples)
+- [Boss Loops and LoopEngine](https://www.bossloops.io/docs/getting-started/boss-loops-and-loopengine)
+- [Quick Start](https://www.bossloops.io/docs/getting-started/quick-start)
+- [Architecture](https://www.bossloops.io/docs/getting-started/architecture)
+- [Examples](https://www.bossloops.io/docs/examples)
 
-## Loop Engine Cloud (hosted boundary)
+## Boss Loops Cloud
 
-**Loop Engine** (this repo) is the open runtime you self-host.
+This repository is LoopEngine, the library you run yourself.
 
-**Loop Engine Cloud** is Better Data’s hosted governance control plane — multi-tenant runtime, connectors, and API keys at [loops.betterdata.co](https://loops.betterdata.co). Contract and operational details: [loopengine.io/docs/integrations/loop-engine-cloud-api](https://loopengine.io/docs/integrations/loop-engine-cloud-api).
+Boss Loops Cloud is the hosted product at [app.bossloops.io](https://app.bossloops.io). Customers use an organization API key. The contract is the [Cloud API](https://www.bossloops.io/docs/cloud/api-reference). A library actor type is not a Cloud permission, and a Cloud connector is not automatically an npm adapter.
 
-We do not claim feature parity between every OSS adapter and Cloud connectors in this README; see hosted docs for what is available in your tenant.
+We do not claim feature parity between every library adapter and Cloud connector.
 
 ## Platform direction
 
-Roadmap themes (not delivery commitments): richer runtime taxonomy docs on loopengine.io, expanded channel adapters, and deeper hosted connector coverage. We avoid promising undelivered surfaces (e.g. multi-service compose stacks or studio products) in OSS copy — direction is shared on [loopengine.io/changelog](https://loopengine.io/docs/changelog) and GitHub discussions.
+Roadmap themes (not delivery commitments): expanded channel adapters and deeper hosted connector coverage. We avoid promising undelivered surfaces (for example multi-service compose stacks or a studio product). Direction is shared on the [changelog](https://www.bossloops.io/docs/changelog) and GitHub discussions.
 
 ## Examples
 
-Reference walkthroughs on [loopengine.io/docs/examples](https://loopengine.io/docs/examples). The [loop-examples](https://github.com/loopengine/loop-examples) repository is being brought up to match current SDK APIs — verify runnable status before citing copy-paste flows.
+Reference walkthroughs on [bossloops.io/docs/examples](https://www.bossloops.io/docs/examples). The [loop-examples](https://github.com/loopengine/loop-examples) repository is being brought up to match current SDK APIs — verify runnable status before citing copy-paste flows.
 
 ## Contributing
 
@@ -164,7 +166,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). RFCs and discussions: [github.com/loopen
 
 - **Canonical repository:** https://github.com/loopengine/loop-engine
 - **Maintainer:** Better Data, Inc. — https://betterdata.co
-- **Documentation:** https://loopengine.io
+- **Documentation:** https://www.bossloops.io/docs
 - **Issues:** https://github.com/loopengine/loop-engine/issues
 
 ## License

@@ -112,6 +112,3 @@ outcome:
       label: Supplier lead time accuracy
       unit: percentage
       improvableByAI: true
-
-spawnableLoops:
-  - scm.replenishment

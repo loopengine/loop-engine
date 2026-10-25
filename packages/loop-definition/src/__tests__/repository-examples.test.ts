@@ -32,7 +32,10 @@ describe("repository loop examples", () => {
   it.each(files.map((file) => [file.slice(loopsDir.length + 1), file]))(
     "parses %s with the current LoopDefinition schema",
     (_name, file) => {
-      const parsed = parseLoopYaml(readFileSync(file, "utf8"));
+      const source = readFileSync(file, "utf8");
+      expect(source).not.toContain("spawnableLoops");
+      expect(source).not.toContain("allowedActors");
+      const parsed = parseLoopYaml(source);
       expect(parsed.name.length).toBeGreaterThan(0);
       expect(parsed.states.every((state) => state.label.length > 0)).toBe(true);
       expect(parsed.transitions.every((transition) => transition.actors.length > 0)).toBe(true);

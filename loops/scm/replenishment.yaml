@@ -63,6 +63,3 @@ outcome:
       label: Stockout prevented
       unit: boolean
       improvableByAI: true
-
-spawnableLoops:
-  - scm.procurement

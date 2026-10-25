@@ -1,4 +1,5 @@
 id: finance.invoice_collection
+name: Invoice collection
 version: 1.0.0
 domain: finance
 description: >
@@ -7,12 +8,18 @@ description: >
 
 states:
   - id: INVOICE_CREATED
+    label: INVOICE CREATED
   - id: PAYMENT_REQUESTED
+    label: PAYMENT REQUESTED
   - id: OVERDUE
+    label: OVERDUE
   - id: ESCALATED
+    label: ESCALATED
   - id: COLLECTED
+    label: COLLECTED
     isTerminal: true
   - id: WRITTEN_OFF
+    label: WRITTEN OFF
     isTerminal: true
     isError: true
 
@@ -22,12 +29,12 @@ transitions:
   - id: request_payment
     from: INVOICE_CREATED
     to: PAYMENT_REQUESTED
-    allowedActors: [automation, human]
+    actors: [automation, human]
 
   - id: mark_overdue
     from: PAYMENT_REQUESTED
     to: OVERDUE
-    allowedActors: [automation, system]
+    actors: [automation, system]
     guards:
       - id: deadline_not_exceeded
         severity: soft
@@ -38,7 +45,7 @@ transitions:
   - id: escalate_overdue
     from: OVERDUE
     to: ESCALATED
-    allowedActors: [automation, human]
+    actors: [automation, human]
     guards:
       - id: actor_has_permission
         severity: hard
@@ -49,17 +56,17 @@ transitions:
   - id: collect_from_overdue
     from: OVERDUE
     to: COLLECTED
-    allowedActors: [human, automation]
+    actors: [human, automation]
 
   - id: collect_from_escalated
     from: ESCALATED
     to: COLLECTED
-    allowedActors: [human]
+    actors: [human]
 
   - id: write_off
     from: ESCALATED
     to: WRITTEN_OFF
-    allowedActors: [human]
+    actors: [human]
     guards:
       - id: approval_obtained
         severity: hard

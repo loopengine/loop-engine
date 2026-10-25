@@ -1,4 +1,5 @@
 id: scm.procurement
+name: Procurement
 version: 1.0.0
 domain: scm
 description: >
@@ -7,16 +8,24 @@ description: >
 
 states:
   - id: OPEN
+    label: OPEN
   - id: PO_CONFIRMED
+    label: PO CONFIRMED
   - id: RECEIPT_SCHEDULED
+    label: RECEIPT SCHEDULED
   - id: RECEIVED
+    label: RECEIVED
   - id: INVOICE_MATCHED
+    label: INVOICE MATCHED
   - id: SETTLED
+    label: SETTLED
     isTerminal: true
   - id: CANCELLED
+    label: CANCELLED
     isTerminal: true
     isError: false
   - id: DISPUTED
+    label: DISPUTED
     isError: true
 
 initialState: OPEN
@@ -25,7 +34,7 @@ transitions:
   - id: confirm_po
     from: OPEN
     to: PO_CONFIRMED
-    allowedActors: [human, automation, ai-agent]
+    actors: [human, automation, ai-agent]
     guards:
       - id: approval_obtained
         severity: hard
@@ -41,7 +50,7 @@ transitions:
   - id: schedule_receipt
     from: PO_CONFIRMED
     to: RECEIPT_SCHEDULED
-    allowedActors: [human, automation]
+    actors: [human, automation]
     guards:
       - id: deadline_not_exceeded
         severity: soft
@@ -52,12 +61,12 @@ transitions:
   - id: receive_goods
     from: RECEIPT_SCHEDULED
     to: RECEIVED
-    allowedActors: [human]
+    actors: [human]
 
   - id: match_invoice
     from: RECEIVED
     to: INVOICE_MATCHED
-    allowedActors: [human, automation, ai-agent]
+    actors: [human, automation, ai-agent]
     guards:
       - id: approval_obtained
         severity: hard
@@ -68,22 +77,22 @@ transitions:
   - id: settle
     from: INVOICE_MATCHED
     to: SETTLED
-    allowedActors: [automation, system]
+    actors: [automation, system]
 
   - id: cancel
     from: OPEN
     to: CANCELLED
-    allowedActors: [human]
+    actors: [human]
 
   - id: dispute_from_received
     from: RECEIVED
     to: DISPUTED
-    allowedActors: [human]
+    actors: [human]
 
   - id: dispute_from_invoice_matched
     from: INVOICE_MATCHED
     to: DISPUTED
-    allowedActors: [human]
+    actors: [human]
 
 outcome:
   id: po_settled
@@ -103,6 +112,3 @@ outcome:
       label: Supplier lead time accuracy
       unit: percentage
       improvableByAI: true
-
-spawnableLoops:
-  - scm.replenishment

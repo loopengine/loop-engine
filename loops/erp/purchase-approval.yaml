@@ -1,4 +1,5 @@
 id: erp.purchase_approval
+name: Purchase approval
 version: 1.0.0
 domain: erp
 description: >
@@ -7,12 +8,17 @@ description: >
 
 states:
   - id: REQUESTED
+    label: REQUESTED
   - id: UNDER_REVIEW
+    label: UNDER REVIEW
   - id: APPROVED
+    label: APPROVED
     isTerminal: true
   - id: REJECTED
+    label: REJECTED
     isTerminal: true
   - id: CANCELLED
+    label: CANCELLED
     isTerminal: true
 
 initialState: REQUESTED
@@ -21,7 +27,7 @@ transitions:
   - id: submit_for_review
     from: REQUESTED
     to: UNDER_REVIEW
-    allowedActors: [human, automation]
+    actors: [human, automation]
     guards:
       - id: duplicate_check_passed
         severity: hard
@@ -32,7 +38,7 @@ transitions:
   - id: approve
     from: UNDER_REVIEW
     to: APPROVED
-    allowedActors: [human]
+    actors: [human]
     guards:
       - id: actor_has_permission
         severity: hard
@@ -43,12 +49,12 @@ transitions:
   - id: reject
     from: UNDER_REVIEW
     to: REJECTED
-    allowedActors: [human]
+    actors: [human]
 
   - id: cancel
     from: REQUESTED
     to: CANCELLED
-    allowedActors: [human]
+    actors: [human]
 
 outcome:
   id: purchase_approved

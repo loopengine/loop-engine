@@ -1,4 +1,5 @@
 id: crm.lead_qualification
+name: Lead qualification
 version: 1.0.0
 domain: crm
 description: >
@@ -7,12 +8,18 @@ description: >
 
 states:
   - id: CREATED
+    label: CREATED
   - id: ICP_ASSESSED
+    label: ICP ASSESSED
   - id: OUTREACH_SENT
+    label: OUTREACH SENT
   - id: MEETING_SCHEDULED
+    label: MEETING SCHEDULED
   - id: QUALIFIED
+    label: QUALIFIED
     isTerminal: true
   - id: DISQUALIFIED
+    label: DISQUALIFIED
     isTerminal: true
 
 initialState: CREATED
@@ -21,42 +28,43 @@ transitions:
   - id: assess_icp
     from: CREATED
     to: ICP_ASSESSED
-    allowedActors: [human, automation, ai-agent]
+    actors: [human, automation, ai-agent]
 
   - id: send_outreach
     from: ICP_ASSESSED
     to: OUTREACH_SENT
-    allowedActors: [human, automation, ai-agent]
+    actors: [human, automation, ai-agent]
 
   - id: schedule_meeting
     from: OUTREACH_SENT
     to: MEETING_SCHEDULED
-    allowedActors: [human, webhook]
+    # webhook is not an engine actor type; an inbound scheduler is automation
+    actors: [human, automation]
 
   - id: qualify
     from: MEETING_SCHEDULED
     to: QUALIFIED
-    allowedActors: [human]
+    actors: [human]
 
   - id: disqualify_from_created
     from: CREATED
     to: DISQUALIFIED
-    allowedActors: [human]
+    actors: [human]
 
   - id: disqualify_from_icp
     from: ICP_ASSESSED
     to: DISQUALIFIED
-    allowedActors: [human]
+    actors: [human]
 
   - id: disqualify_from_outreach
     from: OUTREACH_SENT
     to: DISQUALIFIED
-    allowedActors: [human]
+    actors: [human]
 
   - id: disqualify_from_meeting
     from: MEETING_SCHEDULED
     to: DISQUALIFIED
-    allowedActors: [human]
+    actors: [human]
 
 outcome:
   id: lead_qualified
